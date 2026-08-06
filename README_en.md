@@ -81,16 +81,16 @@ upstream  git@github.com:sun-asterisk-internal/agentic-coding-hands-on.git (push
 
 ### Step 2: Sign in to MoMorph Web and connect your GitHub account
 
+> **Note:** This MoMorph exercise is already linked to the `sun-asterisk-internal/agentic-coding-hands-on` repository. You only need to connect your GitHub account to MoMorph to get started. Never update the **Select Repository** field in step 4, even if it appears empty. Changing it will make the exercise inaccessible for everyone else.
+
 1. Go to [MoMorph Web](https://momorph.ai/) and sign in with your Figma account (use your `*@sun-asterisk.com` email).
 2. Enter the following Figma file link to continue: https://www.figma.com/design/9ypp4enmFmdK3YAFJLIu6C/SAA-2025---Internal-Live-Coding
-3. Go to **Settings → GitHub → Connect** to link your GitHub account with MoMorph, and make sure you have granted access to the `sun-asterisk-internal/agentic-coding-hands-on` repository in this step.
-4. Send your GitHub username to **nguyen.huu.kim** or **le.minh.hoang** to be invited to the `sun-asterisk-internal/agentic-coding-hands-on` repository.
+3. Confirm your GitHub account is already a member of the `sun-asterisk-internal` organization (the outcome of [Step 0](#step-0-complete-github-sso)) before moving on. If not, ask Infra to add you to the organization.
+4. In MoMorph, go to **Settings → GitHub → Connect** to link your GitHub account with MoMorph. **Never update the Select Repository field**.
 
-> **Important:** Without being invited to the repository, you **cannot access the MoMorph MCP** to fetch spec/design data, and **cannot view Figma data on the MoMorph VSCode Extension** in the following steps. Make sure to complete this step before continuing.
+> **Important:** Without being a member of the `sun-asterisk-internal` organization, you **cannot access the MoMorph MCP** to fetch spec/design data, and **cannot view Figma data on the MoMorph VSCode Extension** in the following steps. Make sure to complete this step before continuing.
 >
-> After being successfully invited, **refresh the Settings page** on MoMorph Web — you will see the **Select Repository** field showing `sun-asterisk-internal/agentic-coding-hands-on` and being **disabled**. This is the correct and expected state.
-
-> **Note:** This repository is already connected to MoMorph and the Figma project on the system. You only need to connect your personal GitHub account to MoMorph to get started.
+> After connecting successfully, **refresh the Settings page** on MoMorph Web — you will see the **Select Repository** field showing `sun-asterisk-internal/agentic-coding-hands-on` and being **disabled**. This is the correct and expected state.
 
 ### Step 3: Install and sign in to GitHub CLI
 

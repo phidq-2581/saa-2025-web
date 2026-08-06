@@ -81,16 +81,16 @@ upstream  git@github.com:sun-asterisk-internal/agentic-coding-hands-on.git (push
 
 ### ステップ 2: MoMorph Web へのサインインと GitHub アカウントの連携
 
+> **注意:** この MoMorph 演習はすでに `sun-asterisk-internal/agentic-coding-hands-on` リポジトリと連携されています。個人の GitHub アカウントを MoMorph に連携するだけで使用できます。ステップ 4 では、**Select Repository** フィールドが空に見えても絶対に更新しないでください。変更すると他のメンバーが演習にアクセスできなくなります。
+
 1. [MoMorph Web](https://momorph.ai/) にアクセスし、Figma アカウント（`*@sun-asterisk.com` メール）でサインインします。
 2. 次の Figma ファイルリンクを入力して続行します: https://www.figma.com/design/9ypp4enmFmdK3YAFJLIu6C/SAA-2025---Internal-Live-Coding
-3. **Settings → GitHub → Connect** で GitHub アカウントを MoMorph に連携し、この手順で `sun-asterisk-internal/agentic-coding-hands-on` リポジトリへのアクセス権限を付与済みであることを必ず確認してください。
-4. `sun-asterisk-internal/agentic-coding-hands-on` リポジトリへの招待を受けるため、自分の GitHub ユーザー名を **nguyen.huu.kim** または **le.minh.hoang** に送ってください。
+3. 次のステップに進む前に、自分の GitHub アカウントが `sun-asterisk-internal` organization のメンバーであること（[ステップ 0](#ステップ-0-github-sso-を実施する) の結果）を再確認してください。まだメンバーでない場合は、Infra に organization への参加をリクエストしてください。
+4. MoMorph で **Settings → GitHub → Connect** を開き、GitHub アカウントを MoMorph に連携します。**Select Repository フィールドは絶対に更新しないでください**。
 
-> **重要:** リポジトリに招待されていない場合、**MoMorph MCP にアクセスできず** Spec/デザインデータを取得できません。また、後続のステップで **MoMorph VSCode Extension 上の Figma データも表示されません**。次に進む前にこのステップを必ず完了してください。
+> **重要:** `sun-asterisk-internal` organization のメンバーでない場合、**MoMorph MCP にアクセスできず** Spec/デザインデータを取得できません。また、後続のステップで **MoMorph VSCode Extension 上の Figma データも表示されません**。次に進む前にこのステップを必ず完了してください。
 >
-> 招待が成功した後、MoMorph Web の **Settings ページをリフレッシュ** すると、**Select Repository** フィールドに `sun-asterisk-internal/agentic-coding-hands-on` が表示され、**disable** 状態になっているのが確認できます。これは正しい・通常の状態です。
-
-> **注意:** このリポジトリはすでにシステム上で MoMorph および Figma プロジェクトと連携されています。個人の GitHub アカウントを MoMorph に連携するだけで使用できます。
+> 連携が成功した後、MoMorph Web の **Settings ページをリフレッシュ** すると、**Select Repository** フィールドに `sun-asterisk-internal/agentic-coding-hands-on` が表示され、**disable** 状態になっているのが確認できます。これは正しい・通常の状態です。
 
 ### ステップ 3: GitHub CLI のインストールとサインイン
 
