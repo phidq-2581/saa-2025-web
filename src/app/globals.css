@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens sourced from MoMorph MCP `list_frame_styles("i87tDx10uM")`
+ * (Homepage SAA header/footer/FAB) plus `list_frame_styles` on the dropdown
+ * and FAB-expanded component screens (hUyaaugye2, z4sCl3_Qtk, 54rekaCHG1,
+ * Sv7DFwBw1h). Every color/radius/font value below traces to a concrete node
+ * style in that MCP response -- see phase-02 report for the node-id map.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #00101a;
+  --foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Root canvas (2167:9026 backgroundColor) */
+  --color-canvas: #00101a;
+  /* Header bar (2167:9091 backgroundColor, 80% alpha) */
+  --color-header: rgba(16, 20, 23, 0.8);
+  /* Dropdown panel container (var(--Details-Container-2)) */
+  --color-panel: #00070c;
+  /* Dropdown panel / account-icon border (var(--Details-Border)) */
+  --color-border-gold: #998c5f;
+  /* Selected nav underline + FAB pill (var(--Details-Text-Primary-1)) */
+  --color-gold: #ffea9e;
+  /* Dropdown item hover/active tint, 10% (footer "Awards Information" bg, account-menu Profile bg) */
+  --color-gold-10: rgba(255, 234, 158, 0.1);
+  /* Language dropdown selected-item tint, 20% */
+  --color-gold-20: rgba(255, 234, 158, 0.2);
+  /* Notification badge / FAB cancel button (rgba(212, 39, 29, 1)) */
+  --color-badge: #d4271d;
+
+  /* Dropdown panel radius (666:9601 / 525:11713 border-radius) */
+  --radius-panel: 8px;
+  /* Dropdown item / nav-hover radius (186:1433 pattern border-radius) */
+  --radius-chip: 4px;
+  /* Language dropdown selected VN item radius */
+  --radius-xs: 2px;
+  /* FAB pill / cancel button radius (100px = full pill) */
+  --radius-pill: 100px;
+
+  /* Active dropdown item text glow (Profile row text-shadow) */
+  --shadow-glow-gold: 0 4px 4px rgba(0, 0, 0, 0.25), 0 0 6px #fae287;
+
+  /* Nav links, dropdown items, FAB labels -> fontFamily "Montserrat" */
+  --font-body: var(--font-montserrat);
+  /* Footer copyright line -> fontFamily "Montserrat Alternates" */
+  --font-heading: var(--font-montserrat-alternates);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
 }
