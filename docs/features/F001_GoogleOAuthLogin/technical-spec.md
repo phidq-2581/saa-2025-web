@@ -254,8 +254,15 @@ See edge-cases.md. Header/Footer/Language-selector test cases (TC b9805e65, 8415
 **Source:** `supabase/migrations/20260828000000_create_profile_table_and_trigger.sql:8-15` — `public.profile` table (`role` admin\|member, default `member`; see `## Key Entities`).
 **Source:** `supabase/migrations/20260828000000_create_profile_table_and_trigger.sql:17-28` — RLS enabled, `profile_select_own` policy (`auth.uid() = id`), `select` granted to `authenticated` only.
 **Source:** `supabase/migrations/20260828000000_create_profile_table_and_trigger.sql:34-52` — `handle_new_user()` security-definer trigger (`search_path` pinned to `public`) on `auth.users` insert, provisions the `profile` row (see `## DB Impact per Event`).
+**Source:** `src/proxy.ts:1-84` — route guard (Next.js 16's replacement for `middleware.ts`); FR-003 / BR-002_PublicRouteAllowList. Exact-match `PUBLIC_ROUTES` (`/`, `/login`) plus a `/auth/` prefix exception; re-validates every request via `getClaims()` (never `getSession()`); unauthenticated private route → `/login?next=<path>`; authenticated `/login` → `/`; rotated session cookies carried onto redirects via `redirectWithCookies`.
+**Source:** `src/app/auth/callback/route.ts:1-45` — OAuth code exchange; FR-002 / BR-001 / FR-008 (S3) / FR-009 (S2). Dual rejection — non-`sun-asterisk.com` domain OR unverified Google identity — both `signOut()` + redirect to `/login?error=domain`; success redirects to `safeNext(next)`; `origin` prefers `NEXT_PUBLIC_SITE_URL` over the request's own origin.
+**Source:** `src/lib/auth/safe-next.ts:1-45` — FR-009 / S2, `safeNext()` open-redirect gate: accepts only a single-`/`-leading path, rejecting protocol-relative (`//`), `://`, backslash, and raw or percent-encoded CR/LF/NUL; anything else falls back to `/`.
+**Source:** `src/lib/auth/email-verified.ts:1-20` — FR-008 / S3, `emailVerified()`: requires both `user.email_confirmed_at` and the first identity's `identity_data.email_verified === true`; `isAllowedEmail` alone proves domain, not identity verification.
+**Source:** `src/lib/auth/sign-out.ts:1-16` — `signOutAction()`, also owned by F002_NavigationShell (BR-002_LogoutClearsSession); clears the session and redirects to `/` unconditionally, even on a Supabase-side error.
+**Source:** `src/app/login/actions.ts:1-40` — FR-001, `signInWithGoogle()` Server Action; starts Supabase OAuth with the `hd: sun-asterisk.com` sign-in hint (a UI pre-fill only, not the domain enforcement — see BR-001_DomainRestriction).
+**Source:** `e2e/support/seed-session.ts:1-186` — E2E session fixture (F1/A4/A6): seeds a real local-Supabase session (`admin.createUser` → `generateLink` → `verifyOtp`) and derives `@supabase/ssr` cookies via a real `setSession()` call; consumed by `e2e/support/authenticated-fixture.ts`.
 
-Not yet written: the OAuth callback route, the sign-in Server Action, and the `proxy.ts` route guard — see `## User Stories` and `## Source Walkthrough` for the planned files.
+`proxy.ts`'s route guard and the OAuth callback's domain/verification checks are now implemented, covered by `src/__tests__/proxy.test.ts` and `src/app/auth/callback/__tests__/route.test.ts`.
 
 ## Unresolved Questions
 

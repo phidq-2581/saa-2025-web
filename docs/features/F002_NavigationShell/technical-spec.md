@@ -309,6 +309,9 @@ See edge-cases.md.
 **Source:** `src/components/layout/mobile-nav-drawer.tsx:1-84` — narrow-viewport nav (PROVISIONAL hamburger pattern per clarifications.md).
 **Source:** `src/components/ui/dropdown.tsx:1-89` — shared dropdown primitive backing SM-001_DropdownMenuState across all three dropdowns.
 **Source:** `src/app/layout.tsx:13-27` — root layout mounts `SiteHeader`/`SiteFooter`/`FabWidget` once, shared across every route.
+**Source:** `src/lib/i18n/set-locale.ts:1-30` — BR-001_LocalePersistence: `setLocale()` Server Action, validates against the same locale allow-list as `request.ts` (falls back to `defaultLocale` rather than trusting the caller), sets the `NEXT_LOCALE` cookie (`httpOnly: false` — required for next-intl's client-side `useLocale()`), then `revalidatePath`.
+**Source:** `src/i18n/request.ts:1-28` — BR-001_LocalePersistence: locale resolution (`NEXT_LOCALE` cookie, no URL prefix, `vi` default) plus the `isLocale()` allow-list guard `set-locale.ts` reuses.
+**Source:** `src/lib/auth/sign-out.ts:1-16` — BR-002_LogoutClearsSession: `signOutAction()`, also owned by F001_GoogleOAuthLogin; clears the Supabase session and redirects to `/` unconditionally, even on a Supabase-side error.
 
 All components imported from the app's root layout, matching the planned Call Hierarchy above. See `## User Stories` for the behavior each component owns.
 
@@ -336,7 +339,7 @@ RootLayout -> Footer
 RootLayout -> FabWidget (collapsed/expanded)
 ```
 
-**Related files:** see `## Source Code References` above — none exist yet.
+**Related files:** see `## Source Code References` above — `setLocale`/`signOut` now implemented (`src/lib/i18n/set-locale.ts`, `src/lib/auth/sign-out.ts`).
 
 ## DB Impact per Event
 

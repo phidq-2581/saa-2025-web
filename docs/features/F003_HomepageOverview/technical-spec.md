@@ -253,7 +253,11 @@ Only 2 entities apply to this feature's owned region — both are static/env-der
 
 ## Source Code References
 
-No source code written yet — see `## User Stories` for the planned components (`src/app/page.tsx`, `src/components/homepage/*`, `src/lib/countdown/*`) and `## Source Walkthrough` below for the intended reading order.
+**Source:** `src/lib/countdown/compute-remaining.ts:1-33` — ALG-001_CountdownRemainingTime: diffs two epoch-ms timestamps, floors to whole minutes, derives days/hours/minutes by integer division, clamps to zero past target (BR-002), every field 2-digit zero-padded (BR-001).
+**Source:** `src/lib/countdown/parse-target.ts:1-14` — BR-004_CountdownEnvFallback (TC ID-60): parses `NEXT_PUBLIC_EVENT_START_AT` into epoch-ms; never throws — an invalid or missing value returns `null`, the safe fallback sentinel.
+**Source:** `src/lib/countdown/use-countdown.ts:1-55` — BR-005_CountdownClientOnlyHydration: `useSyncExternalStore` hook; `getServerSnapshot` always returns the `00/00/00` placeholder so first paint and hydration never disagree, 30s tick interval, minute-bucket memoized.
+
+`src/app/page.tsx` and `src/components/homepage/*` (the screen composition consuming these) are not yet written — see `## User Stories` for the planned components and `## Source Walkthrough` below for the intended reading order.
 
 ## Unresolved Questions
 

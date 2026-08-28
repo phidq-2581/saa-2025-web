@@ -22,6 +22,17 @@
 - E2E: Playwright specs in `e2e/`, one durable spec per screen flow.
 - Never weaken an assertion to make a test pass. No fake/mocked data to force green.
 
+## Auth & i18n conventions
+
+- OAuth is only ever started from a `"use server"` Server Action (`src/app/login/actions.ts`) — never rendered/called directly from a Server Component. `signInWithOAuth` writes a PKCE `code_verifier` cookie through `createClient()`'s `setAll`, which silently no-ops outside an action/route-handler context; calling it from a Server Component drops the verifier cookie and the later code exchange fails with an unrelated-looking error.
+- The route guard lives at `src/proxy.ts` (Next.js 16's replacement for `middleware.ts`), not the repo root — this project's App Router is under `src/`.
+- Server-side session checks use `supabase.auth.getClaims()`, never `getSession()`/`getUser()` (Supabase's current guidance for proxy/server code).
+- Every redirect that carries a caller-supplied path goes through `safeNext()` (`src/lib/auth/safe-next.ts`) first — never interpolate a `next`/return-path query param straight into a redirect URL.
+- ESLint enforces `src/** must not import from e2e/**` (`eslint.config.mjs`) — the Supabase service-role key lives only under `e2e/support/**`.
+- E2E specs covering an authenticated route use the `authenticatedPage`/`adminPage` fixtures from `e2e/support/authenticated-fixture.ts` (real seeded Supabase sessions) rather than mocked cookies.
+- E2E env (`SUPABASE_SECRET_KEY`, etc.) loads via `dotenv` in `playwright.config.ts` from `.env.local` — Playwright's Node process doesn't inherit Next's own env loading.
+- No `console.log` outside an `E2E_DEBUG`-gated block (see `e2e/session-fixture.spec.ts`).
+
 ## Quality gate (every phase)
 
 ```sh
