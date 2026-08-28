@@ -67,3 +67,9 @@ DerivedData/
 ios/Pods/
 android/.gradle/
 android/build/
+
+# --- Test artifacts ---
+/test-results/
+/playwright-report/
+/blob-report/
+/coverage/
