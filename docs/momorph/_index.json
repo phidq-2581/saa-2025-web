@@ -1,0 +1,203 @@
+{
+  "index": [
+    {
+      "screen_id": "OyDLDuSGEa",
+      "name": "Addlink Box",
+      "slug": "addlink-box",
+      "figma_node_id": "1002:12917",
+      "specCount": 10,
+      "testCount": 25,
+      "specRows": 10,
+      "testRows": 79,
+      "overview": null
+    },
+    {
+      "screen_id": "8PJQswPZmU",
+      "name": "Countdown - Prelaunch page",
+      "slug": "countdown-prelaunch-page",
+      "figma_node_id": "2268:35127",
+      "specCount": 5,
+      "testCount": 17,
+      "specRows": 5,
+      "testRows": 77,
+      "overview": null
+    },
+    {
+      "screen_id": "JWpsISMAaM",
+      "name": "Dropdown Hashtag filter",
+      "slug": "dropdown-hashtag-filter",
+      "figma_node_id": "721:5580",
+      "specCount": 4,
+      "testCount": 0,
+      "specRows": 4,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "p9zO-c4a4x",
+      "name": "Dropdown list hashtag",
+      "slug": "dropdown-list-hashtag",
+      "figma_node_id": "1002:13013",
+      "specCount": 10,
+      "testCount": 0,
+      "specRows": 10,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "WXK5AYB_rG",
+      "name": "Dropdown Phòng ban",
+      "slug": "dropdown-phong-ban",
+      "figma_node_id": "721:5684",
+      "specCount": 4,
+      "testCount": 0,
+      "specRows": 4,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "hUyaaugye2",
+      "name": "Dropdown-ngôn ngữ",
+      "slug": "dropdown-ngon-ngu",
+      "figma_node_id": "721:4942",
+      "specCount": 3,
+      "testCount": 0,
+      "specRows": 3,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "z4sCl3_Qtk",
+      "name": "Dropdown-profile",
+      "slug": "dropdown-profile",
+      "figma_node_id": "721:5223",
+      "specCount": 3,
+      "testCount": 0,
+      "specRows": 3,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "54rekaCHG1",
+      "name": "Dropdown-profile Admin",
+      "slug": "dropdown-profile-admin",
+      "figma_node_id": "721:5277",
+      "specCount": 4,
+      "testCount": 0,
+      "specRows": 4,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "_hphd32jN2",
+      "name": "Floating Action Button - phim nổi chức năng",
+      "slug": "floating-action-button-phim-noi-chuc-nang",
+      "figma_node_id": "313:9137",
+      "specCount": 3,
+      "testCount": 0,
+      "specRows": 3,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "Sv7DFwBw1h",
+      "name": "Floating Action Button - phim nổi chức năng 2",
+      "slug": "floating-action-button-phim-noi-chuc-nang-2",
+      "figma_node_id": "313:9139",
+      "specCount": 3,
+      "testCount": 0,
+      "specRows": 3,
+      "testRows": 0,
+      "overview": null
+    },
+    {
+      "screen_id": "zFYDgyj_pD",
+      "name": "Hệ thống giải",
+      "slug": "he-thong-giai",
+      "figma_node_id": "313:8436",
+      "specCount": 23,
+      "testCount": 15,
+      "specRows": 23,
+      "testRows": 59,
+      "overview": "Màn hình giới thiệu hệ thống giải thưởng SAA 2025 với phần hero đầu trang, danh sách các hạng mục giải thưởng ở cột trái và khu vực nội dung chi tiết từng giải ở cột phải. Cuối trang có khối giới thiệu Sun* Kudos và footer điều hướng tổng quan của website."
+    },
+    {
+      "screen_id": "i87tDx10uM",
+      "name": "Homepage SAA",
+      "slug": "homepage-saa",
+      "figma_node_id": "2167:9026",
+      "specCount": 46,
+      "testCount": 62,
+      "specRows": 46,
+      "testRows": 217,
+      "overview": null
+    },
+    {
+      "screen_id": "GzbNeVGJHz",
+      "name": "Login",
+      "slug": "login",
+      "figma_node_id": "662:14387",
+      "specCount": 8,
+      "testCount": 17,
+      "specRows": 8,
+      "testRows": 57,
+      "overview": "Màn hình đăng nhập giới thiệu chương trình với hero visual nổi bật, phần nhận diện thương hiệu ở đầu trang và nút đăng nhập bằng Google ở khu vực nội dung chính. Bố cục gồm header chọn ngôn ngữ, khối giới thiệu trung tâm và footer bản quyền ở cuối trang."
+    },
+    {
+      "screen_id": "J3-4YFIpMM",
+      "name": "Open secret box- chưa mở ",
+      "slug": "open-secret-box-chua-mo",
+      "figma_node_id": "1466:7676",
+      "specCount": 4,
+      "testCount": 19,
+      "specRows": 4,
+      "testRows": 80,
+      "overview": null
+    },
+    {
+      "screen_id": "3FoIx6ALVb",
+      "name": "Profile bản thân",
+      "slug": "profile-ban-than",
+      "figma_node_id": "362:5037",
+      "specCount": 28,
+      "testCount": 30,
+      "specRows": 28,
+      "testRows": 69,
+      "overview": null
+    },
+    {
+      "screen_id": "MaZUn5xHXZ",
+      "name": "Sun* Kudos - Live board",
+      "slug": "sun-kudos-live-board",
+      "figma_node_id": "2940:13431",
+      "specCount": 64,
+      "testCount": 41,
+      "specRows": 64,
+      "testRows": 123,
+      "overview": null
+    },
+    {
+      "screen_id": "b1Filzi9i6",
+      "name": "Thể lệ UPDATE",
+      "slug": "the-le-update",
+      "figma_node_id": "3204:6051",
+      "specCount": 4,
+      "testCount": 9,
+      "specRows": 4,
+      "testRows": 20,
+      "overview": null
+    },
+    {
+      "screen_id": "ihQ26W78P2",
+      "name": "Viết Kudo",
+      "slug": "viet-kudo",
+      "figma_node_id": "520:11602",
+      "specCount": 26,
+      "testCount": 57,
+      "specRows": 26,
+      "testRows": 218,
+      "overview": null
+    }
+  ],
+  "failed": []
+}
