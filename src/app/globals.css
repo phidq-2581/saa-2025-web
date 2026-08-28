@@ -20,6 +20,10 @@
   --color-canvas: #00101a;
   /* Header bar (2167:9091 backgroundColor, 80% alpha) */
   --color-header: rgba(16, 20, 23, 0.8);
+  /* Login header bar (GzbNeVGJHz 662:14391 backgroundColor, 80% alpha --
+     distinct from --color-header: MCP reports rgba(11,15,18,.8) here vs
+     rgba(16,20,23,.8) on the homepage header) */
+  --color-header-login: rgba(11, 15, 18, 0.8);
   /* Dropdown panel container (var(--Details-Container-2)) */
   --color-panel: #00070c;
   /* Dropdown panel / account-icon border (var(--Details-Border)) */
@@ -32,6 +36,10 @@
   --color-gold-20: rgba(255, 234, 158, 0.2);
   /* Notification badge / FAB cancel button (rgba(212, 39, 29, 1)) */
   --color-badge: #d4271d;
+  /* Divider: Login footer border-top (GzbNeVGJHz 662:14447,
+     var(--Details-Divider, #2E3940)); also matches the Awards section
+     header divider value (2167:9071 backgroundColor rgba(46, 57, 64, 1)) */
+  --color-divider: #2e3940;
 
   /* Dropdown panel radius (666:9601 / 525:11713 border-radius) */
   --radius-panel: 8px;
