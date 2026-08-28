@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-08-28T08:06:14Z",
+  "plan": "260828-1257-saa-2025-web-login-homepage-awards",
+  "features": [
+    {
+      "fcode": "F001",
+      "name": "Google OAuth Login & Session Guard",
+      "slug": "F001_GoogleOAuthLogin",
+      "priority": "P0",
+      "type": "mixed",
+      "related": {
+        "screens": [
+          "SCR001_Login"
+        ],
+        "user_stories": [],
+        "routes": [],
+        "models": [],
+        "bl": [],
+        "perms": []
+      }
+    },
+    {
+      "fcode": "F002",
+      "name": "Global Navigation Shell (Header/Footer/Language/Account Menu/FAB)",
+      "slug": "F002_NavigationShell",
+      "priority": "P0",
+      "type": "ui",
+      "related": {
+        "screens": [
+          "SCR002_Header",
+          "SCR003_Footer",
+          "SCR004_Fab"
+        ],
+        "user_stories": [],
+        "routes": [],
+        "models": [],
+        "bl": [],
+        "perms": []
+      }
+    },
+    {
+      "fcode": "F003",
+      "name": "Homepage Overview (Hero, Countdown, Award Grid, Kudos Promo)",
+      "slug": "F003_HomepageOverview",
+      "priority": "P0",
+      "type": "ui",
+      "related": {
+        "screens": [
+          "SCR005_Homepage"
+        ],
+        "user_stories": [],
+        "routes": [],
+        "models": [],
+        "bl": [],
+        "perms": []
+      }
+    },
+    {
+      "fcode": "F004",
+      "name": "Award System Browsing (Scroll-Spy Categories)",
+      "slug": "F004_AwardSystemBrowse",
+      "priority": "P1",
+      "type": "ui",
+      "related": {
+        "screens": [
+          "SCR006_AwardSystem"
+        ],
+        "user_stories": [],
+        "routes": [],
+        "models": [],
+        "bl": [],
+        "perms": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "primary_lang": "en",
+  "last_rebuild_sha": "",
+  "last_feature_spec_run_sha": "b0a21a87be0cfa20ab0ea3c0ceba680341509ffd",
+  "fcode_index_sha": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "doc_shas": {},
+  "screen_spec_shas": {
+    "SCR001": "493612505994679cf01b4de46ed392054ea32052d7150375fcafaf894315f9fc",
+    "SCR002": "2f6cb747a5d03a72d14c61ad9934d0b609465272db583b44e05c168c3f71610a",
+    "SCR003": "77b172734a0498e0383eb1d1634b17a5756309f6fec8944058a56ea00c93086d",
+    "SCR004": "92f0e7d377bd7a2e7dc7866c13b474ac99be2c9a279b61cfc099b5f1ba30518e",
+    "SCR005": "7810ab352fe49c8d0bc1dcba635443d18625bda1dcfcca7692d928a1525217cc",
+    "SCR006": "438b9b00645a13e32b7da3ae6772ec23a8bcd5b6822c4478a25bc4145c651aaa"
+  }
+}
