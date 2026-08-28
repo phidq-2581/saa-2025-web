@@ -46,6 +46,9 @@ plans/          # Takumi plans, clarifications, reports (gitignored)
 - Server Components read data through `src/lib/supabase/server.ts` (cookie-bound client).
 - Client Components use `src/lib/supabase/client.ts` (browser client).
 - Schema changes go through `supabase/migrations/*.sql` — never mutate the DB by hand.
+- `public.profile` mirrors `auth.users` 1:1 (`role` admin\|member, default `member`). RLS is enabled with exactly one policy, `profile_select_own` (`auth.uid() = id`), granted to `authenticated` only — a signed-in user reads exclusively their own row. Rows are written solely by `handle_new_user()`, a `security definer` trigger (`search_path` pinned to `public`) firing on `auth.users` insert; no app code writes `profile` directly.
+- Design tokens live in `src/app/globals.css`'s `@theme inline` block, sourced from MoMorph `list_frame_styles` (colors, radii, shadow). Montserrat and Montserrat Alternates load via `next/font/google` in `src/lib/fonts.ts` and surface as the `--font-body` / `--font-heading` tokens.
+- The persistent shell — `SiteHeader` (mounted `variant="guest"` at the root), `SiteFooter`, `FabWidget` — mounts once in `src/app/layout.tsx`'s root layout, so every route inherits the same header/footer/FAB without per-page wiring.
 
 ## Decisions log
 
@@ -53,3 +56,5 @@ plans/          # Takumi plans, clarifications, reports (gitignored)
 |---|---|---|
 | 2026-08-28 | Bootstrap Next.js at repo root (not subfolder) | MoMorph extension detects repo by git remote |
 | 2026-08-28 | Vitest over Jest | Native ESM/TS, faster with Next 16 |
+| 2026-08-28 | `profile` RLS has only a `select`-own policy, no insert/update policy | Inserts happen exclusively via the `handle_new_user()` definer trigger; no self-service profile edit yet (YAGNI) |
+| 2026-08-28 | Header/Footer/FAB mount once in the root layout, not per-route | One shared shell component set, not duplicated per page |

@@ -11,7 +11,9 @@
 - Server Components by default; add `"use client"` only when interaction requires it.
 - Composition over inheritance. Extract utilities into `src/lib/`.
 - Mock data must come from the Figma design content itself — never invented.
-- Visual values (colors, spacing, font, radius, shadow) come from MoMorph MCP — never guessed.
+- Visual values (colors, spacing, font, radius, shadow) come from MoMorph MCP — never guessed, and are expressed as Tailwind v4 `@theme` tokens (`--color-*`, `--radius-*`, `--font-*` in `src/app/globals.css`), not inline hex/pixel values in components.
+- Structural E2E/component hooks use `data-testid` (e.g. `site-header`, `site-footer`, `fab-toggle`, `fab-menu`) rather than text or CSS selectors, so copy changes don't break tests.
+- An icon-only interactive element carries a visually-hidden `sr-only` label (see `fab-widget.tsx`'s "Hủy" button) so it stays screen-reader- and Playwright-text-matchable without showing visible text.
 
 ## Testing
 
