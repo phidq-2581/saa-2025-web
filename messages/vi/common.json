@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "loginError": "Đăng nhập không thành công. Vui lòng thử lại."
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn tìm không tồn tại hoặc đã bị di chuyển.",
+    "backHome": "Về trang chủ"
+  },
+  "forbidden": {
+    "title": "Không có quyền truy cập",
+    "description": "Bạn không có quyền truy cập trang này.",
+    "backHome": "Về trang chủ"
+  }
+}
