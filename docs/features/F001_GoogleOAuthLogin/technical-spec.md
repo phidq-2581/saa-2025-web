@@ -261,20 +261,30 @@ See edge-cases.md. Header/Footer/Language-selector test cases (TC b9805e65, 8415
 **Source:** `src/lib/auth/sign-out.ts:1-16` — `signOutAction()`, also owned by F002_NavigationShell (BR-002_LogoutClearsSession); clears the session and redirects to `/` unconditionally, even on a Supabase-side error.
 **Source:** `src/app/login/actions.ts:1-40` — FR-001, `signInWithGoogle()` Server Action; starts Supabase OAuth with the `hd: sun-asterisk.com` sign-in hint (a UI pre-fill only, not the domain enforcement — see BR-001_DomainRestriction).
 **Source:** `e2e/support/seed-session.ts:1-186` — E2E session fixture (F1/A4/A6): seeds a real local-Supabase session (`admin.createUser` → `generateLink` → `verifyOtp`) and derives `@supabase/ssr` cookies via a real `setSession()` call; consumed by `e2e/support/authenticated-fixture.ts`.
+**Source:** `src/app/(auth)/layout.tsx:1-23` — mounts `LoginHeader`/`LoginFooter` for the `(auth)` route group, replacing the shared `SiteHeader`/`SiteFooter` shell for `/login` only (F002_NavigationShell's shell mounts in the sibling `(site)` group instead).
+**Source:** `src/app/(auth)/login/page.tsx:1-38` — FR-001, route entry (GzbNeVGJHz); awaits Next.js 16's Promise `searchParams` for `error`/`next`, threads `next` into `signInWithGoogle`.
+**Source:** `src/components/login/login-header.tsx:1-33` — logo + `LanguageDropdown` only (reuses F002_NavigationShell's dropdown component, not `SiteHeader` itself — a standalone component, not a `SiteHeader` variant).
+**Source:** `src/components/login/login-hero.tsx:1-80` — hero region; the keyvisual background (node `662:14388`) has no exportable asset, rendered as a flat `--color-canvas` fill (accepted gap, see `## Unresolved Questions`).
+**Source:** `src/components/login/google-sign-in-button.tsx:1-81` — US001, the OAuth trigger form; `useFormStatus` read in a nested child component so it reports the enclosing `<form>`'s own pending state; `next` bound onto the server action and mirrored into a hidden input so it also travels via FormData.
+**Source:** `src/components/login/login-error-notice.tsx:1-25` — US002, one shared error copy for every callback failure (domain rejection, session-exchange failure, missing code) so a visitor can't infer which check failed.
+**Source:** `src/components/login/login-footer.tsx:1-21` — copyright only, no nav links (TC 33a1dacf).
 
-`proxy.ts`'s route guard and the OAuth callback's domain/verification checks are now implemented, covered by `src/__tests__/proxy.test.ts` and `src/app/auth/callback/__tests__/route.test.ts`.
+`proxy.ts`'s route guard and the OAuth callback's domain/verification checks are now implemented, covered by `src/__tests__/proxy.test.ts` and `src/app/auth/callback/__tests__/route.test.ts`. `e2e/login.spec.ts` (5 specs) covers the Login screen's presentational contract (header, hero, button, error notice, footer).
 
 ## Unresolved Questions
 
 1. **`getClaims()` availability**: not confirmed against the installed `@supabase/auth-js` version — requires `npm run typecheck` against the sketched `proxy.ts` before implementation locks in this call over `getUser()`.
-2. **Repo config bugs**: `supabase/config.toml:309`'s `skip_nonce_check = false` contradicts its own comment ("Required for local sign in with Google auth"), and `supabase/config.toml:149`'s `additional_redirect_urls` has a scheme mismatch (`https://127.0.0.1:3000` vs the dev server's `http://localhost:3000`). Both need a config fix before local Google sign-in can be exercised — not yet fixed as of this draft.
-3. **MoMorph test-case coverage gap**: `docs/momorph/login/test-cases.csv` predates the domain-restriction decision and has no case for a rejected non-company account, nor for the unauthenticated-private-route-redirect flow; new test cases need authoring rather than being sourced from the existing CSV.
-4. **Google OAuth client credentials**: `env(GOOGLE_CLIENT_ID)`/`env(GOOGLE_CLIENT_SECRET)` in `supabase/config.toml` have no real values yet — an external Google Cloud Console prerequisite, not something this spec can resolve.
+2. **MoMorph test-case coverage gap**: `docs/momorph/login/test-cases.csv` predates the domain-restriction decision and has no case for a rejected non-company account, nor for the unauthenticated-private-route-redirect flow; new test cases need authoring rather than being sourced from the existing CSV.
+3. **Google OAuth client credentials**: `env(GOOGLE_CLIENT_ID)`/`env(GOOGLE_CLIENT_SECRET)` in `supabase/config.toml` have no real values yet — an external Google Cloud Console prerequisite, not something this spec can resolve.
+4. **`messages/vi/login.json` is unused**: the file exists (same shape as `home.json`/`awards.json`) but no Login component imports it — `login-hero.tsx`, `login-header.tsx`, and `login-footer.tsx` still hard-code their Vietnamese copy inline. Wiring it up (or removing the unused scaffold) is undecided.
 
 ### Resolved by orchestrator — 2026-08-28
+- Repo config bugs → fixed in Phase 01: `supabase/config.toml:149`'s `additional_redirect_urls` now includes the scheme-matched `http://127.0.0.1:3000`, and `supabase/config.toml:309`'s `skip_nonce_check` is now `true`, matching its own comment. (see plans/260828-1257-saa-2025-web-login-homepage-awards/phase-01-supabase-schema-and-auth-predicate.md)
 - Session length → Supabase defaults only (JWT 1h, rotating refresh in proxy.ts); no app-level max age. (see plans/clarifications.md § Spec-stage gaps)
 - Banner on /login after private-route redirect → none; identical Login screen. (see plans/clarifications.md § Spec-stage gaps)
 - Account-switch path for signed-in user on /login → out of scope; always redirect to `/`. (see plans/clarifications.md § Spec-stage gaps)
+- Figma canvas vs. spec CSV conflicts (all screens) → spec CSV wins (status Done); canvas text treated as stale where they differ. (see plans/clarifications.md § Group 3 checkpoint)
+- Login keyvisual (node `662:14388`) has no exportable asset → render as the root frame's own flat fill; designer to supply a PNG export later. (see plans/clarifications.md § Group 3 checkpoint)
 
 ## Source Walkthrough
 

@@ -25,9 +25,9 @@ None — all FRs for this feature sit under their owning User Story (see `## Use
 
 Scroll-spy left-nav behavior (menu `C`, items `C.1`–`C.6`) applies across both the click path and the hash-on-load path, so it is captured here rather than under a single User Story.
 
-### BR-001_ScrollSpyClickSetsActive
+#### BR-001_ScrollSpyClickSetsActive
 **Linked FR:** FR-002
-**Source:** TBD (draft) — not yet implemented
+**Source:** `src/components/awards/award-category-nav.tsx:90-93` — `handleSelect()`, sets `clickedSlug` and smooth-scrolls to the matching section.
 **Applies to:** the 6 nav items `C.1`–`C.6` and their target sections `D.1`–`D.6`
 **Rule:** Clicking a nav item smooth-scrolls the page to its matching award-card section and marks that item active (gold color + underline). Exactly one item is active at a time — activating a new one clears the previous item's active state (TC ID-9, TC ID-11).
 
@@ -38,9 +38,9 @@ on click(navItem):
   activeItem = navItem  # single source of truth, replaces prior value
 ```
 
-### BR-002_HashOnLoadScroll
+#### BR-002_HashOnLoadScroll
 **Linked FR:** FR-003
-**Source:** TBD (draft) — not yet implemented
+**Source:** `src/components/awards/award-category-nav.tsx:78-88` — `useSyncExternalStore` hash read + mount effect that scrolls to `hashSlug`; `src/components/awards/resolve-active-slug.ts:1-15` resolves the raw hash to a known slug.
 **Applies to:** initial page load / mount of `/he-thong-giai`
 **Rule:** If the URL loads with a hash matching one of the six known category anchors (e.g. `/he-thong-giai#top-talent`, used by Homepage deep-links per clarifications.md § Navigation), the page scrolls to that section and marks the matching nav item active on mount, without requiring a click.
 
@@ -53,9 +53,9 @@ on mount:
     activeItem = navItemFor(hash)
 ```
 
-### BR-003_UnknownHashNoOp
+#### BR-003_UnknownHashNoOp
 **Linked FR:** FR-003
-**Source:** TBD (draft) — not yet implemented
+**Source:** `src/components/awards/resolve-active-slug.ts:7-15` — `resolveActiveSlug()` returns `null` for any hash not in the known slug list; the nav's mount effect no-ops on a `null`/falsy `hashSlug`.
 **Applies to:** initial page load with an invalid/unknown hash, or a programmatic attempt to trigger a non-existent section id (TC ID-13)
 **Rule:** An unknown section id — whether present on load or attempted via a manual/console call — produces no JavaScript error. The page stays exactly where it is (top, or current scroll position) and no active state changes.
 
@@ -74,9 +74,10 @@ N/A — no user-facing decision logic beyond DISC-### Polymorphic Behavior; the 
 
 ### State Machines
 
-### SM-001_ActiveNavSection
+#### SM-001_ActiveNavSection
 **kind:** ui
 **Linked FR:** FR-002, FR-003
+**Source:** `src/components/awards/award-category-nav.tsx:78-83` — `activeSlug = clickedSlug ?? hashSlug`, the single source of truth both BR-001 and BR-002 write through.
 **States:** none, top-talent, top-project, top-project-leader, best-manager, signature-2025-creator, mvp (7 states — "none" only before hydration/first interaction)
 
 ```mermaid
@@ -207,7 +208,7 @@ This feature performs **zero** database reads or writes. All six award categorie
 
 | Entity | Table | Key Columns | Purpose |
 |--------|-------|-------------|---------|
-| AwardCategory | N/A — static design content, not a DB table (see `docs/data-model.md` § award_category) | name, quantity, prize_value, image, description | Renders the 6 fixed award info cards (D.1–D.6) and the scroll-spy nav labels (C.1–C.6) |
+| AwardCategory | N/A — static design content, not a DB table (see `docs/data-model.md` § award_category, superseded-by-code note) | `name`, `slug` in code (`award-categories.ts`); title/description/quantityValue/quantityUnit/prizes in `messages/vi/awards.json` → `cardContent[slug]` | Renders the 6 fixed award info cards (D.1–D.6) and the scroll-spy nav labels (C.1–C.6) |
 
 ## Artifact References
 
@@ -234,7 +235,16 @@ This feature performs **zero** database reads or writes. All six award categorie
 
 ## Source Code References
 
-No source code written yet — `/he-thong-giai` has not been implemented. See `## User Stories` above for the planned components (award hero, section title, scroll-spy category nav, six award cards, Sun* Kudos promo block) and `## Source Walkthrough` below for the planned build order.
+**Source:** `src/app/(site)/he-thong-giai/page.tsx:1-45` — route composition (hero → section title → nav+cards two-column region → Kudos banner); guarded by F001_GoogleOAuthLogin's `proxy.ts` (not re-implemented here).
+**Source:** `src/components/awards/award-hero.tsx:1-39` — FR-001, keyvisual hero; title/subtitle are baked into the non-exportable background photo (node `2167:5138`), rendered as the Cover node's own gradient fill with the copy re-exposed as `sr-only` text (accepted gap, see `## Unresolved Questions`).
+**Source:** `src/components/awards/award-section-title.tsx:1-36` — FR-001, section title ("Sun* annual awards 2025" eyebrow + "Hệ thống giải thưởng SAA 2025" heading).
+**Source:** `src/components/awards/award-category-nav.tsx:1-123` — FR-002/FR-003, BR-001/BR-002, SM-001: `useSyncExternalStore` hash read (empty on server and on the client's first render, so the real hash resync happens post-mount — same hydration-safety pattern as `src/lib/countdown/use-countdown.ts`); `clickedSlug` overrides the hash-derived slug as the single `activeSlug` source of truth; exactly one `aria-current="true"` at a time.
+**Source:** `src/components/awards/resolve-active-slug.ts:1-15` — BR-002/BR-003, `resolveActiveSlug()`: pure hash-to-slug resolver, unit-tested independent of `window`/mounting.
+**Source:** `src/components/awards/award-info-card.tsx:1-147` — FR-004, zigzag award cards (D.1–D.6): copy from `messages/vi/awards.json` → `cardContent[slug]` (each card's own `character` field, never the component instance's `itemName`); image/content side alternates by card-index parity; badges reused from `public/home/award-badge-{slug}.png` (accepted cross-screen asset reuse, see `## Unresolved Questions`).
+**Source:** `src/components/awards/award-kudos-banner.tsx:1-55` — FR-005, inert "Chi tiết" CTA (`type="button" aria-disabled="true" tabIndex={-1}`) — `/kudos` deferred per clarifications.md.
+**Source:** `src/lib/awards/award-categories.ts:1-21` — `AWARD_CATEGORIES`, the fixed `{ name, slug }` list this page maps over for both the nav and the six card sections; quantity/prize/description values live in `messages/vi/awards.json` instead (see `docs/data-model.md` § award_category).
+
+`e2e/award-system.spec.ts` (5 specs) covers SC-001–SC-003 above using the `authenticatedPage` fixture (F001's real seeded-session fixture, since this route is private).
 
 ## Unresolved Questions
 
@@ -245,6 +255,11 @@ No source code written yet — `/he-thong-giai` has not been implemented. See `#
 ### Resolved by orchestrator — 2026-08-28
 - Section anchor slug rule → kebab-case English award name (#top-talent, #top-project, #top-project-leader, #best-manager, #signature-2025-creator, #mvp); shared with F003. (see plans/clarifications.md § Spec-stage gaps)
 - specs.csv rows 3.2 / 7.4 → ignore as non-rendering ghost rows. (see plans/clarifications.md § Spec-stage gaps)
+- Figma canvas vs. spec CSV conflicts (all screens) → spec CSV wins (status Done); applies here to the section-title eyebrow casing. (see plans/clarifications.md § Group 3 checkpoint)
+- Award hero background photo (node `2167:5138`) has no exportable asset → render the Cover node's own gradient fill; designer to supply a PNG export later. (see plans/clarifications.md § Group 3 checkpoint)
+- Award-page category badges (5 of 6 have no media URL on this screen) → reuse Homepage's `public/home/award-badge-*.png` exports; accepted cross-screen asset reuse. (see plans/clarifications.md § Group 3 checkpoint)
+- `/he-thong-giai` nav active state on load without a hash → no default-active item; active only on click or a valid hash, unknown hash → none (existing RED test stands). (see plans/clarifications.md § Group 3 checkpoint)
+- `AWARD_CATEGORIES` trimmed to `{ name, slug }` — its `quantity`/`prize` fields were wrong/paraphrased; per-card copy now lives in `messages/vi/awards.json` → `cardContent[slug]` (see `docs/data-model.md` § award_category). (see plans/clarifications.md § Group 3 checkpoint)
 
 ## Source Walkthrough
 

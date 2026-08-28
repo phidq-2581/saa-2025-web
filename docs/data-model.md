@@ -74,7 +74,17 @@ Revival 10% · Root Further 5%. One random badge per box opening.
 `profile_badge` join implied ("Bộ sưu tập icon"; locked slots render desaturated).
 
 ### award_category
-Static content, 6 rows, no DB implied — values fixed in the Hệ thống giải spec:
+Static content, 6 rows, no DB implied — values fixed in the Hệ thống giải spec.
+
+> **Superseded by verified code (2026-08-28, Group 3).** The table below is this document's
+> original spec-derived read. `src/lib/awards/award-categories.ts` once mirrored it verbatim
+> (Phase 02) and was found wrong/paraphrased against the real Figma `character` fields — e.g.
+> Top Talent's unit is "Cá nhân", not "Đơn vị" as the row below states. `award-categories.ts`
+> is now trimmed to `{ name, slug }` only; the verified quantity/prize/description copy per
+> category lives in `messages/vi/awards.json` → `cardContent[slug]`, read from each card's own
+> `character` field (never the component instance's `itemName`) at implement time. Treat that
+> JSON file as the current source of truth for these values — the table below is kept for
+> spec-derivation history, not as a live reference.
 
 | Award | Quantity | Prize |
 |---|---|---|

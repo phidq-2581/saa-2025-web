@@ -227,7 +227,7 @@ Only 2 entities apply to this feature's owned region — both are static/env-der
 
 | Entity | Table | Key Columns | Purpose |
 |--------|-------|-------------|---------|
-| award_category | N/A — no DB table; static 6-row content fixed in the design (data-model.md § award_category) | name, quantity, prize (display-only) | Source of the 6 award-card titles + prize copy shown in the grid |
+| award_category | N/A — no DB table; static 6-row content fixed in the design (data-model.md § award_category, superseded-by-code note) | `name`, `slug` in code (`award-categories.ts`); this grid's own short title/description copy in `messages/vi/home.json` → `awards.cards[slug]` (a separate, shorter set from the Award System page's `messages/vi/awards.json` → `cardContent[slug]`) | Source of the 6 award-card titles + badge copy shown in the grid |
 | event config | N/A — no DB table; value comes from the `NEXT_PUBLIC_EVENT_START_AT` env var (data-model.md § event config) | target datetime (ISO-8601) | Drives the countdown's remaining-time calculation (ALG-001) |
 
 ## Artifact References
@@ -256,8 +256,17 @@ Only 2 entities apply to this feature's owned region — both are static/env-der
 **Source:** `src/lib/countdown/compute-remaining.ts:1-33` — ALG-001_CountdownRemainingTime: diffs two epoch-ms timestamps, floors to whole minutes, derives days/hours/minutes by integer division, clamps to zero past target (BR-002), every field 2-digit zero-padded (BR-001).
 **Source:** `src/lib/countdown/parse-target.ts:1-14` — BR-004_CountdownEnvFallback (TC ID-60): parses `NEXT_PUBLIC_EVENT_START_AT` into epoch-ms; never throws — an invalid or missing value returns `null`, the safe fallback sentinel.
 **Source:** `src/lib/countdown/use-countdown.ts:1-55` — BR-005_CountdownClientOnlyHydration: `useSyncExternalStore` hook; `getServerSnapshot` always returns the `00/00/00` placeholder so first paint and hydration never disagree, 30s tick interval, minute-bucket memoized.
+**Source:** `src/app/(site)/page.tsx:1-44` — route composition (hero → Root Further → award grid → Kudos promo); `(site)/layout.tsx` renders no `<main>` of its own, so this page owns the top-level landmark; the server always passes the `00/00/00`/`reached: false` placeholder into `HeroSection` (BR-005).
+**Source:** `src/components/homepage/hero-section.tsx:1-104` — FR-001, keyvisual hero + wordmark + CTA pair; background image/gradient layers use `-z-10` so they can bleed under `RootFurtherBlock` without adding to document flow height.
+**Source:** `src/components/homepage/event-countdown.tsx:1-79` — FR-002, BR-001_CountdownZeroPadding: presentational tiles only, receives the already-computed `remaining` prop and never touches the clock itself.
+**Source:** `src/components/homepage/event-info.tsx:1-43` — FR-001, event info line; renders the spec-CSV copy ("18h30" / "Nhà hát nghệ thuật quân đội"), not the stale Figma canvas text (Group 3 checkpoint decision — spec CSV wins).
+**Source:** `src/components/homepage/icon-link-arrow.tsx:1-19` — shared arrow icon reused by the hero CTAs, award cards, and the Kudos promo link.
+**Source:** `src/components/homepage/root-further-block.tsx:1-57` — FR-004, static Root Further theme description.
+**Source:** `src/components/homepage/award-grid.tsx:1-86` — FR-005/FR-006, BR-006/BR-007: 6-card grid, each card's `href` is `/he-thong-giai#{slug}` (falls back to no hash when a category has no slug).
+**Source:** `src/components/homepage/award-card.tsx:1-79` — FR-005/FR-006: one `<a>` wraps the whole card body so thumbnail/title/'Chi tiết' share a single navigation target (BR-006).
+**Source:** `src/components/homepage/kudos-promo.tsx:1-78` — FR-007, BR-008_AboutKudosDeferredAffordance: inert "Chi tiết" CTA (`type="button" aria-disabled="true" tabIndex={-1}`).
 
-`src/app/page.tsx` and `src/components/homepage/*` (the screen composition consuming these) are not yet written — see `## User Stories` for the planned components and `## Source Walkthrough` below for the intended reading order.
+`e2e/homepage.spec.ts` (6 specs) now covers SC-001–SC-007 above.
 
 ## Unresolved Questions
 
@@ -267,6 +276,9 @@ Only 2 entities apply to this feature's owned region — both are static/env-der
 
 ### Resolved by orchestrator — 2026-08-28
 - Award-card hash slug rule → kebab-case English award name (#top-talent … #mvp); shared with F004. (see plans/clarifications.md § Spec-stage gaps)
+- Figma canvas vs. spec CSV conflicts (all screens) → spec CSV wins (status Done); applies here to the event-info line and countdown copy. (see plans/clarifications.md § Group 3 checkpoint)
+- Award-card descriptions C2.4–C2.6 (identical placeholder sentence in Figma, `character` verified) → accepted; render verbatim, flagged to design for real copy. (see plans/clarifications.md § Group 3 checkpoint)
+- Countdown LED "Digital Numbers" font has no licensed source → accepted; Montserrat bold substitute until a font file is provided. (see plans/clarifications.md § Group 3 checkpoint)
 
 ## Source Walkthrough
 

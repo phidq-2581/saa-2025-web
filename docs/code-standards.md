@@ -12,6 +12,10 @@
 - Composition over inheritance. Extract utilities into `src/lib/`.
 - Mock data must come from the Figma design content itself — never invented.
 - Visual values (colors, spacing, font, radius, shadow) come from MoMorph MCP — never guessed, and are expressed as Tailwind v4 `@theme` tokens (`--color-*`, `--radius-*`, `--font-*` in `src/app/globals.css`), not inline hex/pixel values in components.
+- MoMorph text content comes from `get_node().character` on the actual text node — never a component instance's `itemName`, which stays whatever the master component was last named and does not reflect a per-instance text override (verified wrong on 5 of 6 award cards).
+- A deferred/inert control (no destination this round) renders as `<button type="button" aria-disabled="true" tabIndex={-1} className="cursor-default ...">` — never a `<span role="button">` or an `<a>` with no `href`. Keeps it visibly styled and out of the tab order.
+- Inside a column already capped to its exact design width (e.g. `max-w-[1224px]`), the mobile gutter is `px-4 md:px-0` — padding is a narrow-viewport concern only, never stacked on top of the max-width at `md`+.
+- A hero's background image/gradient layers that bleed outside their own section's flow height need `-z-10` (not `z-0`/omitted) so they sit behind the section's content without adding to document flow height.
 - Structural E2E/component hooks use `data-testid` (e.g. `site-header`, `site-footer`, `fab-toggle`, `fab-menu`) rather than text or CSS selectors, so copy changes don't break tests.
 - An icon-only interactive element carries a visually-hidden `sr-only` label (see `fab-widget.tsx`'s "Hủy" button) so it stays screen-reader- and Playwright-text-matchable without showing visible text.
 
@@ -21,6 +25,7 @@
 - Unit/component: Vitest, colocated in `__tests__/` next to the code under test.
 - E2E: Playwright specs in `e2e/`, one durable spec per screen flow.
 - Never weaken an assertion to make a test pass. No fake/mocked data to force green.
+- A visual-QA claim needs measured probes, not eyeballing a screenshot: rendered `getBoundingClientRect()` vs. the MCP node's `x`/`width`, computed font styles vs. `get_node().styles`, `document.elementFromPoint()` for occlusion/z-index bugs, and full page height vs. the Figma frame height.
 
 ## Auth & i18n conventions
 
