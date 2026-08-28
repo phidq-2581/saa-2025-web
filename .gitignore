@@ -73,3 +73,6 @@ android/build/
 /playwright-report/
 /blob-report/
 /coverage/
+
+# Playwright MCP browser output (tester screenshots land here)
+.playwright-mcp/
