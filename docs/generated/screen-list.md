@@ -5,9 +5,9 @@
 | Code | Name | Type | Components | Data Displayed |
 |------|------|------|------------|----------------|
 | SCR001_Login | Login | page | `login-header.tsx`, `login-hero.tsx`, `google-sign-in-button.tsx`, `login-error-notice.tsx`, `login-footer.tsx` | — |
-| SCR002_Header | Header | region | `site-header.tsx`, `language-dropdown.tsx`, `account-menu.tsx`, `notification-bell.tsx`, `mobile-nav-drawer.tsx`, `ui/dropdown.tsx` | — |
+| SCR002_Header | Header | region | `site-header-container.tsx`, `site-header.tsx`, `language-dropdown.tsx`, `account-menu.tsx`, `notification-bell.tsx`, `mobile-nav-drawer.tsx`, `ui/dropdown.tsx` | — |
 | SCR003_Footer | Footer | region | `site-footer.tsx` | — |
-| SCR004_Fab | Fab | region | `fab-widget.tsx` | — |
+| SCR004_Fab | Fab | region | `fab-widget-container.tsx`, `fab-widget.tsx` | — |
 | SCR005_Homepage | Homepage | page | `hero-section.tsx`, `event-countdown.tsx`, `event-info.tsx`, `icon-link-arrow.tsx`, `root-further-block.tsx`, `award-grid.tsx`, `award-card.tsx`, `kudos-promo.tsx` | — |
 | SCR006_AwardSystem | AwardSystem | page | `award-hero.tsx`, `award-section-title.tsx`, `award-category-nav.tsx`, `resolve-active-slug.ts`, `award-info-card.tsx`, `award-kudos-banner.tsx` | — |
 

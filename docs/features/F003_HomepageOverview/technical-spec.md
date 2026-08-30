@@ -256,8 +256,9 @@ Only 2 entities apply to this feature's owned region — both are static/env-der
 **Source:** `src/lib/countdown/compute-remaining.ts:1-33` — ALG-001_CountdownRemainingTime: diffs two epoch-ms timestamps, floors to whole minutes, derives days/hours/minutes by integer division, clamps to zero past target (BR-002), every field 2-digit zero-padded (BR-001).
 **Source:** `src/lib/countdown/parse-target.ts:1-14` — BR-004_CountdownEnvFallback (TC ID-60): parses `NEXT_PUBLIC_EVENT_START_AT` into epoch-ms; never throws — an invalid or missing value returns `null`, the safe fallback sentinel.
 **Source:** `src/lib/countdown/use-countdown.ts:1-55` — BR-005_CountdownClientOnlyHydration: `useSyncExternalStore` hook; `getServerSnapshot` always returns the `00/00/00` placeholder so first paint and hydration never disagree, 30s tick interval, minute-bucket memoized.
-**Source:** `src/app/(site)/page.tsx:1-44` — route composition (hero → Root Further → award grid → Kudos promo); `(site)/layout.tsx` renders no `<main>` of its own, so this page owns the top-level landmark; the server always passes the `00/00/00`/`reached: false` placeholder into `HeroSection` (BR-005).
-**Source:** `src/components/homepage/hero-section.tsx:1-104` — FR-001, keyvisual hero + wordmark + CTA pair; background image/gradient layers use `-z-10` so they can bleed under `RootFurtherBlock` without adding to document flow height.
+**Source:** `src/app/(site)/page.tsx:1-42` — route composition (hero → Root Further → award grid → Kudos promo); `(site)/layout.tsx` renders no `<main>` of its own, so this page owns the top-level landmark. Also carries this route's `generateMetadata` (static title, `t("awards.subDescription")` description).
+**Source:** `src/components/homepage/hero-section.tsx:1-110` — FR-001, keyvisual hero + wordmark + CTA pair; background image/gradient layers use `-z-10` so they can bleed under `RootFurtherBlock` without adding to document flow height. Renders `EventCountdownLive` directly (Phase 07) rather than receiving a `remaining` prop itself.
+**Source:** `src/components/homepage/event-countdown-live.tsx` — BR-005_CountdownClientOnlyHydration (Phase 07): thin Client Component wrapper feeding `useCountdown(parseTarget(NEXT_PUBLIC_EVENT_START_AT))` into the presentational `EventCountdown`'s `remaining` prop, keeping that component's own prop-driven unit tests free of a timer/env fixture. With the repo's sample `NEXT_PUBLIC_EVENT_START_AT` already in the past, the homepage renders the reached state (`coming-soon-label` hidden per BR-003, tiles clamped to `00` per BR-002).
 **Source:** `src/components/homepage/event-countdown.tsx:1-79` — FR-002, BR-001_CountdownZeroPadding: presentational tiles only, receives the already-computed `remaining` prop and never touches the clock itself.
 **Source:** `src/components/homepage/event-info.tsx:1-43` — FR-001, event info line; renders the spec-CSV copy ("18h30" / "Nhà hát nghệ thuật quân đội"), not the stale Figma canvas text (Group 3 checkpoint decision — spec CSV wins).
 **Source:** `src/components/homepage/icon-link-arrow.tsx:1-19` — shared arrow icon reused by the hero CTAs, award cards, and the Kudos promo link.
@@ -292,7 +293,7 @@ No source code written yet. Once implemented, recommended reading order:
 ### Call Hierarchy
 
 ```text
-Homepage route (page.tsx) -> EventCountdown (client) -> useCountdown -> computeRemaining
+Homepage route (page.tsx) -> HeroSection -> EventCountdownLive (client) -> parseTarget + useCountdown -> computeRemaining -> EventCountdown (presentational)
 Homepage route (page.tsx) -> AwardGrid -> AwardCard x6 -> client navigation to /he-thong-giai#{slug}
 ```
 

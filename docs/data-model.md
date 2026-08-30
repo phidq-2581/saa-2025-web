@@ -21,6 +21,8 @@ The Sunner. Test cases call it "a roster profile row" and distinguish it from th
 | department | text, nullable | hero line; sparse profile omits it |
 | email | text | **withheld from every payload** (TC_..._SEC_004) |
 
+**Verified in code (Phase 07).** `src/lib/profile/get-current-profile.ts` is the one read path backing the session-aware header/FAB: it selects exactly `full_name, avatar_url, role` — `email` is never in the `select()` list. A missing session or a failed row read both resolve to `null` (the guest variant), not a thrown error.
+
 Derived, not stored (both computed from kudos, deliberately different denominators — TC_..._GUI_001):
 - **hoa-thi stars** — from TOTAL kudos received: 10 → 1★, 20 → 2★, 50 → 3★ (B.3.2)
 - **Hero tier badge** — from DISTINCT SENDERS. Thresholds never stated.

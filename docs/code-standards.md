@@ -4,7 +4,7 @@
 
 - Code, comments, commit messages: **English**.
 - Files: **kebab-case** (`login-form.tsx`, `use-session.ts`). Components export PascalCase.
-- Every code file **< 200 lines** — split into modules/components before it grows past that.
+- Every code file **< 200 lines** — split into modules/components before it grows past that. E2E spec and support files under `e2e/` count toward this rule too (split by concern rather than by screen once one file would cross it — see `e2e/integration-flows.spec.ts` / `integration-locale-countdown.spec.ts`), and must pass `npm run typecheck` (e.g. a typed `import { type Cookie } from "@playwright/test"` rather than an untyped literal).
 
 ## Components
 
@@ -37,6 +37,9 @@
 - E2E specs covering an authenticated route use the `authenticatedPage`/`adminPage` fixtures from `e2e/support/authenticated-fixture.ts` (real seeded Supabase sessions) rather than mocked cookies.
 - E2E env (`SUPABASE_SECRET_KEY`, etc.) loads via `dotenv` in `playwright.config.ts` from `.env.local` — Playwright's Node process doesn't inherit Next's own env loading.
 - No `console.log` outside an `E2E_DEBUG`-gated block (see `e2e/session-fixture.spec.ts`).
+- Logout submits a plain `<form method="post" action="/auth/sign-out">` to a Route Handler, never a Server Action prop — a Server Action's `redirect()` is a soft, client-side navigation that can race the response's `Set-Cookie` headers against the URL update (verified empirically, reproducibly 0/3); a hard, full-page form POST is atomic for the browser (3/3). A Route Handler gets no automatic same-origin check the way a Server Action does, so it must verify the `Origin` header itself, and should respond `303 See Other` (not the default 307) so the browser follows with `GET` instead of re-POSTing the form body.
+- A next-intl `onSelectLocale`/similar callback handed to a Client Component must be a Server Action *reference* (e.g. `export async function selectLocaleAction(...)`), never an inline closure defined inside a Server Component.
+- An `en/*.json` catalogue key with no confirmed Figma EN source falls back to the Vietnamese design text at runtime — never a `[VN]`-prefixed placeholder, which would leak to English-locale visitors. Log the gap in `docs/test-traceability.md` instead.
 
 ## Quality gate (every phase)
 

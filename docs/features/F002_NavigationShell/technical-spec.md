@@ -21,7 +21,7 @@ F002_NavigationShell (P0, type `ui`) is the persistent header, footer, language 
 | `member` | Account menu shows Profile + Logout only (no Dashboard row) | none (read-only display) | no write from this feature |
 | `admin` | Account menu shows Profile + Dashboard + Logout; Dashboard renders but does not navigate (route TBD per clarifications.md) | none (read-only display) | no write from this feature |
 
-**Source:** TBD (draft) — `profile` table not yet implemented; see `## Key Entities`.
+**Source:** `src/lib/profile/get-current-profile.ts` (Phase 07) — reads `role` off `public.profile`; see `## Source Code References` and `## Key Entities`.
 
 (Session-presence gates the header's guest/authenticated variant but is not a `profile` column — it is documented under `SCR002_Header`'s `## UI States` instead of here, since it is not a discriminator on a Key Entity.)
 
@@ -132,7 +132,7 @@ None.
 
 ### External Integrations
 
-None — logout delegates to the Supabase sign-out call owned by F001_GoogleOAuthLogin; F002 only triggers it and handles the redirect.
+None — logout submits to `src/app/auth/sign-out/route.ts` (a Route Handler, not a Server Action; see that file's docblock for why), owned jointly with F001_GoogleOAuthLogin; F002 only renders the form and handles the resulting redirect.
 
 ### Verification
 
@@ -300,7 +300,7 @@ See edge-cases.md.
 
 ## Source Code References
 
-**Source:** `src/components/layout/site-header.tsx:1-86` — header (nav links, guest/authed variant gating for bell + account menu, mobile drawer trigger).
+**Source:** `src/components/layout/site-header.tsx:1-84` — header (nav links, guest/authed variant gating for bell + account menu, mobile drawer trigger).
 **Source:** `src/components/layout/site-footer.tsx:1-42` — footer (logo, nav links, "Sun* Kudos"/"Tiêu chuẩn chung" deferred affordances per BR-004).
 **Source:** `src/components/layout/fab-widget.tsx:1-76` — FAB (SM-002_FabWidgetState collapsed/expanded, Thể lệ/Viết KUDOS deferred per BR-004).
 **Source:** `src/components/layout/language-dropdown.tsx:1-75` — language switcher (BR-001_LocalePersistence).
@@ -308,12 +308,16 @@ See edge-cases.md.
 **Source:** `src/components/layout/notification-bell.tsx:1-28` — notification badge (US006, unread-count source still TBD).
 **Source:** `src/components/layout/mobile-nav-drawer.tsx:1-84` — narrow-viewport nav (PROVISIONAL hamburger pattern per clarifications.md).
 **Source:** `src/components/ui/dropdown.tsx:1-89` — shared dropdown primitive backing SM-001_DropdownMenuState across all three dropdowns.
-**Source:** `src/app/layout.tsx:13-27` — root layout mounts `SiteHeader`/`SiteFooter`/`FabWidget` once, shared across every route.
+**Source:** `src/app/(site)/layout.tsx` — mounts `SiteHeaderContainer`/`SiteFooter`/`FabWidgetContainer` once, shared across every `(site)` route (Homepage, Award System). The shell moved out of the root layout into this route group back in Group 3, so `/login`'s `(auth)` route group could mount its own `LoginHeader`/`LoginFooter` instead; `src/app/layout.tsx` (the root layout) has been html/body shell only since then. Phase 07 additionally swapped the two directly-mounted, guest-only components for `SiteHeaderContainer`/`FabWidgetContainer` (see § the container entries below).
 **Source:** `src/lib/i18n/set-locale.ts:1-30` — BR-001_LocalePersistence: `setLocale()` Server Action, validates against the same locale allow-list as `request.ts` (falls back to `defaultLocale` rather than trusting the caller), sets the `NEXT_LOCALE` cookie (`httpOnly: false` — required for next-intl's client-side `useLocale()`), then `revalidatePath`.
 **Source:** `src/i18n/request.ts:1-28` — BR-001_LocalePersistence: locale resolution (`NEXT_LOCALE` cookie, no URL prefix, `vi` default) plus the `isLocale()` allow-list guard `set-locale.ts` reuses.
-**Source:** `src/lib/auth/sign-out.ts:1-16` — BR-002_LogoutClearsSession: `signOutAction()`, also owned by F001_GoogleOAuthLogin; clears the Supabase session and redirects to `/` unconditionally, even on a Supabase-side error.
+**Source:** `src/app/auth/sign-out/route.ts` — BR-002_LogoutClearsSession: `POST` handler (Phase 07; also owned by F001_GoogleOAuthLogin), rejects a cross-origin `Origin` header (403 JSON), signs out of Supabase, explicitly deletes every `sb-*` cookie, and redirects `303 See Other` to `/` (303 so the browser follows with `GET /` instead of re-POSTing the form body). A Route Handler, not the originally-planned Server Action: the Server Action's `redirect()` is a soft, client-side navigation that races the response's `Set-Cookie` headers against the URL update — reproducibly lost 0/3 in an E2E check reading cookies right after `waitForURL`, passed 3/3 only with an artificial settle delay. `account-menu.tsx` submits a plain `<form method="post" action="/auth/sign-out">` here, which is a hard, full-page navigation instead — atomic for the browser (3/3 with no delay).
+**Source:** `src/components/layout/site-header-container.tsx` — DISC-001: server container resolving `getCurrentProfile()` (`src/lib/profile/get-current-profile.ts`) and passing `variant`/`user`/`unreadCount={0}`/`onSelectLocale` into the presentational `SiteHeader`; mounted by `(site)/layout.tsx` in place of a directly-mounted `SiteHeader` (Phase 07).
+**Source:** `src/components/layout/fab-widget-container.tsx` — SCR004_Fab hidden-for-guest state: renders `FabWidget` only when `getCurrentProfile()` resolves non-null, so the header and FAB never disagree about sign-in state (Phase 07).
+**Source:** `src/lib/profile/get-current-profile.ts` — DISC-001: server-only `supabase.auth.getClaims()` + `select full_name, avatar_url, role from profile`; returns `null` on no session **and** on a failed profile-row read (degrades to the guest variant rather than throwing); never selects `email` (Phase 07).
+**Source:** `src/lib/i18n/select-locale-action.ts` — BR-001_LocalePersistence: thin Server Action wrapper around `setLocale()`, the reference shape `onSelectLocale` needs since a Client Component may only be handed a Server Action reference, not an inline closure; recovers the current pathname from the `Referer` header (falls back to `/`) since the action itself has no route param (Phase 07).
 
-All components imported from the app's root layout, matching the planned Call Hierarchy above. See `## User Stories` for the behavior each component owns.
+All components imported from the `(site)` route group's layout, matching the Call Hierarchy above. See `## User Stories` for the behavior each component owns.
 
 ## Unresolved Questions
 
@@ -329,17 +333,18 @@ All components imported from the app's root layout, matching the planned Call Hi
 
 ## Source Walkthrough
 
-No source code exists yet (status: draft) — there is nothing to walk through. When implementation starts, the recommended reading order is: the `profile` row loaded by F001's session guard, then the shared layout that mounts Header/Footer/FAB, then each dropdown component, then the `setLocale`/logout server actions.
+Recommended reading order: `get-current-profile.ts` (the `profile.role` lookup DISC-001 branches on), then `site-header-container.tsx`/`fab-widget-container.tsx` (the server containers `(site)/layout.tsx` mounts), then each dropdown component, then `select-locale-action.ts`/`set-locale.ts` and the sign-out route.
 
 ### Call Hierarchy
 
 ```text
-RootLayout -> Header (LanguageDropdown, AccountMenu) -> setLocale / signOut server actions
-RootLayout -> Footer
-RootLayout -> FabWidget (collapsed/expanded)
+(site)/layout.tsx -> SiteHeaderContainer -> getCurrentProfile() -> SiteHeader (LanguageDropdown, AccountMenu)
+                                                                 -> selectLocaleAction / sign-out form POST
+(site)/layout.tsx -> SiteFooter
+(site)/layout.tsx -> FabWidgetContainer -> getCurrentProfile() -> FabWidget (collapsed/expanded)
 ```
 
-**Related files:** see `## Source Code References` above — `setLocale`/`signOut` now implemented (`src/lib/i18n/set-locale.ts`, `src/lib/auth/sign-out.ts`).
+**Related files:** see `## Source Code References` above — `site-header-container.tsx`, `fab-widget-container.tsx`, `get-current-profile.ts`, and `select-locale-action.ts` are Phase 07 additions; `setLocale`/sign-out were implemented in an earlier phase.
 
 ## DB Impact per Event
 
