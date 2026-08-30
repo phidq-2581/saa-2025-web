@@ -13,7 +13,6 @@ export type SiteHeaderProps = {
   user?: AccountUser;
   unreadCount?: number;
   onSelectLocale?: (locale: Locale) => void;
-  onSignOut?: () => void;
 };
 
 const NAV_LINKS: { label: string; href?: string }[] = [
@@ -42,7 +41,6 @@ export function SiteHeader({
   user,
   unreadCount = 0,
   onSelectLocale,
-  onSignOut,
 }: SiteHeaderProps) {
   const pathname = usePathname();
 
@@ -78,7 +76,7 @@ export function SiteHeader({
         <div className="hidden md:block">
           <LanguageDropdown locale={locale} onSelectLocale={onSelectLocale} />
         </div>
-        {variant === "authed" && user && <AccountMenu user={user} onSignOut={onSignOut} />}
+        {variant === "authed" && user && <AccountMenu user={user} />}
         <MobileNavDrawer links={NAV_LINKS} locale={locale} onSelectLocale={onSelectLocale} />
       </div>
     </header>

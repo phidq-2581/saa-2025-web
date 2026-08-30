@@ -1,6 +1,6 @@
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteHeaderContainer } from "@/components/layout/site-header-container";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { FabWidget } from "@/components/layout/fab-widget";
+import { FabWidgetContainer } from "@/components/layout/fab-widget-container";
 
 /**
  * Shell for every site page (header/footer/FAB). Split out of the root
@@ -8,14 +8,18 @@ import { FabWidget } from "@/components/layout/fab-widget";
  * own minimal header/footer per the login spec (MoMorph GzbNeVGJHz, items
  * 1 & 3) without inheriting this full shell. Route groups don't affect
  * the URL, so `/` still resolves to this group's `page.tsx`.
+ *
+ * Header/FAB are server containers (Phase 07) that resolve the real
+ * session + `profile.role` -- `SiteHeader`/`FabWidget` themselves stay the
+ * plain, prop-driven client components Phase 02 shipped.
  */
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
     <>
-      <SiteHeader variant="guest" locale="vi" />
+      <SiteHeaderContainer />
       {children}
       <SiteFooter />
-      <FabWidget />
+      <FabWidgetContainer />
     </>
   );
 }

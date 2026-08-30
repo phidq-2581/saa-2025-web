@@ -10,8 +10,24 @@ export type AccountUser = {
 
 export type AccountMenuProps = {
   user: AccountUser;
-  onSignOut?: () => void;
 };
+
+/**
+ * F002 BR-002_LogoutClearsSession -- the actual sign-out endpoint. A plain
+ * `<form method="post" action={SIGN_OUT_ACTION_PATH}>` (not a Server
+ * Action prop) because a Server-Action-triggered redirect is a *soft*,
+ * client-side navigation: Next.js updates the URL before the response's
+ * Set-Cookie header is guaranteed to be applied to the browser's cookie
+ * jar, so a check made right after the URL changes can race the cookie
+ * clearing (verified empirically -- reproducible 0/3 with `signOutAction`
+ * wired via `onSignOut`, restored to 3/3 only by adding an artificial
+ * settle delay no real test should need). A plain `<form method="post">`
+ * triggers a hard, full-page navigation instead, which is atomic from the
+ * browser's perspective -- Set-Cookie always lands before the next page
+ * starts loading, so there is no window for this race.
+ * `src/app/auth/sign-out/route.ts`'s Route Handler is the actual endpoint.
+ */
+const SIGN_OUT_ACTION_PATH = "/auth/sign-out";
 
 function initialsOf(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
@@ -29,7 +45,7 @@ function initialsOf(fullName: string) {
  * Profile TC GUI-009) instead of Figma's default silhouette icon.
  * Profile/Dashboard render only, no navigation this round (BR-004).
  */
-export function AccountMenu({ user, onSignOut }: AccountMenuProps) {
+export function AccountMenu({ user }: AccountMenuProps) {
   return (
     <Dropdown
       label="Account"
@@ -72,17 +88,20 @@ export function AccountMenu({ user, onSignOut }: AccountMenuProps) {
               Dashboard
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => {
-              onSignOut?.();
-              close();
-            }}
-            className="flex h-14 items-center justify-between gap-1 rounded-chip p-4 font-body text-base font-bold text-white"
-          >
-            Logout
-            <img src="/nav/chevron-right.svg" alt="" width={24} height={24} aria-hidden="true" />
-          </button>
+          {/* No onSubmit-driven close() here: closing the dropdown (a state
+              update/re-render) inside the same synchronous "submit" event
+              dispatch risks unmounting this <form> before the browser's own
+              native submission completes -- the page navigates away on
+              success regardless, so there is nothing to close for. */}
+          <form method="post" action={SIGN_OUT_ACTION_PATH}>
+            <button
+              type="submit"
+              className="flex h-14 w-full items-center justify-between gap-1 rounded-chip p-4 font-body text-base font-bold text-white"
+            >
+              Logout
+              <img src="/nav/chevron-right.svg" alt="" width={24} height={24} aria-hidden="true" />
+            </button>
+          </form>
         </>
       )}
     </Dropdown>

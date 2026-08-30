@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Persistent footer (Homepage 7: 7.1 logo, 7.2-7.4 nav links, 7.5 "Tiêu
@@ -7,8 +8,21 @@ import Link from "next/link";
  * copyright font "Montserrat Alternates" 16px/24px bold.
  * "Sun* Kudos" has no confirmed destination (BR-004); "Tiêu chuẩn chung"
  * renders only, no destination this round (clarifications.md).
+ *
+ * The three nav labels ("About SAA 2025"/"Awards Information"/"Sun*
+ * Kudos") are already-English design copy, identical in both locales
+ * (`e2e/navigation-shell.spec.ts` asserts this exact text with no locale
+ * switch) -- they stay plain literals, not translation keys, per the EN
+ * copy rule's "already English... copy through unchanged." Copyright and
+ * "Tiêu chuẩn chung" DO change between locales, so they're the only two
+ * strings routed through `common.footer` (shared with `login-footer.tsx`,
+ * `getTranslations` -- this component has no existing synchronous
+ * `@testing-library/react` render, so `async` is safe here; see
+ * `hero-section.tsx`'s docblock for the components where it is not).
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  const t = await getTranslations("common");
+
   return (
     <footer
       data-testid="site-footer"
@@ -29,13 +43,11 @@ export function SiteFooter() {
             Sun* Kudos
           </span>
           <button type="button" className="font-body text-base font-bold text-white">
-            Tiêu chuẩn chung
+            {t("footer.generalStandards")}
           </button>
         </nav>
       </div>
-      <p className="font-heading text-base font-bold text-white">
-        Bản quyền thuộc về Sun* © 2025
-      </p>
+      <p className="font-heading text-base font-bold text-white">{t("footer.copyright")}</p>
     </footer>
   );
 }
