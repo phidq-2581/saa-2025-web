@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AWARD_CATEGORIES } from "@/lib/awards/award-categories";
+import { renderWithIntl } from "@/test-utils/render-with-intl";
 import Home from "../(site)/page";
 
 describe("Home page", () => {
@@ -16,13 +17,13 @@ describe("Home page", () => {
 
 
   it("renders the hero heading and the main landmark", () => {
-    render(<Home />);
+    renderWithIntl(<Home />);
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ROOT FURTHER" })).toBeInTheDocument();
   });
 
   it("renders exactly 6 award cards, each linking to /he-thong-giai#{slug}", () => {
-    render(<Home />);
+    renderWithIntl(<Home />);
     const cards = screen.getAllByTestId("award-card");
     expect(cards).toHaveLength(6);
 
@@ -35,7 +36,7 @@ describe("Home page", () => {
   });
 
   it("renders the deferred CTA/detail affordances", () => {
-    render(<Home />);
+    renderWithIntl(<Home />);
     expect(screen.getByTestId("cta-about-awards")).toHaveAttribute("href", "/he-thong-giai");
     expect(screen.getByTestId("cta-about-kudos")).not.toHaveAttribute("href");
     expect(screen.getByTestId("kudos-promo-detail")).not.toHaveAttribute("href");
@@ -45,7 +46,7 @@ describe("Home page", () => {
     vi.stubEnv("NEXT_PUBLIC_EVENT_START_AT", "2999-01-01T00:00:00+07:00");
     const { default: FreshHome } = await import("../(site)/page");
 
-    render(<FreshHome />);
+    renderWithIntl(<FreshHome />);
 
     expect(screen.getByTestId("countdown-days")).toBeInTheDocument();
     expect(screen.getByTestId("coming-soon-label")).toBeInTheDocument();
@@ -55,9 +56,17 @@ describe("Home page", () => {
     vi.stubEnv("NEXT_PUBLIC_EVENT_START_AT", "2000-01-01T00:00:00+07:00");
     const { default: FreshHome } = await import("../(site)/page");
 
-    render(<FreshHome />);
+    renderWithIntl(<FreshHome />);
 
     expect(screen.getByTestId("countdown-days")).toHaveTextContent("00");
     expect(screen.queryByTestId("coming-soon-label")).not.toBeInTheDocument();
+  });
+
+  // Phase 07b: body copy now flows through `useTranslations` -- this proves
+  // the `NEXT_LOCALE=en` switch actually reaches the rendered tree, using a
+  // MoMorph-sourced EN string with no VN counterpart in the same position.
+  it("renders the EN catalog when locale is en", () => {
+    renderWithIntl(<Home />, { locale: "en" });
+    expect(screen.getByRole("heading", { name: "Awards System" })).toBeInTheDocument();
   });
 });

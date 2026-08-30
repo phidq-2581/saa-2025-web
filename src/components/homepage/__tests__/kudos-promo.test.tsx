@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { renderWithIntl } from "@/test-utils/render-with-intl";
 import { KudosPromo } from "../kudos-promo";
 
 describe("KudosPromo", () => {
   it("renders label, title, description, illustration, and an inert Chi tiết affordance (BR-008)", () => {
-    render(<KudosPromo />);
+    renderWithIntl(<KudosPromo />);
 
     expect(screen.getByTestId("kudos-promo")).toBeInTheDocument();
     expect(screen.getByText("Phong trào ghi nhận")).toBeInTheDocument();

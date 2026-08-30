@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AWARD_CATEGORIES } from "@/lib/awards/award-categories";
+import { renderWithIntl } from "@/test-utils/render-with-intl";
 import { AwardGrid } from "../award-grid";
 
 describe("AwardGrid", () => {
   it("renders 6 cards in the fixed AWARD_CATEGORIES order, each with one link to /he-thong-giai#{slug} (BR-006)", () => {
-    render(<AwardGrid />);
+    renderWithIntl(<AwardGrid />);
     const cards = screen.getAllByTestId("award-card");
     expect(cards).toHaveLength(6);
 
@@ -21,7 +22,7 @@ describe("AwardGrid", () => {
   });
 
   it("renders the section title copy from the design content", () => {
-    render(<AwardGrid />);
+    renderWithIntl(<AwardGrid />);
     expect(screen.getByText("Sun* annual awards 2025")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Hệ thống giải thưởng" })).toBeInTheDocument();
   });

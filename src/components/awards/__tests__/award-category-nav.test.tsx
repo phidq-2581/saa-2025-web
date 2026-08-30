@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { AWARD_CATEGORIES } from "@/lib/awards/award-categories";
+import { renderWithIntl } from "@/test-utils/render-with-intl";
 import { AwardCategoryNav } from "../award-category-nav";
 
 // jsdom implements `Element.scrollIntoView` as a no-op stub only in newer
@@ -13,7 +14,7 @@ beforeEach(() => {
 
 describe("AwardCategoryNav", () => {
   it("renders exactly 6 award-nav-item, one per category, in order", () => {
-    render(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
+    renderWithIntl(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
     const items = screen.getAllByTestId("award-nav-item");
     expect(items).toHaveLength(6);
     items.forEach((item, index) => {
@@ -23,7 +24,7 @@ describe("AwardCategoryNav", () => {
 
   it("marks only the clicked item active (BR-001)", async () => {
     const user = userEvent.setup();
-    render(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
+    renderWithIntl(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
 
     const bestManagerButton = screen.getByRole("button", { name: /Best Manager/ });
     await user.click(bestManagerButton);
@@ -42,7 +43,7 @@ describe("AwardCategoryNav", () => {
 
   it("activates nothing when no section id in the document matches the initial hash (BR-003)", () => {
     window.location.hash = "#does-not-exist";
-    render(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
+    renderWithIntl(<AwardCategoryNav categories={AWARD_CATEGORIES} />);
     const activeButtons = screen
       .getAllByRole("button")
       .filter((button) => button.getAttribute("aria-current") === "true");
