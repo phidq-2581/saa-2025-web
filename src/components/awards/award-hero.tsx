@@ -1,4 +1,4 @@
-import awards from "../../../messages/vi/awards.json";
+import { useTranslations } from "next-intl";
 
 /**
  * Keyvisual hero (MoMorph item 3, `mms_3_Keyvisual`). specs.csv row 3
@@ -14,6 +14,7 @@ import awards from "../../../messages/vi/awards.json";
  * screen-reader visible -- see report Concerns for this asset gap.
  */
 export function AwardHero() {
+  const t = useTranslations("awards");
   return (
     <section
       data-testid="award-hero"
@@ -26,13 +27,13 @@ export function AwardHero() {
       <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-36">
         <img
           src="/awards/root-further-logo.png"
-          alt={awards.hero.logoAlt}
+          alt={t("hero.logoAlt")}
           width={338}
           height={150}
           className="h-auto w-[220px] md:w-[338px]"
         />
-        <h1 className="sr-only">{awards.hero.title}</h1>
-        <p className="sr-only">{awards.hero.subtitle}</p>
+        <h1 className="sr-only">{t("hero.title")}</h1>
+        <p className="sr-only">{t("hero.subtitle")}</p>
       </div>
     </section>
   );

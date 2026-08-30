@@ -1,4 +1,4 @@
-import countdownCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 
 export type CountdownRemaining = {
   days: string;
@@ -55,24 +55,21 @@ function CountdownTile({ testId, value, label }: TileProps) {
  * component itself never touches the clock.
  */
 export function EventCountdown({ remaining }: { remaining: CountdownRemaining }) {
+  const t = useTranslations("home");
   const { days, hours, minutes, reached } = remaining;
   return (
     <div className="flex flex-col gap-4">
       {!reached ? (
         // mm:2167:9036
         <p data-testid="coming-soon-label" className="font-body text-2xl font-bold text-white">
-          {countdownCopy.hero.comingSoon}
+          {t("hero.comingSoon")}
         </p>
       ) : null}
       {/* mm:2167:9037 */}
       <div className="flex flex-wrap items-center gap-10">
-        <CountdownTile testId="countdown-days" value={days} label={countdownCopy.countdown.days} />
-        <CountdownTile testId="countdown-hours" value={hours} label={countdownCopy.countdown.hours} />
-        <CountdownTile
-          testId="countdown-minutes"
-          value={minutes}
-          label={countdownCopy.countdown.minutes}
-        />
+        <CountdownTile testId="countdown-days" value={days} label={t("countdown.days")} />
+        <CountdownTile testId="countdown-hours" value={hours} label={t("countdown.hours")} />
+        <CountdownTile testId="countdown-minutes" value={minutes} label={t("countdown.minutes")} />
       </div>
     </div>
   );

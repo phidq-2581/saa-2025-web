@@ -1,4 +1,4 @@
-import eventCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 
 type InfoRowProps = {
   label: string;
@@ -26,17 +26,18 @@ function InfoRow({ label, value }: InfoRowProps) {
  * matching the RED test's e2e/homepage.spec.ts assertions verbatim.
  */
 export function EventInfo() {
+  const t = useTranslations("home");
   return (
     // mm:2167:9053
     <div data-testid="event-info" className="flex flex-col gap-4">
       {/* mm:2167:9054 */}
       <div className="flex flex-wrap items-center gap-[60px]">
-        <InfoRow label={eventCopy.eventInfo.timeLabel} value={eventCopy.eventInfo.time} />
-        <InfoRow label={eventCopy.eventInfo.placeLabel} value={eventCopy.eventInfo.place} />
+        <InfoRow label={t("eventInfo.timeLabel")} value={t("eventInfo.time")} />
+        <InfoRow label={t("eventInfo.placeLabel")} value={t("eventInfo.place")} />
       </div>
       {/* mm:2167:9061 */}
       <p className="font-body text-base font-bold tracking-[0.5px] text-white">
-        {eventCopy.eventInfo.livestreamNote}
+        {t("eventInfo.livestreamNote")}
       </p>
     </div>
   );

@@ -1,4 +1,4 @@
-import homeCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 import { IconLinkArrow } from "./icon-link-arrow";
 
 export type AwardCardProps = {
@@ -35,6 +35,7 @@ export function AwardCard({
   badgeHeight,
   href,
 }: AwardCardProps) {
+  const t = useTranslations("home");
   return (
     // mm:2167:9075
     <article data-testid="award-card" data-slug={slug} className="group w-full">
@@ -69,7 +70,7 @@ export function AwardCard({
           ) : null}
           {/* mm:I2167:9075;214:1023 */}
           <span className="mt-2 inline-flex w-fit items-center gap-1 py-4 font-body text-base font-medium text-white">
-            {homeCopy.awards.detailLink}
+            {t("awards.detailLink")}
             <IconLinkArrow className="h-6 w-6" />
           </span>
         </span>

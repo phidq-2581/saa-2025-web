@@ -1,4 +1,4 @@
-import kudosCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 import { IconLinkArrow } from "./icon-link-arrow";
 
 /**
@@ -18,6 +18,7 @@ import { IconLinkArrow } from "./icon-link-arrow";
  * column, then the narrower 1120 card centered within it.
  */
 export function KudosPromo() {
+  const t = useTranslations("home");
   return (
     // mm:3390:10349
     <section className="w-full">
@@ -48,14 +49,14 @@ export function KudosPromo() {
             {/* mm:I3390:10349;313:8420 */}
             <div className="flex flex-col gap-4">
               {/* mm:I3390:10349;313:8421 */}
-              <p className="font-body text-2xl font-bold text-white">{kudosCopy.kudos.label}</p>
+              <p className="font-body text-2xl font-bold text-white">{t("kudos.label")}</p>
               {/* mm:I3390:10349;313:8422 */}
               <h2 className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold">
-                {kudosCopy.kudos.title}
+                {t("kudos.title")}
               </h2>
               {/* mm:I3390:10349;313:8423 */}
               <p className="whitespace-pre-line text-justify font-body text-base font-bold tracking-[0.5px] text-white">
-                {kudosCopy.kudos.description}
+                {t("kudos.description")}
               </p>
             </div>
 
@@ -67,7 +68,7 @@ export function KudosPromo() {
               tabIndex={-1}
               className="inline-flex w-fit cursor-default items-center gap-1 rounded-chip bg-gold px-4 py-4 font-body text-base font-bold text-canvas"
             >
-              {kudosCopy.kudos.detailLink}
+              {t("kudos.detailLink")}
               <IconLinkArrow className="h-6 w-6" />
             </button>
           </div>

@@ -1,4 +1,4 @@
-import awards from "../../../messages/vi/awards.json";
+import { useTranslations } from "next-intl";
 
 /**
  * Sun* Kudos promo block (MoMorph D1/`mms_D1_Sunkudos`, 335:12023).
@@ -14,6 +14,7 @@ import awards from "../../../messages/vi/awards.json";
  * trivially here since there is no anchor at all.
  */
 export function AwardKudosBanner() {
+  const t = useTranslations("awards");
   return (
     <section
       data-testid="award-kudos-banner"
@@ -26,12 +27,12 @@ export function AwardKudosBanner() {
       />
       <div className="relative z-1 flex max-w-[457px] flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <p className="text-2xl leading-8 font-bold text-white">{awards.kudos.eyebrow}</p>
+          <p className="text-2xl leading-8 font-bold text-white">{t("kudos.eyebrow")}</p>
           <h2 className="font-heading text-[40px] leading-[48px] font-bold tracking-[-0.25px] text-gold md:text-[57px] md:leading-[64px]">
-            {awards.kudos.title}
+            {t("kudos.title")}
           </h2>
           <p className="text-base leading-6 tracking-[0.5px] whitespace-pre-line text-white">
-            {awards.kudos.description}
+            {t("kudos.description")}
           </p>
         </div>
         <button
@@ -41,13 +42,13 @@ export function AwardKudosBanner() {
           tabIndex={-1}
           className="inline-flex w-fit cursor-default items-center gap-2 rounded-chip bg-gold p-4 font-body text-sm font-bold text-[#0F0F0F]"
         >
-          {awards.kudos.detailLabel}
+          {t("kudos.detailLabel")}
           <img src="/awards/kudos-detail-icon.svg" alt="" width={24} height={24} />
         </button>
       </div>
       <img
         src="/awards/kudos-logo.svg"
-        alt={awards.kudos.logoAlt}
+        alt={t("kudos.logoAlt")}
         className="relative z-1 h-auto w-[220px] md:w-[383px]"
       />
     </section>

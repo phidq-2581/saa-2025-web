@@ -1,5 +1,5 @@
+import { useTranslations } from "next-intl";
 import { AWARD_CATEGORIES } from "@/lib/awards/award-categories";
-import homeCopy from "../../../messages/vi/home.json";
 import { AwardCard } from "./award-card";
 
 const AWARDS_PAGE = "/he-thong-giai";
@@ -38,6 +38,7 @@ const CARD_BADGES: Record<string, CardBadge> = {
  * specs.csv row C1 -- same class of gap as EventInfo's stale-canvas case.
  */
 export function AwardGrid() {
+  const t = useTranslations("home");
   return (
     // mm:2167:9068
     <section className="w-full">
@@ -45,15 +46,15 @@ export function AwardGrid() {
         {/* mm:2167:9069 */}
         <header className="flex flex-col gap-4">
           {/* mm:2167:9070 */}
-          <p className="font-body text-2xl font-bold text-white">{homeCopy.awards.caption}</p>
+          <p className="font-body text-2xl font-bold text-white">{t("awards.caption")}</p>
           {/* mm:2167:9071 */}
           <hr className="w-full border-t border-divider" />
           {/* mm:2167:9073 */}
           <h2 className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold">
-            {homeCopy.awards.heading}
+            {t("awards.heading")}
           </h2>
           <p className="font-body text-base font-bold tracking-[0.5px] text-white">
-            {homeCopy.awards.subDescription}
+            {t("awards.subDescription")}
           </p>
         </header>
 
@@ -63,15 +64,18 @@ export function AwardGrid() {
           className="grid grid-cols-2 gap-x-6 gap-y-14 sm:gap-x-10 lg:grid-cols-3"
         >
           {AWARD_CATEGORIES.map((category) => {
-            const copy =
-              homeCopy.awards.cards[category.slug as keyof typeof homeCopy.awards.cards];
+            const cardKey = `awards.cards.${category.slug}`;
+            const title = t.has(`${cardKey}.title`) ? t(`${cardKey}.title`) : category.name;
+            const description = t.has(`${cardKey}.description`)
+              ? t(`${cardKey}.description`)
+              : undefined;
             const badge = CARD_BADGES[category.slug];
             return (
               <AwardCard
                 key={category.slug}
                 slug={category.slug}
-                title={copy?.title ?? category.name}
-                description={copy?.description}
+                title={title}
+                description={description}
                 badgeSrc={badge?.src ?? ""}
                 badgeWidth={badge?.width ?? 0}
                 badgeHeight={badge?.height ?? 0}

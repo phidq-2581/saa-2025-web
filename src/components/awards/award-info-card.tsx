@@ -1,11 +1,24 @@
-import awards from "../../../messages/vi/awards.json";
+import { useTranslations } from "next-intl";
 
 type AwardInfoCardProps = {
   slug: string;
   index: number;
 };
 
-type CardContent = (typeof awards.cardContent)[keyof typeof awards.cardContent];
+/**
+ * Shape of one `cardContent.<slug>` entry in `messages/<locale>/awards.json`.
+ * `t.raw()` returns the raw catalog value untyped (next-intl does not
+ * narrow nested message shapes), so this asserts the known JSON structure
+ * rather than leaving it as an unchecked `any` at the call site below.
+ */
+type CardPrize = { amount: string; qualifier: string | null };
+type CardContent = {
+  title: string;
+  description: string;
+  quantityValue: string;
+  quantityUnit: string;
+  prizes: CardPrize[];
+};
 
 /**
  * Award card (MoMorph D.1-D.6, `mms_D.1_...` info_block instances,
@@ -58,10 +71,20 @@ type CardContent = (typeof awards.cardContent)[keyof typeof awards.cardContent];
  * drives the card from ~400px tall to the ~700px the reference shows.
  */
 export function AwardInfoCard({ slug, index }: AwardInfoCardProps) {
-  const content = awards.cardContent[slug as keyof typeof awards.cardContent] as
-    | CardContent
-    | undefined;
-  if (!content) return null;
+  const t = useTranslations("awards");
+  const contentKey = `cardContent.${slug}`;
+  if (!t.has(contentKey)) return null;
+
+  // `t.raw()` returns the catalog value untyped (next-intl does not narrow
+  // nested message shapes); CardContent documents the real JSON shape it is
+  // cast to below.
+  const content: CardContent = {
+    title: t(`${contentKey}.title`),
+    description: t(`${contentKey}.description`),
+    quantityValue: t(`${contentKey}.quantityValue`),
+    quantityUnit: t(`${contentKey}.quantityUnit`),
+    prizes: t.raw(`${contentKey}.prizes`) as CardPrize[],
+  };
 
   const imageOnRight = index % 2 === 1;
 
@@ -102,7 +125,7 @@ export function AwardInfoCard({ slug, index }: AwardInfoCardProps) {
           <div className="flex items-center gap-4">
             <img src="/awards/diamond-icon.svg" alt="" width={24} height={24} />
             <span className="text-2xl leading-8 font-bold text-gold">
-              {awards.card.quantityLabel}
+              {t("card.quantityLabel")}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-4xl leading-11 font-bold text-white">
@@ -118,14 +141,14 @@ export function AwardInfoCard({ slug, index }: AwardInfoCardProps) {
               <div key={prize.amount} className="flex flex-col gap-8">
                 {prizeIndex > 0 && (
                   <p className="pl-8 text-sm leading-5 font-bold tracking-[0.1px] text-divider">
-                    {awards.card.orConnector}
+                    {t("card.orConnector")}
                   </p>
                 )}
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4">
                     <img src="/awards/license-icon.svg" alt="" width={24} height={24} />
                     <span className="text-2xl leading-8 font-bold text-gold">
-                      {awards.card.prizeLabel}
+                      {t("card.prizeLabel")}
                     </span>
                   </div>
                   <span className="text-4xl leading-11 font-bold text-white">

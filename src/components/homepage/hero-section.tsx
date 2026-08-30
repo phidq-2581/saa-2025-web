@@ -1,4 +1,4 @@
-import heroCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 import { EventCountdownLive } from "./event-countdown-live";
 import { EventInfo } from "./event-info";
 import { IconLinkArrow } from "./icon-link-arrow";
@@ -27,17 +27,19 @@ import { IconLinkArrow } from "./icon-link-arrow";
  * reproduces that at the 1512px design width without double-applying the
  * 144px as both a max-width AND extra padding (the bug this fix corrects).
  *
- * Copy stays a direct `messages/vi/home.json` import rather than
- * `getTranslations` (Phase 07): `__tests__/home-page.test.tsx` renders this
- * tree through plain `@testing-library/react`, which has no Server
- * Components runtime and cannot render an `async function` component (a
- * bare `render(<HeroSection />)` receives an unresolved Promise, not
- * markup) -- converting this component to `async` silently breaks that
- * already-passing suite. `EventCountdownLive` is the one piece that must
- * be live: it is its own small Client Component, which stays renderable
- * synchronously by RTL.
+ * Copy comes from `useTranslations("home")` (Phase 07b), not the async
+ * `getTranslations`: `__tests__/home-page.test.tsx` renders this tree
+ * through plain `@testing-library/react`, which has no Server Components
+ * runtime and cannot render an `async function` component (a bare
+ * `render(<HeroSection />)` receives an unresolved Promise, not markup) --
+ * converting this component to `async` would silently break that
+ * already-passing suite. `useTranslations` works in a non-async component
+ * (Client and Server alike), unlike `getTranslations`. `EventCountdownLive`
+ * is the one piece that must be live: it is its own small Client
+ * Component, which stays renderable synchronously by RTL.
  */
 export function HeroSection() {
+  const t = useTranslations("home");
   return (
     // mm:2167:9030
     <section data-testid="hero-section" className="relative w-full overflow-visible">
@@ -71,7 +73,7 @@ export function HeroSection() {
             height={200}
             className="h-auto w-[451px] max-w-full"
           />
-          <span className="sr-only">{heroCopy.hero.titleSr}</span>
+          <span className="sr-only">{t("hero.titleSr")}</span>
         </h1>
 
         {/* mm:2167:9034 */}
@@ -88,7 +90,7 @@ export function HeroSection() {
             href="/he-thong-giai"
             className="flex items-center gap-1 rounded-panel bg-gold px-6 py-4 font-body text-[22px] font-bold leading-7 text-canvas transition-colors hover:bg-gold/90"
           >
-            {heroCopy.hero.ctaAboutAwards}
+            {t("hero.ctaAboutAwards")}
             <IconLinkArrow className="h-6 w-6" />
           </a>
           {/* mm:2167:9064 */}
@@ -100,7 +102,7 @@ export function HeroSection() {
             tabIndex={-1}
             className="flex cursor-default items-center gap-1 rounded-panel border border-border-gold bg-gold-10 px-6 py-4 font-body text-[22px] font-bold leading-7 text-white"
           >
-            {heroCopy.hero.ctaAboutKudos}
+            {t("hero.ctaAboutKudos")}
             <IconLinkArrow className="h-6 w-6" />
           </button>
         </div>

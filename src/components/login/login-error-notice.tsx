@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 export type LoginErrorNoticeProps = {
   errorCode?: string;
 };
@@ -13,13 +15,15 @@ const KNOWN_ERROR_CODES = ["domain", "exchange_failed", "missing_code"];
  * note -- so there's no mm:{nodeId} to anchor to.
  */
 export function LoginErrorNotice({ errorCode }: LoginErrorNoticeProps) {
+  // Phase 07b: copy comes from the login catalogue (no Figma EN source -> Vietnamese fallback in EN).
+  const t = useTranslations("login");
   if (!errorCode || !KNOWN_ERROR_CODES.includes(errorCode)) {
     return null;
   }
 
   return (
     <p data-testid="login-error-notice" className="font-body text-sm font-bold text-badge">
-      Đăng nhập không thành công. Vui lòng thử lại.
+      {t("errorMessage")}
     </p>
   );
 }

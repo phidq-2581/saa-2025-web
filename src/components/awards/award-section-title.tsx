@@ -1,4 +1,4 @@
-import awards from "../../../messages/vi/awards.json";
+import { useTranslations } from "next-intl";
 
 /**
  * Section title (MoMorph item A, `mms_A_Title hệ thống giải thưởng`,
@@ -20,16 +20,17 @@ import awards from "../../../messages/vi/awards.json";
  * heading to two lines. `max-w-[1440px]` matches the artboard basis.
  */
 export function AwardSectionTitle() {
+  const t = useTranslations("awards");
   return (
     <div
       data-testid="award-section-title"
       className="mx-auto flex w-full max-w-360 flex-col gap-4 px-4 pt-20 md:px-36"
     >
       <p className="text-center text-2xl leading-8 font-bold text-white">
-        {awards.sectionTitle.eyebrow}
+        {t("sectionTitle.eyebrow")}
       </p>
       <h2 className="font-heading text-left text-[40px] leading-12 font-bold tracking-[-0.25px] text-gold md:text-[57px] md:leading-16">
-        {awards.sectionTitle.heading}
+        {t("sectionTitle.heading")}
       </h2>
     </div>
   );

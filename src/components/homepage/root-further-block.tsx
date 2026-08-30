@@ -1,4 +1,4 @@
-import rootFurtherCopy from "../../../messages/vi/home.json";
+import { useTranslations } from "next-intl";
 
 /**
  * Frame 486 (3204:10152): Root Further theme description. Node position
@@ -14,6 +14,7 @@ import rootFurtherCopy from "../../../messages/vi/home.json";
  * hero content ends at y779, this block starts at y899 = 120px).
  */
 export function RootFurtherBlock() {
+  const t = useTranslations("home");
   return (
     // mm:3204:10152
     <section data-testid="root-further-block" className="w-full">
@@ -38,17 +39,17 @@ export function RootFurtherBlock() {
         <div className="flex w-full flex-col gap-8">
           {/* mm:3204:10156 */}
           <p className="whitespace-pre-line text-justify font-body text-2xl font-bold leading-8 text-white">
-            {rootFurtherCopy.rootFurther.paragraph1}
+            {t("rootFurther.paragraph1")}
           </p>
           {/* mm:3204:10161 */}
           <p className="whitespace-pre-line text-center font-body text-xl font-bold leading-8 text-white">
-            {rootFurtherCopy.rootFurther.quote}
+            {t("rootFurther.quote")}
             <br />
-            {rootFurtherCopy.rootFurther.quoteTranslation}
+            {t("rootFurther.quoteTranslation")}
           </p>
           {/* mm:3204:10162 */}
           <p className="whitespace-pre-line text-justify font-body text-2xl font-bold leading-8 text-white">
-            {rootFurtherCopy.rootFurther.paragraph2}
+            {t("rootFurther.paragraph2")}
           </p>
         </div>
       </div>

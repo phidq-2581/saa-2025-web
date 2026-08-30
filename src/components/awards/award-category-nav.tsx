@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import type { AwardCategory } from "@/lib/awards/award-categories";
 import { resolveActiveSlug } from "./resolve-active-slug";
-import awards from "../../../messages/vi/awards.json";
 
 type AwardCategoryNavProps = {
   categories: readonly AwardCategory[];
@@ -86,6 +86,7 @@ const TWO_LINE_ROW_SLUGS = new Set(["top-project-leader", "signature-2025-creato
  * only performs the DOM scroll side effect.
  */
 export function AwardCategoryNav({ categories }: AwardCategoryNavProps) {
+  const t = useTranslations("awards");
   const hash = useSyncExternalStore(subscribeToHashChange, getHashSnapshot, getServerHashSnapshot);
   const [clickedSlug, setClickedSlug] = useState<string | null>(null);
 
@@ -104,7 +105,7 @@ export function AwardCategoryNav({ categories }: AwardCategoryNavProps) {
   }
 
   return (
-    <nav data-testid="award-category-nav" aria-label={awards.nav.ariaLabel} className="md:w-44.5">
+    <nav data-testid="award-category-nav" aria-label={t("nav.ariaLabel")} className="md:w-44.5">
       <ul className="flex flex-col items-start gap-1">
         {categories.map((category) => {
           const isActive = category.slug === activeSlug;
