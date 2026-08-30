@@ -60,27 +60,14 @@ every path below via `list_file_localizations` before finalizing.
 - `kudos.description`
 - `meta.title`, `meta.description`
 
-### Not wired into any component this phase
+### Body copy wiring — resolved in Phase 07b
 
-The catalogs above are fully authored (parity-verified against `messages/vi/*.json`
-by `src/i18n/__tests__/messages-parity.test.ts`), but several Server Components
-that already source copy from a static `messages/vi/*.json` import were **not**
-converted to `getTranslations`/`useTranslations` this phase, because doing so
-breaks their existing synchronous `@testing-library/react` render tests (an
-`async function` component renders as an unresolved Promise under plain RTL,
-which has no Server Components runtime):
-
-- `src/components/homepage/{hero-section,event-info,root-further-block,award-grid,award-card,kudos-promo,event-countdown}.tsx`
-- `src/components/awards/{award-hero,award-section-title,award-category-nav,award-info-card,award-kudos-banner}.tsx`
-- `src/components/login/login-error-notice.tsx`
-
-These render VN copy regardless of the selected locale. Wiring them requires
-either converting each to a Client Component (`useTranslations`, needs
-`NextIntlClientProvider` in tests) or rewriting their unit tests to render
-through an async-aware harness — out of scope for Phase 07's budget; left for
-a follow-up pass. `site-footer.tsx`, `login-footer.tsx`, `login-hero.tsx`,
-`(auth)/login/page.tsx`, and the three pages' `generateMetadata` exports
-**are** wired (none of them had a conflicting synchronous unit test).
+All 13 body components read the catalogues via next-intl since Phase 07b
+(2026-08-30). Each converts to `useTranslations` (they stay non-async Server
+Components — see `docs/system-architecture.md` § Content scaffolds); unit
+tests render through `src/test-utils/render-with-intl.tsx`'s `renderWithIntl()`
+(real `NextIntlClientProvider` + the real catalogues); `e2e/locale-body-copy.spec.ts`
+covers the Homepage and Award System routes end to end.
 
 ### Resolved by orchestrator MoMorph query (2026-08-28 23:40)
 `list_file_localizations` returned EN entries for these keys; applied verbatim to `messages/en/*.json` (supersedes the gap lists above for these keys).
@@ -135,3 +122,6 @@ a follow-up pass. `site-footer.tsx`, `login-footer.tsx`, `login-hero.tsx`,
 - `awards.cardContent.mvp.description`
 - `awards.kudos.description`
 - `awards.meta.description`
+
+### Removed hand-written EN copy (2026-08-30, Phase 07b review)
+- `common.auth.loginError` — EN value "Sign-in failed. Please try again." had no MoMorph source (authored in Phase 03 before the EN copy rule) and no consumer; removed from `messages/vi/common.json` and `messages/en/common.json`. The login failure notice reads `login.errorMessage` (Vietnamese in both locales — no Figma EN source).

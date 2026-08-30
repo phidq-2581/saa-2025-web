@@ -26,6 +26,7 @@
 - E2E: Playwright specs in `e2e/`, one durable spec per screen flow.
 - Never weaken an assertion to make a test pass. No fake/mocked data to force green.
 - A visual-QA claim needs measured probes, not eyeballing a screenshot: rendered `getBoundingClientRect()` vs. the MCP node's `x`/`width`, computed font styles vs. `get_node().styles`, `document.elementFromPoint()` for occlusion/z-index bugs, and full page height vs. the Figma frame height.
+- A component test needing translated copy renders through `renderWithIntl()` (`src/test-utils/render-with-intl.tsx`) — a real `NextIntlClientProvider` with the real catalogues, never a bare `render()` or a hand-rolled stub catalogue.
 
 ## Auth & i18n conventions
 
@@ -40,6 +41,8 @@
 - Logout submits a plain `<form method="post" action="/auth/sign-out">` to a Route Handler, never a Server Action prop — a Server Action's `redirect()` is a soft, client-side navigation that can race the response's `Set-Cookie` headers against the URL update (verified empirically, reproducibly 0/3); a hard, full-page form POST is atomic for the browser (3/3). A Route Handler gets no automatic same-origin check the way a Server Action does, so it must verify the `Origin` header itself, and should respond `303 See Other` (not the default 307) so the browser follows with `GET` instead of re-POSTing the form body.
 - A next-intl `onSelectLocale`/similar callback handed to a Client Component must be a Server Action *reference* (e.g. `export async function selectLocaleAction(...)`), never an inline closure defined inside a Server Component.
 - An `en/*.json` catalogue key with no confirmed Figma EN source falls back to the Vietnamese design text at runtime — never a `[VN]`-prefixed placeholder, which would leak to English-locale visitors. Log the gap in `docs/test-traceability.md` instead.
+- A component reads copy via `useTranslations`/`getTranslations` — never a direct `import ... from "messages/*.json"`. The sole exceptions are `src/test-utils/render-with-intl.tsx` and `src/i18n/__tests__/messages-parity.test.ts`, which need the raw catalogues to build a test provider / assert vi↔en key parity.
+- Never hand-translate an English string with no MoMorph source — fall back to the Vietnamese text (see the rule above) and log the gap instead. A past hand-written EN string (`common.auth.loginError`, authored before this rule existed) was removed in Phase 07b for exactly this reason.
 
 ## Quality gate (every phase)
 
