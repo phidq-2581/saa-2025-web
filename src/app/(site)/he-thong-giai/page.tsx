@@ -1,16 +1,27 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { AWARD_CATEGORIES } from "@/lib/awards/award-categories";
 import { AwardHero } from "@/components/awards/award-hero";
 import { AwardSectionTitle } from "@/components/awards/award-section-title";
 import { AwardCategoryNav } from "@/components/awards/award-category-nav";
 import { AwardInfoCard } from "@/components/awards/award-info-card";
 import { AwardKudosBanner } from "@/components/awards/award-kudos-banner";
-import awards from "../../../../messages/vi/awards.json";
 
-export const metadata: Metadata = {
-  title: awards.meta.title,
-  description: awards.meta.description,
-};
+/**
+ * Per-page title + description, localised from design content only
+ * (clarifications.md § SEO). A separate `generateMetadata` export, not
+ * rendered by `__tests__/award-page-sections.test.tsx` (which only renders
+ * the default `AwardSystemPage` export) -- `async` is safe here even
+ * though the page component itself must stay synchronous; see
+ * `hero-section.tsx`'s docblock for why.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("awards");
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+  };
+}
 
 /**
  * `/he-thong-giai` (MoMorph "Hệ thống giải", zFYDgyj_pD). Route is guarded

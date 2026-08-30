@@ -67,6 +67,17 @@ const TWO_LINE_ROW_SLUGS = new Set(["top-project-leader", "signature-2025-creato
  * outer `<li>` still carries `data-slug` itself for a plain
  * `toHaveAttribute` check on `navItems.nth(i)`.
  *
+ * Phase 07: `aria-current` is mirrored onto the outer `<li>` too. A
+ * SEPARATE consumer (`e2e/integration-flows.spec.ts`'s award-card-click
+ * assertion) queries `[data-testid="award-nav-item"][data-slug="..."]` as
+ * one compound selector, which resolves to the `<li>` (only it carries
+ * `data-testid`) and checks `aria-current` directly on THAT element, not a
+ * descendant -- the button-only attribute this component already shipped
+ * with (still asserted, unchanged, by `award-system.spec.ts`'s descendant
+ * queries) never satisfies that compound-selector read. Duplicating the
+ * state onto both elements satisfies both call sites without weakening
+ * either; `aria-current` on a non-interactive wrapper is valid ARIA.
+ *
  * Active slug = an explicit click (`clickedSlug`) overriding the
  * URL-hash-derived slug, so BR-001 (click marks exactly one item active)
  * and BR-002 (deep-link hash pre-activates on load) share one source of
@@ -99,7 +110,12 @@ export function AwardCategoryNav({ categories }: AwardCategoryNavProps) {
           const isActive = category.slug === activeSlug;
           const rowHeight = TWO_LINE_ROW_SLUGS.has(category.slug) ? "h-18" : "h-14";
           return (
-            <li key={category.slug} data-testid="award-nav-item" data-slug={category.slug}>
+            <li
+              key={category.slug}
+              data-testid="award-nav-item"
+              data-slug={category.slug}
+              aria-current={isActive ? "true" : undefined}
+            >
               <button
                 type="button"
                 data-slug={category.slug}

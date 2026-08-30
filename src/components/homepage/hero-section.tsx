@@ -1,11 +1,7 @@
 import heroCopy from "../../../messages/vi/home.json";
-import { EventCountdown, type CountdownRemaining } from "./event-countdown";
+import { EventCountdownLive } from "./event-countdown-live";
 import { EventInfo } from "./event-info";
 import { IconLinkArrow } from "./icon-link-arrow";
-
-type HeroSectionProps = {
-  remaining: CountdownRemaining;
-};
 
 /**
  * 3.5 Keyvisual (2167:9027) + Cover (2167:9029) + Frame 487 (2167:9031):
@@ -30,8 +26,18 @@ type HeroSectionProps = {
  * `md:px-36` = 144px on a full-bleed bar). `max-w-[1224px] mx-auto`
  * reproduces that at the 1512px design width without double-applying the
  * 144px as both a max-width AND extra padding (the bug this fix corrects).
+ *
+ * Copy stays a direct `messages/vi/home.json` import rather than
+ * `getTranslations` (Phase 07): `__tests__/home-page.test.tsx` renders this
+ * tree through plain `@testing-library/react`, which has no Server
+ * Components runtime and cannot render an `async function` component (a
+ * bare `render(<HeroSection />)` receives an unresolved Promise, not
+ * markup) -- converting this component to `async` silently breaks that
+ * already-passing suite. `EventCountdownLive` is the one piece that must
+ * be live: it is its own small Client Component, which stays renderable
+ * synchronously by RTL.
  */
-export function HeroSection({ remaining }: HeroSectionProps) {
+export function HeroSection() {
   return (
     // mm:2167:9030
     <section data-testid="hero-section" className="relative w-full overflow-visible">
@@ -70,7 +76,7 @@ export function HeroSection({ remaining }: HeroSectionProps) {
 
         {/* mm:2167:9034 */}
         <div className="flex flex-col gap-4">
-          <EventCountdown remaining={remaining} />
+          <EventCountdownLive />
           <EventInfo />
         </div>
 
