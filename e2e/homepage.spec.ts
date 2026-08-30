@@ -1,55 +1,16 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Phase 05 — Homepage SAA (`/`) RED test
- * Durable screen-level E2E test covering 5 assertion groups from the design spec.
- * Test cases: ID-12, ID-40, ID-43, ID-14, ID-44, ID-45, ID-47, ID-48, ID-49, ID-50, ID-52, ID-53.
- * Runs against the server placeholder state (countdown 00/00/00, reached=false).
- *
- * Data-testid contract for UI agent:
- * - hero-section, countdown-days, countdown-hours, countdown-minutes
- * - coming-soon-label
- * - event-info
- * - cta-about-awards, cta-about-kudos
- * - root-further-block
- * - award-grid, award-card (with data-slug="<slug>")
- * - kudos-promo, kudos-promo-detail
+ * Phase 05 — Homepage SAA (`/`) UI test
+ * Hero, event info, award grid, kudos promo (countdown tests moved to homepage-countdown.spec.ts).
+ * Data-testid contract: hero-section, event-info, cta-about-awards, cta-about-kudos,
+ * award-grid, award-card[data-slug], kudos-promo, kudos-promo-detail, root-further-block.
  */
 
 test.describe("Homepage SAA", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     await page.setViewportSize({ width: 1280, height: 720 });
-  });
-
-  test("countdown tiles display two-digit placeholder values with labels (TC ID-12, ID-40, BR-005)", async ({
-    page,
-  }) => {
-    const daysBlock = page.locator('[data-testid="countdown-days"]');
-    const hoursBlock = page.locator('[data-testid="countdown-hours"]');
-    const minutesBlock = page.locator('[data-testid="countdown-minutes"]');
-
-    await expect(daysBlock).toBeVisible();
-    await expect(hoursBlock).toBeVisible();
-    await expect(minutesBlock).toBeVisible();
-
-    // Each tile shows two digits (00 placeholder) with label
-    await expect(daysBlock).toContainText("00");
-    await expect(daysBlock).toContainText("DAYS");
-
-    await expect(hoursBlock).toContainText("00");
-    await expect(hoursBlock).toContainText("HOURS");
-
-    await expect(minutesBlock).toContainText("00");
-    await expect(minutesBlock).toContainText("MINUTES");
-  });
-
-  test("coming-soon label is visible when event not reached (TC ID-43)", async ({
-    page,
-  }) => {
-    const comingSoonLabel = page.locator('[data-testid="coming-soon-label"]');
-    await expect(comingSoonLabel).toBeVisible();
-    await expect(comingSoonLabel).toHaveText("Coming soon");
   });
 
   test("hero shows ROOT FURTHER, event info, and CTAs (TC ID-14, ID-44, US002, BR-008)", async ({

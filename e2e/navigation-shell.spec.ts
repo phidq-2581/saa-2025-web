@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { test as authenticatedTest, expect as expectAuth } from './support/authenticated-fixture';
 
 test.describe('Navigation Shell', () => {
   test.beforeEach(async ({ page }) => {
@@ -74,7 +75,7 @@ test.describe('Navigation Shell', () => {
     await expect(menu).toBeVisible();
   });
 
-  test('04: Footer, FAB, and notification bell', async ({ page }) => {
+  test('04: Footer and guest shell (no bell, no FAB)', async ({ page }) => {
     // Footer
     const footer = page.locator('[data-testid="site-footer"]');
     await expect(footer).toBeVisible();
@@ -100,7 +101,27 @@ test.describe('Navigation Shell', () => {
     // Bell renders only for authenticated users (TC ID-1, clarifications.md § Forge corrections).
     await expect(page.getByTestId('notification-bell')).toHaveCount(0);
 
-    // FAB toggle should be visible
+    // FAB toggle should NOT be visible for guest (SCR004_Fab hidden state).
+    // FAB renders only for authenticated users.
+    const fabToggle = page.locator('[data-testid="fab-toggle"]');
+    await expect(fabToggle).toHaveCount(0);
+  });
+
+  authenticatedTest('04a: Authenticated shell (bell visible, FAB visible)', async ({
+    authenticatedPage: page,
+  }) => {
+    await page.goto('/');
+    await page.setViewportSize({ width: 1280, height: 720 });
+
+    // Notification bell should be visible for authenticated user
+    const bell = page.locator('[data-testid="notification-bell"]');
+    await expect(bell).toBeVisible();
+
+    // Bell should have NO badge (unreadCount=0)
+    const badge = page.locator('[data-testid="notification-badge"]');
+    await expect(badge).not.toBeVisible();
+
+    // FAB toggle should be visible for authenticated user (SCR004_Fab hidden state)
     const fabToggle = page.locator('[data-testid="fab-toggle"]');
     await expect(fabToggle).toBeVisible();
 
