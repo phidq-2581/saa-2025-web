@@ -16,13 +16,22 @@ export function isLocale(value: string | undefined): value is Locale {
   return !!value && (locales as readonly string[]).includes(value);
 }
 
+/** Phase 07: one namespace per screen, plus the shared `common` chrome copy. */
+const NAMESPACES = ["common", "login", "home", "awards"] as const;
+
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
   const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value;
   const locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
 
+  const catalogs = await Promise.all(
+    NAMESPACES.map((namespace) => import(`../../messages/${locale}/${namespace}.json`)),
+  );
+
   return {
     locale,
-    messages: (await import(`../../messages/${locale}/common.json`)).default,
+    messages: Object.fromEntries(
+      NAMESPACES.map((namespace, index) => [namespace, catalogs[index].default]),
+    ),
   };
 });

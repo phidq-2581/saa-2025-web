@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 
 type LoginHeroProps = {
   children: ReactNode;
@@ -24,8 +25,14 @@ type LoginHeroProps = {
  * canvas-to-transparent fades painted on top of that same background;
  * copied verbatim from MCP `background` CSS via inline style rather than
  * guessed at Tailwind gradient utility names.
+ *
+ * No existing synchronous `@testing-library/react` render covers this
+ * component, so `async` + `getTranslations` is safe here -- see
+ * `hero-section.tsx`'s docblock for the components where it is not.
  */
-export function LoginHero({ children }: LoginHeroProps) {
+export async function LoginHero({ children }: LoginHeroProps) {
+  const t = await getTranslations("login");
+
   return (
     // mm:662:14393
     <section className="relative flex-1 overflow-hidden pt-20">
@@ -67,9 +74,9 @@ export function LoginHero({ children }: LoginHeroProps) {
         <div className="flex max-w-[496px] flex-col items-start gap-6 pl-4">
           {/* mm:662:14753 */}
           <p className="font-body text-[20px] font-bold leading-[40px] tracking-[0.5px] text-white">
-            Bắt đầu hành trình của bạn cùng SAA 2025.
+            {t("heroSubtitle")}
             <br />
-            Đăng nhập để khám phá!
+            {t("heroTagline")}
           </p>
 
           <div className="flex flex-col items-start gap-4">{children}</div>

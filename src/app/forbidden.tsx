@@ -6,8 +6,11 @@ import { getTranslations } from "next-intl/server";
 // is admin-only (permissions.md § Route Access Matrix), so nothing calls
 // Next's `forbidden()` yet -- this file exists ready for the first phase
 // that adds an admin-gated route.
+//
+// Phase 07: see not-found.tsx's docblock -- `forbidden.*` now lives at
+// `common.forbidden.*` under the namespaced message tree.
 export default async function Forbidden() {
-  const t = await getTranslations("forbidden");
+  const t = await getTranslations("common.forbidden");
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-canvas px-6 py-24 text-center text-white">

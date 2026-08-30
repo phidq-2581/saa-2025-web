@@ -5,8 +5,16 @@ import { getTranslations } from "next-intl/server";
 // Next.js needs a not-found.tsx regardless of screen-design status; this
 // uses only design tokens already pulled from MCP into globals.css
 // (--color-canvas, --color-gold, --color-border-gold, --radius-pill).
+//
+// Phase 07: `src/i18n/request.ts` now loads one namespace per catalog file
+// (`{common, login, home, awards}`), so `notFound.*` lives under the
+// `common` catalog at `common.notFound.*` rather than being a top-level
+// namespace -- `getTranslations("common.notFound")` (a dot-path into the
+// messages tree, which next-intl resolves the same as a plain namespace)
+// keeps every `t("title")`/`t("description")`/`t("backHome")` call below
+// unchanged.
 export default async function NotFound() {
-  const t = await getTranslations("notFound");
+  const t = await getTranslations("common.notFound");
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-canvas px-6 py-24 text-center text-white">

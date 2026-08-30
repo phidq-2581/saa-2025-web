@@ -1,0 +1,108 @@
+{
+  "hero": {
+    "title": "ROOT FURTHER",
+    "subtitle": "Sun* Annual Award 2025",
+    "logoAlt": "Keyvisual Sun* Annual Award 2025"
+  },
+  "sectionTitle": {
+    "eyebrow": "Sun* annual awards 2025",
+    "heading": "SAA 2025 Award System"
+  },
+  "nav": {
+    "ariaLabel": "Danh mục giải thưởng"
+  },
+  "card": {
+    "quantityLabel": "Number of awards:",
+    "prizeLabel": "Prize value:",
+    "orConnector": "Or"
+  },
+  "cardContent": {
+    "top-talent": {
+      "title": "Top Talent",
+      "description": "Top Talent Award recognizing individuals who excel comprehensively – those who constantly affirm their solid professional skills, outstanding work performance, always deliver value beyond expectations, and are highly valued by clients and teammates. With a spirit ready to accept any organizational task, they are always a source of inspiration, motivation, and positive influence on the entire team.",
+      "quantityValue": "10",
+      "quantityUnit": "Individual",
+      "prizes": [
+        {
+          "amount": "7,000,000 VND",
+          "qualifier": "per prize"
+        }
+      ]
+    },
+    "top-project": {
+      "title": "Top Project",
+      "description": "Top Project Award honoring excellent project teams with business results exceeding expectations, optimized operational efficiency, and dedicated working spirit. These projects are highly complex technically, optimize resource and cost efficiency, propose valuable ideas for clients, generate superior profits, and receive positive feedback. Members strictly adhere to internal development standards, creating a model of excellence and professionalism.",
+      "quantityValue": "02",
+      "quantityUnit": "Team",
+      "prizes": [
+        {
+          "amount": "15,000,000 VND",
+          "qualifier": "per prize"
+        }
+      ]
+    },
+    "top-project-leader": {
+      "title": "Top Project Leader",
+      "description": "Top Project Leader Award honoring excellent project managers – those who possess strong management skills, powerful inspiration, and a mindset of ‘Aim High – Be Agile’ in any challenge and situation. Under their guidance, team members not only overcome challenges and achieve goals, but also maintain passion, Wasshoi spirit, and grow to become the best version of themselves.",
+      "quantityValue": "03",
+      "quantityUnit": "Individual",
+      "prizes": [
+        {
+          "amount": "7,000,000 VND",
+          "qualifier": "per prize"
+        }
+      ]
+    },
+    "best-manager": {
+      "title": "Best Manager",
+      "description": "Best Manager Award honoring outstanding leaders who lead their teams to achieve results beyond expectations. They demonstrate versatile skills, effective coordination, and flexible technology application in the digital age, inspiring the team to be confident, energetic, and even drive revolutionary changes.",
+      "quantityValue": "01",
+      "quantityUnit": "Individual",
+      "prizes": [
+        {
+          "amount": "10,000,000 VND",
+          "qualifier": null
+        }
+      ]
+    },
+    "signature-2025-creator": {
+      "title": "Signature 2025 - Creator",
+      "description": "Giải thưởng Signature vinh danh cá nhân hoặc tập thể thể hiện tinh thần đặc trưng mà Sun* hướng tới trong từng thời kỳ.  Trong năm 2025, giải thưởng Signature vinh danh Creator - cá nhân/tập thể mang tư duy chủ động và nhạy bén, luôn nhìn thấy cơ hội trong thách thức và tiên phong trong hành động. Họ là những người nhạy bén với vấn đề, nhanh chóng nhận diện và đưa ra những giải pháp thực tiễn, mang lại giá trị rõ rệt cho dự án, khách hàng hoặc tổ chức. Với tư duy kiến tạo và tinh thần “Creator” đặc trưng của Sun*, họ không chỉ phản ứng tích cực trước sự thay đổi mà còn chủ động tạo ra cải tiến, góp phần định hình chuẩn mực mới cho cách mà người Sun* tạo giá trị.",
+      "quantityValue": "01",
+      "quantityUnit": "Individual or Team",
+      "prizes": [
+        {
+          "amount": "5,000,000 VND",
+          "qualifier": "for individual award"
+        },
+        {
+          "amount": "8,000,000 VND",
+          "qualifier": "for team award"
+        }
+      ]
+    },
+    "mvp": {
+      "title": "MVP (Most Valuable Person)",
+      "description": "Giải thưởng MVP vinh danh cá nhân xuất sắc nhất năm – gương mặt tiêu biểu đại diện cho toàn bộ tập thể Sun*. Họ là người đã thể hiện năng lực vượt trội, tinh thần cống hiến bền bỉ, và tầm ảnh hưởng sâu rộng, để lại dấu ấn mạnh mẽ trong hành trình của Sun* suốt năm qua.  Không chỉ nổi bật bởi hiệu suất và kết quả công việc, họ còn là nguồn cảm hứng lan tỏa – thông qua suy nghĩ, hành động và ảnh hưởng tích cực của mình đối với tập thể. MVP là người hội tụ đầy đủ phẩm chất của người Sun* ưu tú, đồng thời mang trên mình trọng trách lớn lao: trở thành hình mẫu đại diện cho con người và tinh thần Sun*, góp phần dẫn dắt tập thể vươn tới những đỉnh cao mới.",
+      "quantityValue": "01",
+      "quantityUnit": "Individual",
+      "prizes": [
+        {
+          "amount": "15,000,000 VND",
+          "qualifier": null
+        }
+      ]
+    }
+  },
+  "kudos": {
+    "eyebrow": "Recognition Movement",
+    "title": "Sun* Kudos",
+    "description": "ĐIỂM MỚI CỦA SAA 2025\nHoạt động ghi nhận và cảm ơn đồng nghiệp - lần đầu tiên được diễn ra dành cho tất cả Sunner. Hoạt động sẽ được triển khai vào tháng 11/2025, khuyến khích người Sun* chia sẻ những lời ghi nhận, cảm ơn đồng nghiệp trên hệ thống do BTC công bố. Đây sẽ là chất liệu để Hội đồng Heads tham khảo trong quá trình lựa chọn người đạt giải.",
+    "detailLabel": "Details",
+    "logoAlt": "Sun* Kudos"
+  },
+  "meta": {
+    "title": "SAA 2025 Award System",
+    "description": "Sun* Annual Award 2025 - Hệ thống giải thưởng SAA 2025"
+  }
+}

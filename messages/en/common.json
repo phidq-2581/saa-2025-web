@@ -11,5 +11,9 @@
     "title": "Access denied",
     "description": "You don't have permission to access this page.",
     "backHome": "Back to home"
+  },
+  "footer": {
+    "copyright": "Copyright © Sun* 2025",
+    "generalStandards": "General standards"
   }
 }

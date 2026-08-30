@@ -11,5 +11,9 @@
     "title": "Không có quyền truy cập",
     "description": "Bạn không có quyền truy cập trang này.",
     "backHome": "Về trang chủ"
+  },
+  "footer": {
+    "copyright": "Bản quyền thuộc về Sun* © 2025",
+    "generalStandards": "Tiêu chuẩn chung"
   }
 }

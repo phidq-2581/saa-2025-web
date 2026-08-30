@@ -63,10 +63,10 @@ function SubmitButton({ label }: { label: string }) {
 /**
  * mms_B.3_Login (662:14425) -- the single Google OAuth trigger. `next` is
  * bound onto the server action (`action.bind(null, next)`) so a plain
- * form submit resolves it, and mirrored into a hidden input so the value
- * still travels in FormData. The E2E suite never clicks this button
- * (Phase 07 owns the click-through assertion); this only proves the
- * enabled/pending markup contract.
+ * form submit resolves it -- no hidden input is needed to carry `next` in
+ * FormData, since a bound argument is already part of the action reference
+ * itself (reviewer Low #9: an earlier `<input type="hidden" name="next">`
+ * duplicating the bound value was dead markup, removed here).
  */
 export function GoogleSignInButton({ action, label, next }: GoogleSignInButtonProps) {
   const boundAction = action.bind(null, next);
@@ -74,7 +74,6 @@ export function GoogleSignInButton({ action, label, next }: GoogleSignInButtonPr
   return (
     // mm:662:14425
     <form action={boundAction}>
-      <input type="hidden" name="next" value={next ?? ""} />
       <SubmitButton label={label} />
     </form>
   );

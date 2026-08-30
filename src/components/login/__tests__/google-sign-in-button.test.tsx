@@ -12,16 +12,14 @@ describe("GoogleSignInButton", () => {
     expect(button.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("mirrors next into a hidden input for the bound server action", () => {
+  // Phase 07 (reviewer Low #9): `next` travels solely via `action.bind(null,
+  // next)` -- a hidden input mirroring the same value was dead markup and
+  // has been removed. This asserts the removal, not a re-add.
+  it("carries no hidden 'next' input -- next travels only via the bound action", () => {
     render(
-      <GoogleSignInButton
-        action={vi.fn()}
-        label="LOGIN With Google"
-        next="/he-thong-giai"
-      />,
+      <GoogleSignInButton action={vi.fn()} label="LOGIN With Google" next="/he-thong-giai" />,
     );
 
-    const hiddenInput = document.querySelector('input[name="next"]');
-    expect(hiddenInput).toHaveValue("/he-thong-giai");
+    expect(document.querySelector('input[name="next"]')).not.toBeInTheDocument();
   });
 });
