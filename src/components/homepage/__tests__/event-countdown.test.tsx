@@ -36,4 +36,13 @@ describe("EventCountdown", () => {
     expect(screen.queryByTestId("coming-soon-label")).not.toBeInTheDocument();
     expect(screen.getByTestId("countdown-days")).toHaveTextContent("00");
   });
+
+  it("marks the tiles container as an aria-live polite region for screen readers (BR-005 a11y)", () => {
+    renderWithIntl(
+      <EventCountdown remaining={{ days: "00", hours: "00", minutes: "00", reached: false }} />,
+    );
+
+    const tilesContainer = screen.getByTestId("countdown-days").closest(".gap-10");
+    expect(tilesContainer).toHaveAttribute("aria-live", "polite");
+  });
 });

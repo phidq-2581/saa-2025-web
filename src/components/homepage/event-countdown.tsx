@@ -66,7 +66,11 @@ export function EventCountdown({ remaining }: { remaining: CountdownRemaining })
         </p>
       ) : null}
       {/* mm:2167:9037 */}
-      <div className="flex flex-wrap items-center gap-10">
+      <div
+        className="flex flex-wrap items-center gap-10"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <CountdownTile testId="countdown-days" value={days} label={t("countdown.days")} />
         <CountdownTile testId="countdown-hours" value={hours} label={t("countdown.hours")} />
         <CountdownTile testId="countdown-minutes" value={minutes} label={t("countdown.minutes")} />

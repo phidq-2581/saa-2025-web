@@ -12,5 +12,11 @@
   "footer": {
     "copyright": "Bản quyền thuộc về Sun* © 2025",
     "generalStandards": "Tiêu chuẩn chung"
+  },
+  "fab": {
+    "toggle": "Hành động nhanh",
+    "rules": "Thể lệ",
+    "writeKudos": "Viết KUDOS",
+    "cancel": "Hủy"
   }
 }
