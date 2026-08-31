@@ -67,4 +67,19 @@ test.describe("Homepage Countdown", () => {
       expect(hasNonZero).toBeTruthy();
     }
   });
+
+  /**
+   * BR-005 a11y: countdown region must have aria-live="polite" to announce
+   * changes as the countdown ticks (live region).
+   */
+  test("countdown region has aria-live polite for screen reader announcement (BR-005 a11y)", async ({
+    page,
+  }) => {
+    const heroSection = page.locator('[data-testid="hero-section"]');
+    // The countdown tiles container should have aria-live="polite"
+    const countdownContainer = heroSection.locator(".flex.flex-wrap.items-center.gap-10");
+
+    // Assert that aria-live is present and set to "polite"
+    await expect(countdownContainer).toHaveAttribute("aria-live", "polite");
+  });
 });

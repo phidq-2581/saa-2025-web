@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import { withRetry } from "./with-retry";
 import { createServerClient } from "@supabase/ssr";
 
 /**
@@ -150,13 +151,22 @@ export async function seedSession(
   const anon = createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: otpData, error: otpErr } = await anon.auth.verifyOtp({
-    token_hash: tokenHash,
-    type: "magiclink",
-  });
-  if (otpErr || !otpData.session) {
-    throw new Error(`seed-session: verifyOtp failed: ${otpErr?.message ?? "no session"}`);
-  }
+
+  // Retry verifyOtp on concurrent-load timing failures (JWT iat collisions)
+  const otpData = await withRetry(
+    async () => {
+      const result = await anon.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: "magiclink",
+      });
+      if (result.error || !result.data.session) {
+        throw new Error(`verifyOtp failed: ${result.error?.message ?? "no session"}`);
+      }
+      return result.data;
+    },
+    2,
+    250,
+  );
 
   if (role !== "member") {
     const { error: roleErr } = await admin.from("profile").update({ role }).eq("id", user.id);
@@ -165,7 +175,7 @@ export async function seedSession(
     }
   }
 
-  const cookies = await deriveSsrCookies(url, anonKey, otpData.session);
+  const cookies = await deriveSsrCookies(url, anonKey, otpData.session!);
   return { userId: user.id, email, cookies };
 }
 
