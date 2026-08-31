@@ -1,15 +1,34 @@
 {
-  "primary_lang": "en",
-  "last_rebuild_sha": "",
+  "doc_shas": {
+    "api-map.md": "728201b8c063239187af32b0ac0c77daf70ae2279f404e4c1e017a3ac28536e3",
+    "behavior-logic.md": "54f836ff6756f03b4b63f63a52ca5ea956d441df92c92b33f0f917398de3953c",
+    "business-rules.md": "bfd4e0f1cf69cf81be243233895aa541041a16e85703b2cfc1c302190269b1f0",
+    "data-model.md": "c01b0172833b3606cd7a3ab7f871ef3f85bd25c92f32998d90a671ea07b1a724",
+    "feature-list.md": "947f82ba89ba8bdebfa2a3ca97b6b10ec888aa70a91cf244d4cf9e85b96f6074",
+    "permissions.md": "cda9ab4a729b5d5799cc7db54881e4e142eb74a6df102ee29cc27d35fb4b4f80",
+    "route-list.md": "b82ae2b81775e862a3b2e931b50b7d2f0ef5eed178a57c67be58a5e22a89d28b",
+    "screen-flow.md": "946864b270be93814ca91ee1bf0ab0995a3091f2ead45e405369059b2e946ead",
+    "screen-list.md": "795fc4c81e77a839c49d1a170452cdd7ca7a2a90b0b18c85dc5addc9c45f2ec1",
+    "system-overview.md": "0bd4808f74143ac32b1535a3198ce95c29f30a668c88360caba38bf9d6c33b01",
+    "user-stories.md": "18dfb7ac293c881fae23debce55233802447500ee498827c895f964e43ce738d"
+  },
+  "fcode_index_sha": "1fc6bc2448602c3126e24c8c0fb6c509d18e362a2c3755f5e2d7eef27a430553",
+  "last_api_contracts_run_sha": "",
+  "last_design_intent_run_sha": "",
   "last_feature_spec_run_sha": "b0a21a87be0cfa20ab0ea3c0ceba680341509ffd",
-  "fcode_index_sha": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-  "doc_shas": {},
+  "last_flows_run_sha": "",
+  "last_glossary_run_sha": "",
+  "last_jobs_run_sha": "",
+  "last_rebuild_sha": "f196e84013a9f8659d4afd04d36f5102f6bd959d",
+  "last_test_cases_run_sha": "",
+  "mode": "full",
+  "primary_lang": "en",
+  "rebuilt_at": "2026-08-31T13:18:45Z",
+  "schema_version": "21.0.0",
   "screen_spec_shas": {
-    "SCR001": "493612505994679cf01b4de46ed392054ea32052d7150375fcafaf894315f9fc",
-    "SCR002": "2f6cb747a5d03a72d14c61ad9934d0b609465272db583b44e05c168c3f71610a",
-    "SCR003": "77b172734a0498e0383eb1d1634b17a5756309f6fec8944058a56ea00c93086d",
-    "SCR004": "92f0e7d377bd7a2e7dc7866c13b474ac99be2c9a279b61cfc099b5f1ba30518e",
-    "SCR005": "7810ab352fe49c8d0bc1dcba635443d18625bda1dcfcca7692d928a1525217cc",
-    "SCR006": "438b9b00645a13e32b7da3ae6772ec23a8bcd5b6822c4478a25bc4145c651aaa"
-  }
+    "SCR001": "91014645eb4ae4a13affe000466b8f68975bf0c797e89b9ea9558fa49082214a",
+    "SCR002": "8b80cd6de4f3a62243a1bb7a40ea9b1878bf34ccf63fd9561a53681fa26eaf35",
+    "SCR003": "585f5cb76b705c47926055e0c44a855c0431cf70f2061d65c47d54cee3ae003d"
+  },
+  "translations": {}
 }

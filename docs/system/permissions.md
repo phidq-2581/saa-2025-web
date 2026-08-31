@@ -1,47 +1,49 @@
----
-status: implemented
-authored_by: takumi
-created: 2026-08-28
-lang: en
----
+# Permissions
 
-# Permissions (draft) — SAA 2025 Web
+**Project**: SAA 2025 Web
+**Generated**: 2026-08-31
+**Analysis Scope**: Wave 3 — auth/authorization surface
 
-## Roles
+> **Curated, plain-language view.** This document is for PM, BA, and client audiences who
+> need to understand access without reading raw codes. The raw PERM### matrix lives at
+> [permissions-matrix.md](./permissions-matrix.md). This prose is derived FROM that matrix.
 
-- **anonymous** — no session; can only reach public routes.
-- **member** — default role for any Sunner (`@sun-asterisk.com` Google account) on first sign-in.
-- **admin** — a Sunner whose `profile.role` column is set to `admin`; how that column gets set for any specific person is undecided (out of scope this round — no admin-management screen exists yet).
+## Authorization System Type
 
-`profile` is protected at the database layer, not just the app: RLS is enabled on `public.profile` with exactly one policy, `profile_select_own` (`auth.uid() = id`), granted to the `authenticated` role only — a signed-in Sunner can read exclusively their own row, never another's (`supabase/migrations/20260828000000_create_profile_table_and_trigger.sql:17-28`). There is no insert/update/delete policy, so `role` cannot be self-promoted through the app.
+**System Type**: `hybrid` — a role check (`admin` vs `member`) layered on top of session-based route gating, plus a database ownership rule (Row Level Security) for profile data.
 
-**Local dev admin promotion:** `supabase/seeds/dev/promote-admin.sql` sets one developer's `profile.role` to `admin`, targeting their `@sun-asterisk.com` address. It is never auto-applied — `supabase/config.toml`'s `[db.seed].sql_paths` only globs `./seeds/common/*.sql` plus `env(SUPABASE_EXTRA_SEEDS)`, so a plain `supabase db reset` skips it; run it explicitly with `SUPABASE_EXTRA_SEEDS=./seeds/dev/promote-admin.sql supabase db reset`. Caveat discovered locally: `supabase db reset` wipes `auth.users` before seeds run, and the seed's `UPDATE` only matches an existing `auth.users` row, so a fresh reset has no admin yet to promote. Working order: reset, sign in once for real with Google (provisions `auth.users` + `profile`), then run the seed's `UPDATE` via `psql` against the now-provisioned row.
+| System Type | Description |
+|-------------|-------------|
+| `hybrid` | Mixed — roles combined with ownership checks |
 
-## Route Access Matrix
+**Identified Roles**:
+- **Guest** — no session; can only reach the public pages.
+- **Member** — signed in with a `@sun-asterisk.com` Google account; the default role for every new account.
+- **Admin** — a signed-in member promoted to `admin` by a developer running a manual, opt-in database seed. No self-service or in-app promotion path exists.
+- **System** — the database itself, acting through a privileged trigger. It is not a person and is never reachable over HTTP; it exists solely to create a Member's profile row the instant their account is created.
 
-| Route | Access | Notes |
-|-------|--------|-------|
-| `/` (Homepage) | public | anonymous and signed-in visitors both see it |
-| `/login` | public | redirects away if already signed in |
-| `/auth/callback` | public (system route) | OAuth code-exchange endpoint, not a user-facing page; matched by the `/auth/` prefix in `proxy.ts` (`src/proxy.ts:15`), not exact equality |
-| everything else (e.g. `/he-thong-giai`) | session required | any signed-in Sunner (member or admin); no route this round is admin-only |
+## Curated View
 
-`/` and `/login` are matched by **exact equality only** in `proxy.ts`'s `PUBLIC_ROUTES` (`src/proxy.ts:12-16`) — a `startsWith` check there would make every route public, so it must never be reintroduced. An unauthenticated visitor to a private route is redirected to `/login?next=<original-path>`; a signed-in Sunner who reaches `/login` is redirected to `/`. Both redirects carry forward any rotated session cookie via `redirectWithCookies` (`src/proxy.ts:26-30`), so a cookie rotated/cleared mid-request is never dropped by the bounce.
+- **A Guest** can view the Homepage and the Login screen. Trying to open anything else (currently only the Award System page) bounces them to Login, which remembers where they were headed so they land back there after signing in.
+- **A Guest** can start signing in with Google, but only a `@sun-asterisk.com` work account with a verified Google email is actually let in — any other account is signed straight back out and sent to Login with an error, even though Google itself accepted the login. There is no visible difference in the UI between "wrong domain" and "unverified email"; both produce the same rejection.
+- **A Member** can do everything a Guest can, plus: see the Award System page, see the notification bell and their own account avatar in the header, see a floating action button in the corner of the page, and read their own profile (name, avatar, role) — nobody else's.
+- **A Member** cannot edit their own profile anywhere in the app today — not their name, not their avatar, not their role. The only thing that can write to a profile is the system itself, once, at account creation.
+- **An Admin** can do everything a Member can, plus see an extra "Dashboard" item in their account menu. That item does not go anywhere yet — it is a placeholder with no page behind it, and nothing outside a manual database update currently makes anyone an Admin.
+- **Signing out** works for a Member or an Admin from any page that has the header; it only refuses a sign-out request that did not originate from the site itself (a basic anti-forgery check), regardless of role.
 
-Codes: `PERM###` — TBD (draft), not allocated yet (machine-allocated at reconcile, per `spec-authoring-contract.md`).
+## Access Boundaries
 
-## Domain rule
+The core boundary is **signed-in vs. not** — a Guest cannot see anything beyond Homepage and Login, full stop, and the guard defaults to "require a session" for every page that isn't explicitly listed as public. Today that only bites on the Award System page, but the rule is written to cover any page added later, not just that one.
 
-Only `@sun-asterisk.com` Google accounts may hold a session. Enforced server-side at the OAuth callback (email-domain check immediately after code exchange) and re-checked on every request by the route guard — never enforced client-side, and never relying on Google's `hd` sign-in hint alone (that parameter only pre-fills Google's own account picker; it does not block other domains).
+Within "signed-in," Admin vs. Member is a much thinner boundary: it currently only changes one thing a user can see (an inert "Dashboard" menu item), not what they can do or which data they can reach. The profile-ownership boundary is stricter than the role boundary: even an Admin can only read their *own* profile row — there is no admin override that lets anyone read someone else's profile, and nobody (Admin included) can write to a profile through the app at all.
 
-The predicate itself (`isAllowedEmail`, `src/lib/auth/allowed-email.ts:24-37`) is strict by design: it requires exactly one `@` and a non-empty local part before comparing the domain case-insensitively — a malformed value like `a@b@sun-asterisk.com` or `@sun-asterisk.com` is rejected outright rather than evaluated on a trailing segment.
+Becoming an Admin is entirely outside the application: a developer runs a manual, opt-in seed script against a specific email address. There is no UI, API, or self-service flow that changes a user's role.
 
-`isAllowedEmail` alone only proves the domain, not the identity: the OAuth callback (`src/app/auth/callback/route.ts:39-42`) rejects on **either** a non-matching domain **or** an unverified Google identity (`emailVerified()`, `src/lib/auth/email-verified.ts` — requires `user.email_confirmed_at` set AND the first identity's `identity_data.email_verified === true`), both cases ending in `signOut()` + redirect to `/login?error=domain`. The post-login `next` redirect target is never trusted as-is — it passes through `safeNext()` (`src/lib/auth/safe-next.ts`), which accepts only a single-`/`-leading same-origin path and falls back to `/` on anything protocol-relative, absolute, backslash-bearing, or carrying a raw/percent-encoded CR/LF/NUL.
+## Special Conditions
 
-## Session refresh
+- **Domain + verified-email gate at sign-in**: the `@sun-asterisk.com`-only restriction is enforced once, right after Google hands back a signed-in session — not earlier, and not by trusting Google's own "log in with your work account" hint. A rejected account has its brand-new session torn down immediately, so it never keeps access even briefly.
+- **No self-service role change**: promoting a Member to Admin is a manual, developer-run, opt-in database operation, not something exposed anywhere in the product.
+- **No profile self-editing**: neither role can currently change their own display name, avatar, or department through the app — the profile row is written exactly once, automatically, at account creation, and is otherwise read-only for everyone including its owner.
+- **Cross-origin sign-out is blocked**: a sign-out request that did not come from the site's own pages is rejected outright, independent of who is signed in.
 
-Every request outside the public routes above is re-validated in `proxy.ts` (Next.js 16's replacement for `middleware.ts`) via Supabase's `getClaims()` check — never `getSession()`/`getUser()` server-side (Supabase's current guidance) — not a one-time check at first load. `supabase/config.toml` currently sets `jwt_expiry = 3600` (1 hour) with refresh-token rotation enabled, so a session self-renews as long as the Sunner keeps using the site; session lifetime otherwise follows Supabase's defaults (no custom expiry policy in this round).
-
-## Unresolved
-
-- Whether `role = admin` is ever assigned through the product itself, or only by direct database access, is undecided — no admin-management UI is in scope this round.
+No feature flags, A/B experiments, environment-based gates, or locale-based gates were found controlling access anywhere in this codebase (raw detail in [permissions-matrix.md](./permissions-matrix.md) § Client-Side Gate Types).

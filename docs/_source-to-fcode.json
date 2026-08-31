@@ -1,4 +1,240 @@
 {
-  "generated_at": "2026-08-28T08:06:14Z",
-  "index": {}
+  "generated_at": "2026-08-31T13:18:45Z",
+  "index": {
+    "(site)/layout.tsx": [
+      "F002",
+      "F003"
+    ],
+    "account-menu.tsx": [
+      "F002"
+    ],
+    "admin.createUser": [
+      "F001"
+    ],
+    "auth.users": [
+      "F001"
+    ],
+    "award-system.spec.ts": [
+      "F004"
+    ],
+    "docs/data-model.md": [
+      "F004"
+    ],
+    "e2e/award-system.spec.ts": [
+      "F004"
+    ],
+    "e2e/homepage.spec.ts": [
+      "F003"
+    ],
+    "e2e/integration-locale-countdown.spec.ts": [
+      "F004"
+    ],
+    "e2e/login.spec.ts": [
+      "F001"
+    ],
+    "e2e/support/authenticated-fixture.ts": [
+      "F001"
+    ],
+    "e2e/support/seed-session.ts": [
+      "F001"
+    ],
+    "hd: sun-asterisk.com": [
+      "F001"
+    ],
+    "messages/vi/awards.json": [
+      "F004"
+    ],
+    "middleware.ts": [
+      "F001"
+    ],
+    "proxy.ts": [
+      "F001",
+      "F004"
+    ],
+    "public.profile": [
+      "F001"
+    ],
+    "public/home/award-badge-{slug}.png": [
+      "F004"
+    ],
+    "request.ts": [
+      "F002"
+    ],
+    "set-locale.ts": [
+      "F002"
+    ],
+    "src/__tests__/proxy.test.ts": [
+      "F001"
+    ],
+    "src/app/(auth)/layout.tsx": [
+      "F001"
+    ],
+    "src/app/(auth)/login/page.tsx": [
+      "F001"
+    ],
+    "src/app/(site)/he-thong-giai/page.tsx": [
+      "F004"
+    ],
+    "src/app/(site)/layout.tsx": [
+      "F002"
+    ],
+    "src/app/(site)/page.tsx": [
+      "F003"
+    ],
+    "src/app/auth/callback/__tests__/route.test.ts": [
+      "F001"
+    ],
+    "src/app/auth/callback/route.ts": [
+      "F001"
+    ],
+    "src/app/auth/sign-out/route.ts": [
+      "F001",
+      "F002"
+    ],
+    "src/app/layout.tsx": [
+      "F002"
+    ],
+    "src/app/login/actions.ts": [
+      "F001"
+    ],
+    "src/components/awards/award-category-nav.tsx": [
+      "F004"
+    ],
+    "src/components/awards/award-hero.tsx": [
+      "F004"
+    ],
+    "src/components/awards/award-info-card.tsx": [
+      "F004"
+    ],
+    "src/components/awards/award-kudos-banner.tsx": [
+      "F004"
+    ],
+    "src/components/awards/award-section-title.tsx": [
+      "F004"
+    ],
+    "src/components/awards/resolve-active-slug.ts": [
+      "F004"
+    ],
+    "src/components/homepage/award-card.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/award-grid.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/event-countdown-live.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/event-countdown.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/event-info.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/hero-section.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/icon-link-arrow.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/kudos-promo.tsx": [
+      "F003"
+    ],
+    "src/components/homepage/root-further-block.tsx": [
+      "F003"
+    ],
+    "src/components/layout/account-menu.tsx": [
+      "F002"
+    ],
+    "src/components/layout/fab-widget-container.tsx": [
+      "F002"
+    ],
+    "src/components/layout/fab-widget.tsx": [
+      "F002"
+    ],
+    "src/components/layout/language-dropdown.tsx": [
+      "F002"
+    ],
+    "src/components/layout/mobile-nav-drawer.tsx": [
+      "F002"
+    ],
+    "src/components/layout/notification-bell.tsx": [
+      "F002"
+    ],
+    "src/components/layout/site-footer.tsx": [
+      "F002"
+    ],
+    "src/components/layout/site-header-container.tsx": [
+      "F002"
+    ],
+    "src/components/layout/site-header.tsx": [
+      "F002"
+    ],
+    "src/components/login/__tests__/login-error-notice.test.tsx": [
+      "F001"
+    ],
+    "src/components/login/google-sign-in-button.tsx": [
+      "F001"
+    ],
+    "src/components/login/login-error-notice.tsx": [
+      "F001"
+    ],
+    "src/components/login/login-footer.tsx": [
+      "F001"
+    ],
+    "src/components/login/login-header.tsx": [
+      "F001"
+    ],
+    "src/components/login/login-hero.tsx": [
+      "F001"
+    ],
+    "src/components/ui/dropdown.tsx": [
+      "F002"
+    ],
+    "src/i18n/request.ts": [
+      "F002"
+    ],
+    "src/lib/auth/allowed-email.ts": [
+      "F001"
+    ],
+    "src/lib/auth/email-verified.ts": [
+      "F001"
+    ],
+    "src/lib/auth/safe-next.ts": [
+      "F001"
+    ],
+    "src/lib/awards/award-categories.ts": [
+      "F004"
+    ],
+    "src/lib/countdown/compute-remaining.ts": [
+      "F003"
+    ],
+    "src/lib/countdown/parse-target.ts": [
+      "F003"
+    ],
+    "src/lib/countdown/use-countdown.ts": [
+      "F003",
+      "F004"
+    ],
+    "src/lib/i18n/select-locale-action.ts": [
+      "F002"
+    ],
+    "src/lib/i18n/set-locale.ts": [
+      "F002"
+    ],
+    "src/lib/profile/get-current-profile.ts": [
+      "F002"
+    ],
+    "src/proxy.ts": [
+      "F001"
+    ],
+    "src/test-utils/render-with-intl.tsx": [
+      "F001"
+    ],
+    "sun-asterisk.com": [
+      "F001"
+    ],
+    "supabase/migrations/20260828000000_create_profile_table_and_trigger.sql": [
+      "F001"
+    ]
+  }
 }
