@@ -1,4 +1,5 @@
 import { LanguageDropdown } from "@/components/layout/language-dropdown";
+import type { Locale } from "@/i18n/request";
 
 /**
  * mms_A_Header (662:14391) -- SCR002_Header guest state stripped down to
@@ -12,7 +13,12 @@ import { LanguageDropdown } from "@/components/layout/language-dropdown";
  * Logo is a plain <img>, not a <Link> -- TC b9805e65 calls it static,
  * non-interactive (unlike SiteHeader's linked logo).
  */
-export function LoginHeader() {
+export type LoginHeaderProps = {
+  locale: Locale;
+  onSelectLocale?: (locale: Locale) => void;
+};
+
+export function LoginHeader({ locale, onSelectLocale }: LoginHeaderProps) {
   return (
     // mm:662:14391
     <header
@@ -26,7 +32,7 @@ export function LoginHeader() {
       {/* mm:I662:14391;186:1601 -- wrapper carries the E2E testid; the
           dropdown itself keeps its own "language-trigger" testid untouched */}
       <div data-testid="login-language-trigger">
-        <LanguageDropdown locale="vi" />
+        <LanguageDropdown locale={locale} onSelectLocale={onSelectLocale} />
       </div>
     </header>
   );

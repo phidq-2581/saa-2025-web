@@ -1,4 +1,7 @@
+import { getLocale } from "next-intl/server";
 import { LoginHeader } from "@/components/login/login-header";
+import { selectLocaleAction } from "@/lib/i18n/select-locale-action";
+import { isLocale, defaultLocale } from "@/i18n/request";
 import { LoginFooter } from "@/components/login/login-footer";
 
 /**
@@ -12,10 +15,15 @@ import { LoginFooter } from "@/components/login/login-footer";
  * already-built routes and hasn't picked up this brand-new route group
  * yet, so the generic constraint rejects "/login" until a full build runs.
  */
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  // Phase 08 fix: the login header language dropdown was a no-op (rebuild-spec
+  // W4 finding) -- resolve the live locale and inject the same server action
+  // the (site) shell uses, so EN/VN switching works on /login too.
+  const rawLocale = await getLocale();
+  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   return (
     <>
-      <LoginHeader />
+      <LoginHeader locale={locale} onSelectLocale={selectLocaleAction} />
       <main className="flex flex-1 flex-col">{children}</main>
       <LoginFooter />
     </>
