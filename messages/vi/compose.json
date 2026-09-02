@@ -1,0 +1,56 @@
+{
+  "title": "Gửi lời cám ơn và ghi nhận đến đồng đội",
+  "recipient": {
+    "label": "Người nhận",
+    "placeholder": "Tìm kiếm",
+    "requiredError": "Không được để trống"
+  },
+  "editor": {
+    "placeholder": "Hãy gửi gắm lời cám ơn và ghi nhận đến đồng đội tại đây nhé!",
+    "hint": "Bạn có thể “@ + tên” để nhắc tới đồng nghiệp khác",
+    "requiredError": "Không được để trống"
+  },
+  "toolbar": {
+    "bold": "In đậm",
+    "italic": "In nghiêng",
+    "strike": "Gạch ngang",
+    "orderedList": "Đánh số",
+    "link": "Chèn liên kết",
+    "quote": "Trích dẫn",
+    "communityStandards": "Tiêu chuẩn cộng đồng"
+  },
+  "mention": {
+    "empty": "Không tìm thấy đồng nghiệp"
+  },
+  "hashtag": {
+    "label": "Hashtag",
+    "addButtonLabel": "Hashtag",
+    "addButtonNote": "Tối đa 5",
+    "requiredError": "Không được để trống",
+    "maxError": "Tối đa 5 hashtag"
+  },
+  "image": {
+    "label": "Image",
+    "addButtonLabel": "Image",
+    "addButtonNote": "Tối đa 5",
+    "invalidFormatError": "Định dạng file không hợp lệ",
+    "tooLargeError": "Dung lượng ảnh tối đa 5MB"
+  },
+  "anonymous": {
+    "label": "Gửi lời cám ơn và ghi nhận ẩn danh",
+    "namePlaceholder": "Nhập tên hiển thị"
+  },
+  "footer": {
+    "cancel": "Hủy",
+    "submit": "Gửi"
+  },
+  "addlink": {
+    "title": "Thêm đường dẫn",
+    "textLabel": "Nội dung",
+    "textRequiredError": "Không được để trống",
+    "linkLabel": "URL",
+    "linkInvalidError": "Đường dẫn không hợp lệ",
+    "cancel": "Hủy",
+    "save": "Lưu"
+  }
+}

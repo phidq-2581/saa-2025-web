@@ -16,8 +16,11 @@ export function isLocale(value: string | undefined): value is Locale {
   return !!value && (locales as readonly string[]).includes(value);
 }
 
-/** Phase 07: one namespace per screen, plus the shared `common` chrome copy. */
-const NAMESPACES = ["common", "login", "home", "awards"] as const;
+/** Phase 07: one namespace per screen, plus the shared `common` chrome copy.
+ * Phase 01 (round 2) registers empty `compose`/`kudos`/`profile` catalogues
+ * ahead of the screens that fill them (03/04/06), so two concurrent phases
+ * never edit the same shared file. */
+const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile"] as const;
 
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();

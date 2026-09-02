@@ -1,0 +1,61 @@
+{
+  "banner": {
+    "title": "Hệ thống ghi nhận lời cảm ơn"
+  },
+  "composePill": {
+    "placeholder": "Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?"
+  },
+  "highlight": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "HIGHLIGHT KUDOS"
+  },
+  "filters": {
+    "hashtagLabel": "Hashtag",
+    "departmentLabel": "Phòng ban"
+  },
+  "spotlight": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "SPOTLIGHT BOARD",
+    "totalSuffix": "KUDOS",
+    "panZoomLabel": "Pan/Zoom",
+    "searchPlaceholder": "Tìm kiếm",
+    "searchMaxLengthError": "Tối đa 100 ký tự",
+    "searchEmptyError": "Vui lòng nhập từ khóa",
+    "tickerSuffix": "đã nhận được một Kudos mới"
+  },
+  "allKudos": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "ALL KUDOS",
+    "emptyFeed": "Hiện tại chưa có Kudos nào.",
+    "loadMore": "Xem thêm",
+    "loading": "Đang tải..."
+  },
+  "card": {
+    "copyLink": "Copy Link",
+    "viewDetail": "Xem chi tiết",
+    "copyLinkToast": "Link copied — ready to share!"
+  },
+  "sidebar": {
+    "kudosReceived": "Số Kudos bạn nhận được:",
+    "kudosSent": "Số Kudos bạn đã gửi:",
+    "heartsReceived": "Số tim bạn nhận được:",
+    "secretBoxOpened": "Số Secret Box bạn đã mở:",
+    "secretBoxUnopened": "Số Secret Box chưa mở:",
+    "openGift": "Mở quà",
+    "openGiftTooltip": "Sắp ra mắt",
+    "rankLeaderboardTitle": "10 SUNNER CÓ SỰ THĂNG HẠNG MỚI NHẤT",
+    "giftLeaderboardTitle": "10 SUNNER NHẬN QUÀ MỚI NHẤT",
+    "leaderboardEmpty": "Chưa có dữ liệu"
+  },
+  "asterisk": {
+    "tier1": "Sunner đã nhận được 10 Kudos và bắt đầu lan tỏa năng lượng ấm áp đến mọi người xung quanh.",
+    "tier2": "Sunner đã nhận được 20 Kudos và chứng minh sức ảnh hưởng của mình qua những hành động lan tỏa tích cực mỗi ngày.",
+    "tier3": "Sunner đã nhận được 50 Kudos và trở thành hình mẫu của sự công nhận, sẻ chia và lan tỏa tinh thần Sun*."
+  },
+  "heroTier": {
+    "new": "New Hero",
+    "rising": "Rising Hero",
+    "super": "Super Hero",
+    "legend": "Legend Hero"
+  }
+}
