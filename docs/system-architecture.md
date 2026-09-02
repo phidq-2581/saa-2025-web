@@ -37,6 +37,8 @@ src/
     (site)/            # Route group: SiteHeaderContainer + children + SiteFooter + FabWidgetContainer
       page.tsx           # Homepage SAA (/) — generateMetadata + Home
       he-thong-giai/page.tsx  # Award System (/he-thong-giai, guarded by proxy.ts) — generateMetadata + page
+      kudos/page.tsx       # /kudos board (F006, round 2) + kudos/[id]/page.tsx detail
+      profile/page.tsx     # /profile?id={uuid} stub (F006, round 2 — round 3 replaces this)
     (auth)/            # Route group: its own LoginHeader/LoginFooter, no shared shell
       login/page.tsx     # /login — generateMetadata + LoginPage
     auth/callback/route.ts   # OAuth code-exchange route handler
@@ -48,7 +50,9 @@ src/
     login/      # LoginHeader, LoginHero, GoogleSignInButton, LoginErrorNotice, LoginFooter (F001)
     homepage/   # HeroSection, EventCountdown(Live), EventInfo, RootFurtherBlock, AwardGrid, AwardCard, KudosPromo, IconLinkArrow (F003)
     awards/     # AwardHero, AwardSectionTitle, AwardCategoryNav, resolve-active-slug.ts, AwardInfoCard, AwardKudosBanner (F004)
-  i18n/         # request.ts — next-intl locale resolution (cookie-based, 4 namespaces)
+    kudos/      # compose/, board/, card/, detail/, content/, containers/ (F005/F006, round 2 — see § Kudos domain)
+    profile/    # ProfileStub (F006 round 2)
+  i18n/         # request.ts — next-intl locale resolution (cookie-based, 7 namespaces since round 2)
   lib/
     supabase/   # client.ts (browser), server.ts (RSC/route handlers)
     auth/       # safe-next.ts, email-verified.ts, allowed-email.ts (sign-out moved to a Route Handler, see below)
@@ -56,10 +60,11 @@ src/
     i18n/       # set-locale.ts (Server Action), select-locale-action.ts (Server Action reference wrapper, Phase 07)
     countdown/  # compute-remaining.ts, parse-target.ts, use-countdown.ts
     awards/     # award-categories.ts — AWARD_CATEGORIES: { name, slug } (fixed 6 rows)
+    kudos/      # content-schema.ts, types.ts, queries/, derive/, write/ (F005/F006, round 2 — see § Kudos domain)
   test-utils/   # render-with-intl.tsx — renderWithIntl(), real NextIntlClientProvider + catalogues (Phase 07b)
-messages/       # vi/{login,home,awards,common}.json + en/{login,home,awards,common}.json (Phase 07) — see § Content scaffolds
+messages/       # vi/{login,home,awards,common,compose,kudos,profile}.json + en/{same} (Phase 07 + round 2) — see § Content scaffolds
 e2e/
-  support/      # seed-session.ts, authenticated-fixture.ts (real local-Supabase sessions)
+  support/      # seed-session.ts, authenticated-fixture.ts (real local-Supabase sessions); seed-kudos.ts (round 2)
 supabase/       # Local Supabase config, migrations, seeds
 docs/           # This documentation
 plans/          # Takumi plans, clarifications, reports (gitignored)
@@ -107,9 +112,62 @@ A control whose destination is out of scope this round (e.g. the Kudos promo's "
 - Server Components read data through `src/lib/supabase/server.ts` (cookie-bound client).
 - Client Components use `src/lib/supabase/client.ts` (browser client).
 - Schema changes go through `supabase/migrations/*.sql` — never mutate the DB by hand.
-- `public.profile` mirrors `auth.users` 1:1 (`role` admin\|member, default `member`). RLS is enabled with exactly one policy, `profile_select_own` (`auth.uid() = id`), granted to `authenticated` only — a signed-in user reads exclusively their own row. Rows are written solely by `handle_new_user()`, a `security definer` trigger (`search_path` pinned to `public`) firing on `auth.users` insert; no app code writes `profile` directly.
+- `public.profile` mirrors `auth.users` 1:1 (`role` admin\|member, default `member`). RLS is enabled with exactly one `select` policy, `profile_select_all_authenticated` (`using (true)`), granted to `authenticated` — **any signed-in Sunner reads every profile row**, not just their own (widened round 2, migration `20260831000100_widen_profile_select.sql`, replacing the round-1 `profile_select_own` policy outright rather than stacking a second permissive one). The widening makes F005/F006's recipient autocomplete, `@mention` search, sender/receiver display, and the `/profile` stub possible without a separate read API; `profile` still carries no sensitive column (`email` stays withheld from every payload) and no insert/update policy exists for `authenticated` at all. Rows are written solely by `handle_new_user()`, a `security definer` trigger (`search_path` pinned to `public`) firing on `auth.users` insert; no app code writes `profile` directly.
 - Design tokens live in `src/app/globals.css`'s `@theme inline` block, sourced from MoMorph `list_frame_styles` (colors, radii, shadow). Montserrat and Montserrat Alternates load via `next/font/google` in `src/lib/fonts.ts` and surface as the `--font-body` / `--font-heading` tokens.
 - The persistent shell — `SiteHeaderContainer`, `SiteFooter`, `FabWidgetContainer` — mounts once in `(site)/layout.tsx` (see § Route groups and § Session-aware shell above), so every `(site)` route inherits the same session-aware header/footer/FAB without per-page wiring.
+
+## Kudos domain (round 2)
+
+F005 (compose) and F006 (live board) add eight new tables, one aggregate view, one atomic
+insert RPC, and a private storage bucket, consumed through the same "no API layer, Supabase as
+BaaS" shape as the rest of the app — no new Route Handler or service layer.
+
+```
+Modal (F005, client, TipTap editor) ──insert──> create_kudos() RPC ──> kudos, kudos_hashtag, kudos_image
+                                      ──upload─> Storage bucket `images` (private)
+Board (F006, /kudos)                 ──select──> kudos_card_view (aggregate view)
+                                      ──insert/delete──> heart
+Detail (/kudos/[id]), Profile stub (/profile) ──select by id──> kudos_card_view / profile
+```
+
+- **Containers → queries/derive → write.** `src/components/kudos/containers/**` are the Server
+  Component data-fetching roots (`KudosBoardContainer`, `KudosDetailContainer`,
+  `ProfileContainer`, `ComposeDialogContainer`); they call `src/lib/kudos/queries/**` (one
+  function per read: `getHighlightTop5`, `getFeedPage`, `getSpotlight`, `getSidebarStats`,
+  `getLeaderboards`, `getRecipients`, `getKudosById`, `getProfileById`,
+  `resolveDepartmentReceiverIds`, `resolveImageUrls`) and `src/lib/kudos/derive/**` (pure
+  functions with no I/O: `highlight-order`, `feed-filter`, `pagination`, `asterisk-tier`,
+  `rank-promotion`, `spotlight-nodes`). Mutations go through `src/lib/kudos/write/**`
+  (`createKudos`, `toggleHeart`, plus their validators) — Server Actions, never called from a
+  query module.
+- **`kudos_card_view`** (`security_invoker = true`) joins `kudos` with a live heart-count
+  aggregate, sender/receiver `profile`, hashtag names/ids, and image storage paths in one
+  query — `security_invoker` is required, or the view would run as its owner and silently
+  bypass the RLS on every table it joins.
+- **`create_kudos(...)`** is one atomic `plpgsql` function (`security invoker`): guards the
+  1–5 hashtag and ≤5 image ceilings so a partial write can never land at rest, then inserts
+  `kudos` + `kudos_hashtag` + `kudos_image` together. `sender_id` is resolved from `auth.uid()`
+  inside the function, never taken as a parameter.
+- **Storage.** Bucket `images` (declared in `supabase/config.toml`, unused before this round) —
+  private (`public = false`), path convention `kudos/{sender_id}/{kudos_id}/{position}-{filename}`.
+  `allowed_mime_types` gained `image/webp` (previously png/jpeg only); the app enforces ≤5MB per
+  image on top of the bucket's 50MiB ceiling. Reads use `createSignedUrls()`
+  (`resolve-image-urls.ts`, 1h TTL) since a plain public URL 403s against a private bucket. The
+  insert policy started scoped only to `bucket_id = 'images'` and was tightened to the caller's
+  own `kudos/{auth.uid()}/...` folder segment in a follow-up migration — see § Decisions log.
+- **Special-day heart rule.** A heart normally credits the kudos's **sender** (not the
+  receiver) +1; +2 if the current date, cast to `Asia/Ho_Chi_Minh` (never a naive UTC compare),
+  is present in `special_days` (empty-seeded, admin-managed via SQL/Studio — no admin UI this
+  round). The check runs server-side inside `toggleHeart`, before the `heart` row is written;
+  the client never supplies `granted_amount`. A revoke reads the exact amount back off the row
+  it actually deletes, in one atomic `delete().select()` round trip.
+- **New client libraries, both client-side only:** `@tiptap/{core,pm,react,starter-kit,
+  extension-mention,suggestion}` (pinned exactly at `3.30.6` — TipTap v3 peers pin exact
+  versions, a deliberate deviation from the repo's caret convention) for the compose editor;
+  `d3-cloud` + `d3-zoom` + `d3-selection` for the Spotlight word cloud.
+- **8 new tables** (not 7 — see § Decisions log): `department`, `hashtag`, `kudos`,
+  `kudos_image`, `kudos_hashtag`, `heart`, `special_days`, `secret_box_gift`. Full column/RLS
+  detail: `docs/data-model.md` § Kudos Cluster.
 
 ## Auth request flow
 
@@ -134,7 +192,7 @@ Login CTA ──> signInWithGoogle() Server Action (src/app/login/actions.ts)
 
 ## Internationalization (i18n)
 
-next-intl runs in **cookie mode, no URL prefix** — locale is read from the `NEXT_LOCALE` cookie (`src/i18n/request.ts`, default `vi`), never from the URL path. `next.config.ts` wires the plugin via `createNextIntlPlugin("./src/i18n/request.ts")`. Message catalogs load four namespaces per request — `common`, `login`, `home`, `awards` (`src/i18n/request.ts`) — see § Content scaffolds above for what each namespace covers and the EN fallback rule.
+next-intl runs in **cookie mode, no URL prefix** — locale is read from the `NEXT_LOCALE` cookie (`src/i18n/request.ts`, default `vi`), never from the URL path. `next.config.ts` wires the plugin via `createNextIntlPlugin("./src/i18n/request.ts")`. Message catalogs load seven namespaces per request — `common`, `login`, `home`, `awards`, `compose`, `kudos`, `profile` (`src/i18n/request.ts`) — see § Content scaffolds above for what each round-1 namespace covers and the EN fallback rule. The three round-2 namespaces (`compose`, `kudos`, `profile`) follow the same rule: every EN value is either a MoMorph-confirmed translation or a verbatim mirror of the Vietnamese string, never hand-translated — the mirrored-key list lives in `docs/test-traceability.md` § Copy gaps (round 2).
 
 Switching locale is `setLocale()` (`src/lib/i18n/set-locale.ts`), which validates against the same `vi`/`en` allow-list before writing the cookie (1-year `maxAge`, `httpOnly: false` — required for next-intl's client-side hydration) and calling `revalidatePath`. Client Components (`language-dropdown.tsx`, `mobile-nav-drawer.tsx`) never call `setLocale` directly: they can only be handed a Server Action *reference*, not an inline closure defined inside a Server Component, so `selectLocaleAction` (`src/lib/i18n/select-locale-action.ts`, Phase 07) exists purely as that reference-shaped wrapper. It recovers the current pathname (needed for `revalidatePath`) from the `Referer` header of the action's own fetch-based invocation — falling back to `/` if that header is absent — since a Server Action invoked from a Client Component has no route param of its own.
 
@@ -151,7 +209,8 @@ Switching locale is `setLocale()` (`src/lib/i18n/set-locale.ts`), which validate
 Two documentation layers coexist under `docs/` (v5.0.0+ layered spec model):
 
 - **SDD-authored** (human/takumi-authored, component granularity — the project's own deliverable):
-  `docs/features/` (4 features), `docs/screens/` (6 SCR), this file (`docs/system-architecture.md`),
+  `docs/features/` (6 features: F001–F004 round 1, F005–F006 round 2), `docs/screens/` (8 SCR:
+  SCR001–SCR006 round 1, SCR007–SCR008 round 2), this file (`docs/system-architecture.md`),
   `docs/data-model.md`, `docs/code-standards.md`, `docs/development-roadmap.md`,
   `docs/project-changelog.md`, `docs/test-traceability.md`, `docs/visual-qa/`.
 - **Code-derived** (rebuild-spec, route granularity, free regen): `docs/generated/*` and
@@ -185,3 +244,8 @@ checkpoint; no regeneration of the SDD layer is planned.
 | 2026-08-30 | Logout submits to a Route Handler (`src/app/auth/sign-out/route.ts`) via `<form method="post">`, not the Phase 03 Server Action | The Server Action's `redirect()` is a soft client-side navigation that races the response's `Set-Cookie` headers (0/3 reproducible); a hard, full-page form POST is atomic for the browser (3/3) |
 | 2026-08-30 | EN catalog keys with no confirmed Figma EN source fall back to the Vietnamese design text at runtime, not a `[VN]`-prefixed marker | The `[VN]` marker would leak to English-locale visitors; the gap is logged in `docs/test-traceability.md` instead |
 | 2026-08-30 | Phase 07b converts the remaining Group 3 body-copy components (13) to `useTranslations`, adding `src/test-utils/render-with-intl.tsx` and `e2e/locale-body-copy.spec.ts` | Chrome + metadata were already locale-aware since Phase 07; these components' synchronous RTL tests needed a real-catalogue `NextIntlClientProvider` helper rather than converting to `async` `getTranslations`, which would have broken them |
+| 2026-08-31 | `profile` RLS's `select` policy widened to `using (true)` for every `authenticated` row, replacing `profile_select_own` outright | Recipient autocomplete, `@mention` search, sender/receiver display, and the `/profile` stub all need to read any Sunner's profile; `profile` carries no sensitive column, so the widening is the whole fix (`clarifications.md` Round 2) |
+| 2026-08-31 | Kudos editor content stored as `kudos.content jsonb` (TipTap document JSON), never as sanitised HTML | Supersedes the 2026-08-28 "sanitised HTML" placeholder — the Round 2 clarifications session is authoritative and ruled JSON; render-time allow-listing (`kudos-content-renderer.tsx`) does the same job an HTML sanitiser would, without an HTML intermediate |
+| 2026-08-31 | Rank-promotion leaderboard is derived at read time from each Sunner's 10th/20th/50th received-kudos milestone, no new table | The Stage-1.5 spec draft assumed it would render permanently empty; `clarifications.md`'s "Suy từ mốc hoa thị" ruling predates that draft and is authoritative — implemented in `src/lib/kudos/derive/rank-promotion.ts` |
+| 2026-09-02 | Self-kudos (`receiverId === senderId`) is blocked in `createKudos`, with no RLS/DB constraint backing it | Group-3 code review flagged the silent gap (hoa-thị-milestone farming risk); the checkpoint decision made blocking explicit — the Server Action is the sole enforcement point by design |
+| 2026-09-02 | `storage.objects` insert policy for bucket `images` re-scoped to the caller's own `kudos/{auth.uid()}/...` folder segment | Group-3 review (High/Security): the original policy checked only `bucket_id = 'images'`, so any authenticated Sunner could upload into another Sunner's folder, defeating the app-level path convention with no RLS defense-in-depth |

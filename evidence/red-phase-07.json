@@ -1,0 +1,112 @@
+{
+  "phase": "07",
+  "title": "Phase 07: Integration Wiring, EN catalogue, full quality gate",
+  "ts": "2026-09-02T00:00:00Z",
+  "testPolicy": "e2e-red-first",
+  "probeCommand": "npm run test:e2e -- e2e/kudos-board.spec.ts --grep \"renders KV banner\"",
+  "probeExitCode": 0,
+  "probeSummary": "Probe GREEN: single existing E2E spec passes, baseline environment working",
+  "specs": [
+    {
+      "file": "e2e/kudos-integration.spec.ts",
+      "items": "1–5",
+      "redCommand": "npm run test:e2e -- e2e/kudos-integration.spec.ts",
+      "redExitCode": 1,
+      "redFailure": "4 failed, 1 passed (8.7s) — integration assertions failed as expected",
+      "failedTests": [
+        {
+          "name": "2. Submit real kudos: modal closes, card appears in feed with content, hashtags, time (TC ID-46, ID-47)",
+          "error": "expect(locator).toBeVisible() failed — Locator: locator('[data-testid=\"kudos-compose-recipient-option\"]').first() — element(s) not found",
+          "reason": "Real kudos submit action not wired; recipient autocomplete does not show options (sample data only)"
+        },
+        {
+          "name": "3. Infinite scroll: seed 12 kudos, scroll to bottom, next page appends (TC 9dfda316)",
+          "error": "expect(received).toBeGreaterThan(expected) — Expected: > 13, Received: 13",
+          "reason": "No real pagination handler wired; feed shows only sample data, load-more not triggered"
+        },
+        {
+          "name": "4. Copy link toast, detail nav, spotlight node, avatar nav (TC 0adfd7ce, 8c0d1781)",
+          "error": "expect(locator).toContainText(expected) failed — Expected substring: 'Link copied — ready to share!' — element(s) not found",
+          "reason": "Copy link action not wired; toast notification not shown (sample data only)"
+        },
+        {
+          "name": "5. EN locale renders MoMorph-sourced strings; VN unchanged (TC count EN keys)",
+          "error": "expect(received).toBe(expected) — Expected: 'vi', Received: undefined",
+          "reason": "NEXT_LOCALE cookie not set on page load; EN messages/en/{kudos,compose}.json are empty {}"
+        }
+      ],
+      "passedTests": [
+        {
+          "name": "1. Unauthenticated routes redirect to login with next param (TC 71b3ef43, SC-004)",
+          "reason": "Proxy guard already implemented (pre-valid + post-valid); routes redirect correctly"
+        }
+      ],
+      "totalTests": 5,
+      "testSummary": "4 RED (real integration behavior failures), 1 GREEN (guard already working)"
+    },
+    {
+      "file": "e2e/kudos-integration-heart-filters.spec.ts",
+      "items": "6–9",
+      "redCommand": "npm run test:e2e -- e2e/kudos-integration-heart-filters.spec.ts",
+      "redExitCode": 1,
+      "redFailure": "3 failed, 1 passed (32.0s) — heart toggle, special-day multiplier, filter state not wired",
+      "failedTests": [
+        {
+          "name": "6. Heart toggle non-sender (+1 active, revoke to baseline); sender disabled; RLS rejects self (TC 7a7ec63e, 63645b03, SC-002)",
+          "error": "expect(received).toBe(expected) — Expected: 1281, Received: 1280",
+          "reason": "Heart toggle not wired; count stays at baseline (sample data only, no DB persist)"
+        },
+        {
+          "name": "7. Special day 2× grant/revoke via sidebar stat delta (TC 31936b72, SC-003)",
+          "error": "expect(received).toBe(expected) — Expected: 2344, Received: 2342",
+          "reason": "Special day logic not checked; heart grants 1 always, not 2× on special_days row; sidebar stat not real-time"
+        },
+        {
+          "name": "8. Filter hashtag+department refilters Highlight+feed, resets carousel to 1; chip click filters (TC 0e56cacb, 159fed13, d01729d4)",
+          "error": "Test timeout of 30000ms exceeded — Target page, context or browser has been closed",
+          "reason": "Filter queries not wired; selectors not rendering (sample data only, no server-side filter logic)"
+        }
+      ],
+      "passedTests": [
+        {
+          "name": "9. Spotlight total tracks live delta, never hardcoded 388 (SC-005)",
+          "reason": "Spotlight count is rendered dynamically (not hardcoded 388), reads seed count correctly"
+        }
+      ],
+      "totalTests": 4,
+      "testSummary": "3 RED (heart/filters/special-day behavior), 1 GREEN (spotlight count dynamic)"
+    }
+  ],
+  "legitimatelyPassing": [
+    {
+      "spec": "kudos-integration.spec.ts",
+      "test": "1. Unauthenticated routes redirect to login with next param",
+      "reason": "Route guard already implemented in proxy.ts (existing infrastructure); valid pre-implementation, stays valid post-implementation"
+    },
+    {
+      "spec": "kudos-integration-heart-filters.spec.ts",
+      "test": "9. Spotlight total tracks live delta, never hardcoded 388",
+      "reason": "Spotlight count renders from seed data dynamically; sample data is real (not hardcoded 388), valid pre-implementation"
+    }
+  ],
+  "validation": {
+    "validRED": true,
+    "redCount": 7,
+    "greenCount": 2,
+    "integrationBehaviorFailures": [
+      "Real submit flow not wired (recipient options missing)",
+      "Infinite scroll pagination not triggered (load-more handler missing)",
+      "Copy link toast not shown (action not wired)",
+      "Heart toggle does not persist (DB mutation not wired)",
+      "Special day 2× multiplier not applied (special_days not checked)",
+      "Filters do not refilter feed/highlight (server-side filter logic missing)"
+    ]
+  },
+  "notes": [
+    "Probe (existing spec) GREEN confirms environment working",
+    "Both RED specs prove real non-zero exits (1) from integration assertions, not config/env failures",
+    "Currently all routes render design-sample data only; no real queries or actions wired",
+    "EN locale cookie missing; messages/en/{kudos,compose}.json are empty {} (explains test 5 RED)",
+    "Spotlight count not hardcoded (test 9 GREEN); validates dynamic count assertion pattern for Phase 07 implementation"
+  ]
+}

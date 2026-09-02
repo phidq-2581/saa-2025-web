@@ -3,6 +3,7 @@ status: draft
 fcode: F002
 authored_by: takumi
 created: 2026-08-28
+updated: 2026-09-02
 ---
 
 # SCR004_Fab — Screen Spec
@@ -15,7 +16,7 @@ created: 2026-08-28
 
 ## Purpose
 
-Gives a signed-in user quick access to two upcoming actions — writing a kudos and reading the rules — from a single floating button, without leaving the current page.
+Gives a signed-in user quick access to two actions — writing a kudos (live since round 2) and reading the rules (still deferred) — from a single floating button, without leaving the current page.
 
 ## Screen Layout
 
@@ -48,7 +49,7 @@ A pill-shaped button floats fixed at the bottom-right of the viewport. Collapsed
 
 1. Authenticated user sees the collapsed widget (R1) floating at the bottom-right.
 2. User clicks R1; it expands to show R2 (Thể lệ, Viết KUDOS) and R3 (Hủy).
-3. User clicks Thể lệ or Viết KUDOS; nothing opens this round (both destinations are deferred).
+3. User clicks Viết KUDOS; F005's Viết Kudo compose modal opens (`docs/screens/SCR007_KudosCompose/spec.md`, wired since Phase 03/round 2). User clicks Thể lệ; still nothing opens — that destination remains deferred.
 4. User clicks Hủy, clicks outside the widget, or clicks R1 again; the widget collapses back to R1.
 
 ### Branches
@@ -63,7 +64,7 @@ A pill-shaped button floats fixed at the bottom-right of the viewport. Collapsed
 |-------|---------|-------------------|--------------------------|--------|
 | hidden | no session | widget not rendered | none | TBD (draft) |
 | collapsed | default, authenticated | pill widget only (R1) | click to expand | TBD (draft) |
-| expanded | R1 clicked | R2 + R3 visible | click Thể lệ/Viết KUDOS (no-op, deferred), click Hủy/outside to collapse | TBD (draft) |
+| expanded | R1 clicked | R2 + R3 visible | click Viết KUDOS to open F005's compose modal (collapses the widget first), click Thể lệ (no-op, still deferred), click Hủy to collapse | SCR007_KudosCompose/spec.md |
 
 ## Validation & Error Feedback
 
@@ -73,7 +74,9 @@ N/A — no form fields.
 
 ### B) Server-side
 
-N/A — no submit-style action handlers detected; both destinations behind R2 are deferred this round.
+N/A on this screen itself — "Viết KUDOS" opens F005's compose modal, whose own validation and
+submit handling are specified in `docs/screens/SCR007_KudosCompose/spec.md`, not here. "Thể lệ"
+remains a no-op with no destination this round.
 
 ## Accessibility
 

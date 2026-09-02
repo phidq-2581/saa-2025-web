@@ -2,10 +2,11 @@
 
 Two logs live here: the MoMorph test-case ↔ implementation traceability table
 (Phase 08, immediately below) and the EN-copy-gap log (Phase 07, further
-down). Every MoMorph test case for the four in-scope screen sets is
+down). Every MoMorph test case for the four round-1 in-scope screen sets is
 accounted for as **covered** (exact test file + title), **deferred** (cites
 the clarifications.md decision), or **not-covered** (states the concrete
-reason) — a blank cell is never used.
+reason) — a blank cell is never used. Round 2 (Kudos cluster) adds its own
+123-case table and copy-gap log further down, same method and same rules.
 
 ## MoMorph Test Case Traceability (Phase 08)
 
@@ -293,3 +294,271 @@ covers the Homepage and Award System routes end to end.
 
 ### Removed hand-written EN copy (2026-08-30, Phase 07b review)
 - `common.auth.loginError` — EN value "Sign-in failed. Please try again." had no MoMorph source (authored in Phase 03 before the EN copy rule) and no consumer; removed from `messages/vi/common.json` and `messages/en/common.json`. The login failure notice reads `login.errorMessage` (Vietnamese in both locales — no Figma EN source).
+
+## MoMorph Test Case Traceability — Kudos Cluster (Round 2, Phase 08)
+
+Source CSVs: `docs/momorph/{viet-kudo,sun-kudos-live-board,addlink-box}/test-cases.csv`
+(57 + 41 + 25 = 123 rows, counted from the CSVs directly, header row excluded). Method: every
+row below was read from its CSV and cross-checked against the actual test file or source file
+cited — status was never inferred from a test title alone.
+
+**Update (2026-09-02, post-pass, two rounds):** this table's first draft flagged four
+implementation gaps. All four have since shipped within the same round, each re-verified on disk
+before being marked covered here — never taken on a coordinator's word alone:
+
+1. Avatar/name → `/profile` — `CardAuthorBlock`/`LeaderboardList` now wrap in a real `next/link`
+   `<Link>` to `/profile?id=`, exercised green by e2e "4b" (TC `0952e2f0`, `2cd77a0c`).
+2. Successful Addlink save — e2e "G4-05" fills a valid Text/Link, saves, and asserts the
+   `<a href>` mark lands in the editor (TC `13c491cb`, `ef4d0413`).
+3. Feed-card content click → `/kudos/[id]` — `kudos-card.tsx`'s content region (feed variant)
+   now carries `role="link"`/`onClick`/`onKeyDown`, guarded against double-navigating on an
+   embedded link mark; e2e "4c" clicks it and asserts the navigation (TC `31693bb7`).
+4. Detail-page heart toggle + Copy Link — `KudosDetailContainer` passes `currentViewerId`
+   (`getClaims()`) to `KudosDetailView`, which toggles through the new shared `useHeartToggle`
+   hook (`src/components/kudos/containers/use-heart-toggle.ts`, also used by the board's own
+   cards) and shows the same verbatim Copy Link toast; `e2e/kudos-detail.spec.ts` "Item 2" now
+   clicks both and asserts the result (heart 0→1→0, toast text).
+
+Two gaps remain genuinely open (still not-covered below): a leaderboard entry's avatar/name
+click has zero test coverage (though implemented identically to the tested card case), and its
+hover-preview affordance doesn't exist in code at all.
+
+### Viết Kudo (`docs/momorph/viet-kudo/test-cases.csv`, 57 cases, `ID-n`)
+
+| TC ID | Category / objective | Expected result | Test file : test title | Status |
+|---|---|---|---|---|
+| ID-0 | Modal access / authenticated | Modal "Viết Kudo" opens | `e2e/kudos-compose.spec.ts`: "G1-01: FAB opens compose dialog" | covered |
+| ID-1 | Modal access / unauthenticated | Redirected or prompted to sign in | `e2e/navigation-shell.spec.ts`: "04: Footer and guest shell (no bell, no FAB)" (the only entry point, the FAB, doesn't render for guests) | covered (partial: no test attempts to open the modal directly while unauthenticated) |
+| ID-2 | Navigation path via button/link | Modal shows correctly with title + fields | "G1-01" + "G1-02" | covered |
+| ID-3 | Screen-wide layout, field order | Fields in order: recipient, textarea, hashtag, image, anon, footer | "G1-02: Dialog fields in order…" | covered |
+| ID-4 | Recipient field placeholder | "Tìm kiếm" shown | none | not-covered (reason: no test asserts the recipient field's placeholder text) |
+| ID-5 | Editor placeholder | Placeholder text shown | none | not-covered (reason: no test asserts the editor's placeholder text) |
+| ID-6 | Anonymous checkbox default | Unchecked by default | "G5-01: Anon checkbox shows name field…" (name field hidden before check, implying unchecked default) | covered (partial: default `checked` attribute not directly inspected) |
+| ID-7 | Recipient required — empty | Red border + error, form not submitted | `src/lib/kudos/write/__tests__/validate-draft.test.ts`: "rejects a missing receiver" | covered (partial: server-side rule tested; client-side red-border/error render not e2e-asserted) |
+| ID-8 | Recipient autocomplete search "Nguyễn" | Filtered suggestions shown, selectable | "G2-03: Gửi enabled when recipient+content+hashtag valid…" | covered |
+| ID-9 | Recipient search, special chars only (`@ # $`) | No crash, filtered or empty result | none | not-covered (reason: `RecipientAutocomplete` has no dedicated test file) |
+| ID-10 | Recipient search, leading/trailing spaces | Trimmed before matching | none | not-covered (reason: same as ID-9 — no dedicated test) |
+| ID-11 | Content required — empty | "Không được để trống", form not submitted | `validate-draft.test.ts`: "rejects content that is empty after trimming (whitespace-only)" + "rejects a content document with no text at all" | covered (partial: server-side rule tested; client-side red-border render not e2e-asserted) |
+| ID-12 | `@` mention suggestion list | List shown, selectable | "G5-04: @ opens mention list…" | covered |
+| ID-13 | Mention selected inserted correctly | Name inserted in textarea | none | not-covered (reason: "G5-04" only asserts the suggestion list opens, not that selecting an option inserts a mention node) |
+| ID-14 | Hashtag required — 0 tags | "Không được để trống", form not submitted | `validate-draft.test.ts`: "rejects zero hashtags" | covered (partial: server-side rule tested; client-side render not e2e-asserted) |
+| ID-15 | Minimum 1 tag | Hashtag added, form submits | "G2-03" (1 hashtag, submit enabled); `e2e/kudos-integration.spec.ts` item 2 (real submit, 2 hashtags) | covered |
+| ID-16 | Maximum 5 tags | 5 added, "+ Hashtag" shown/disabled per spec | "G3-01: 5 tags max — 6th disabled…" | covered |
+| ID-17 | 6th hashtag blocked | "Tối đa 5 hashtag" shown | "G3-01"; `validate-draft.test.ts`: "rejects a 6th hashtag" | covered |
+| ID-18 | 3 valid .jpg images | 3 uploaded, "+ Image" still shown | none | not-covered (reason: `e2e` only exercises 5 png files at the boundary, not the 3-image intermediate state, and png not jpg) |
+| ID-19 | 5 valid .jpg images | 5 uploaded, "+ Image" hidden | "G5-05: .pdf rejected…; add hides at 5 images" (uses 5 png files, not jpg) | covered (partial: identical count/hide behavior exercised with png instead of jpg — both are in `ALLOWED_IMAGE_MIME_TYPES`) |
+| ID-20 | 6th image blocked after 5 | "+ Image" hidden, 6th blocked | "G5-05" (button hidden at 5, making a 6th unreachable via UI); `src/lib/kudos/write/__tests__/validate-image.test.ts`: "rejects a 6th image without inspecting file contents" | covered |
+| ID-21 | Valid .jpg accepted | Uploaded, thumbnail shown | `validate-image.test.ts`: "accepts up to 5 valid images of jpg/png/webp" | covered |
+| ID-22 | Valid .png accepted | Uploaded, thumbnail shown | same unit test; "G5-05" (5 png files uploaded, thumbnails shown) | covered |
+| ID-23 | Invalid .pdf rejected | Error, not uploaded | "G5-05" (`.pdf` rejected, "Định dạng file không hợp lệ"); `validate-image.test.ts`: "rejects an unsupported mime type…" | covered |
+| ID-24 | Invalid .mp4 rejected | Error, not uploaded | `validate-image.test.ts`: "rejects an unsupported mime type and names the failing index" (mechanism test, not literally `.mp4`) | covered (partial: same allow-list code path as ID-23, not a distinct `.mp4` fixture) |
+| ID-25 | Recipient search, input+filter live | List filters as typed | "G2-03" | covered |
+| ID-26 | Recipient select from dropdown | Name filled, dropdown closes | "G2-03" | covered |
+| ID-27 | Toolbar Bold | Bold applied | "G5-03: Toolbar applies real marks to selection…" | covered |
+| ID-28 | Toolbar Italic | Italic applied | "G5-03" | covered |
+| ID-29 | Toolbar Stroke | Strikethrough applied | none | not-covered (reason: "G5-03" tests bold/italic/orderedList/blockquote, not the strike button) |
+| ID-30 | Toolbar Number list | Ordered list applied | "G5-03" | covered |
+| ID-31 | Toolbar Insert link | Add link dialog opens, link inserted | "G4-01"–"G4-04" open the dialog; no test completes a successful save (see intro note) | covered (partial: opening covered; a completed insert is not) |
+| ID-32 | Toolbar Insert quote | Blockquote applied | "G5-03" | covered |
+| ID-33 | Toolbar Mention (@+name) | Suggestion list, selectable | "G5-04" (list opens; selection not asserted, same gap as ID-13) | covered (partial) |
+| ID-34 | "+ Hashtag" adds a tag as chip | Dropdown opens, chip added | "G3-02: pick 1 chip then remove it"; `hashtag-picker.test.tsx`: "adds a tag as a chip when an option is picked" | covered |
+| ID-35 | 3 hashtags as 3 distinct chips | 3 separate chips | none | not-covered (reason: "G3-02" adds only 1 chip; "G3-01" adds 5 but doesn't assert 3 as an intermediate) |
+| ID-36 | Remove hashtag via chip | Chip removed, others remain | "G3-02"; `hashtag-picker.test.tsx`: "removes a chip via its remove button" | covered |
+| ID-37 | "+ Image" adds image | Picker opens, thumbnail shown | "G5-05" | covered |
+| ID-38 | "+ Image" hides after 5th | Button hidden | "G5-05" | covered |
+| ID-39 | Remove image thumbnail | Image removed, count decreases | none | not-covered (reason: `ImageAttachmentGrid`'s remove button has no dedicated test) |
+| ID-40 | Remove image re-shows "+ Image" | Button reappears | none | not-covered (reason: same as ID-39) |
+| ID-41 | Anonymous checkbox toggle on | Checked | "G5-01" | covered |
+| ID-42 | Anonymous checkbox toggle off | Unchecked | "G5-02: Unchecking clears name field…" | covered |
+| ID-43 | Anonymous name field shows | Field appears when checked | "G5-01"; `anonymous-toggle.test.tsx`: "shows the name field when checked" | covered |
+| ID-44 | Anonymous name field hides | Field hides when unchecked | "G5-02"; `anonymous-toggle.test.tsx`: "discards the display name via onDisplayNameChange when unchecking" | covered |
+| ID-45 | "Hủy" closes modal | Modal closes, nothing saved | "G2-02: Hủy closes dialog…"; `compose-footer.test.tsx`: "fires onCancel when Hủy is clicked" | covered |
+| ID-46 | "Gửi" submits form | Validated, loading shown, modal closes | `e2e/kudos-integration.spec.ts` item 2 ("Submit real kudos…") | covered |
+| ID-47 | "Gửi" submit success | Form submitted, modal closes | same test as ID-46 | covered |
+| ID-48 | "Gửi" disabled state | Disabled when invalid | "G2-01: Gửi disabled…"; `compose-footer.test.tsx`: "disables Gửi when submitDisabled is true" | covered |
+| ID-49 | "Gửi" enabled state | Enabled when valid | "G2-03"; `compose-footer.test.tsx`: "enables Gửi and fires onSubmit…" | covered |
+| ID-50 | Recipient empty — error | Red border + error at field | `validate-draft.test.ts`: "rejects a missing receiver" | covered (partial: same evidence/gap as ID-7) |
+| ID-51 | Content empty — error | "Không được để trống" at textarea | `validate-draft.test.ts`: content-empty tests | covered (partial: same evidence/gap as ID-11) |
+| ID-52 | Hashtag empty — error | "Không được để trống" at hashtag field | `validate-draft.test.ts`: "rejects zero hashtags" | covered (partial: same evidence/gap as ID-14) |
+| ID-53 | Hashtag exceed max — error | "Tối đa 5 hashtag", blocked | "G3-01" | covered |
+| ID-54 | Image exceed max — error | "+ Image" hidden, 6th blocked | "G5-05"; `validate-image.test.ts`: "rejects a 6th image…" | covered |
+| ID-55 | Image invalid type — error | "Định dạng file không hợp lệ" | "G5-05" | covered |
+| ID-56 | All required fields empty — errors | Errors on recipient, content, hashtag; not submitted | "G2-01" (submit stays disabled with everything empty) | covered (partial: disabled-submit asserted; the three distinct inline error messages appearing together are not separately e2e-asserted) |
+
+### Sun* Kudos Live board (`docs/momorph/sun-kudos-live-board/test-cases.csv`, 41 cases, UUID `TC_ID`)
+
+| TC ID (first 8 chars) | Category / objective | Expected result | Test file : test title | Status |
+|---|---|---|---|---|
+| 0952e2f0 | Open profile navigation — click avatar/name | Profile page opens | `e2e/kudos-integration.spec.ts`: "4b. Clicking a card author opens /profile?id=" (card avatar/name) | covered (partial: card click tested; a leaderboard entry's avatar/name is also now a real `Link` in `LeaderboardList` but no test clicks one — see TC `6b1e2359`) |
+| 31693bb7 | Kudos detail navigation — click "View Details" or content | Detail page opens | `e2e/kudos-detail.spec.ts`: "Item 1" (Highlight card's "Xem chi tiết" button); `e2e/kudos-integration.spec.ts`: "4c" (feed-card content click) | covered |
+| 71b3ef43 | Access condition — authentication required | Redirect/prompt to sign in | `e2e/kudos-integration.spec.ts`: "1. Unauthenticated routes redirect to login with next param" | covered |
+| 40d4ba26 | Layout — banner visibility/position | KV banner visible, positioned top | `e2e/kudos-board.spec.ts`: "renders KV banner, compose pill, and section headers" | covered (partial: presence + text asserted; exact position is visual-only) |
+| 0578e8ef | Layout — input pill visibility/position | Pill shown, pencil icon, placeholder | same test | covered (partial) |
+| 06b76e80 | Layout — Highlight header/filter/carousel position | Header + filters + carousel in position | same test (header text only) | covered (partial: header text asserted; filter/carousel position is visual-only) |
+| b03a3b4e | Layout — Highlight title + filters arrangement | Buttons visible, aligned | "highlight carousel shows 5 slides, pagination, and filter dropdowns" | covered (partial: presence asserted; alignment is visual-only) |
+| 0929bc39 | Layout — Hashtag button visibility/position | Button shown, correctly positioned | same test | covered (partial) |
+| 7b029a3b | Layout — Phòng ban button visibility/position | Button shown, correctly positioned | same test | covered (partial) |
+| 86092c3a | Layout — Highlight carousel slides/arrows | 5 cards, arrows disabled at ends | same test | covered |
+| 67c21a05 | Layout — kudos card sender/receiver/time/hashtags | All fields visible | "feed card displays sender, receiver, time, content, badges, and disabled heart" | covered |
+| 1ce82447 | Layout — Spotlight search bar visibility/placeholder | Search bar + icon + placeholder shown | "spotlight renders word cloud, search validation, and sidebar with stats" (visibility only) | covered (partial: placeholder text not separately asserted) |
+| ddf67e52 | Layout — Spotlight word cloud, pan/zoom, search, count | Word cloud, total, pan/zoom, search all shown | same test | covered |
+| 9dfda316 | Layout — kudos feed card list + sidebar | Cards aligned, sidebar visible, pagination/scroll works | "renders KV banner…" (headers); `e2e/kudos-integration.spec.ts` item 3 (scroll appends next page) | covered |
+| f92dc686 | Layout — kudos post card, all fields | Info, gallery, hashtags, buttons all placed correctly | "feed card displays sender, receiver, time, content, badges, and disabled heart" | covered |
+| 99ade8e6 | Layout — sidebar statistics/leaderboards | Sidebar visible, separated, headers/labels shown | "spotlight renders word cloud, search validation, and sidebar with stats" | covered |
+| b35d40c1 | Initialize — input pill placeholder | VN placeholder text shown | same test | covered |
+| d3877e54 | Initialize — Spotlight search placeholder | "Tìm kiếm" shown | none | not-covered (reason: search input's placeholder text is not separately asserted) |
+| f183a3e4 | Data validation — input pill required check | Submission blocked | N/A — the pill only opens F005's modal, it is not itself a submit control | not-covered (reason: this TC assumes a form-like pill; the pill is a button that opens a separate modal, so "submit is blocked" doesn't apply as described) |
+| 9e689933 | Data validation — Spotlight search max 100 chars | 100 accepted, 101 rejected | "spotlight renders word cloud, search validation…" (101-char rejection only) | covered (partial: over-length rejection tested; exactly-100-accepted and empty-on-submit are not separately asserted by this test, though `spotlight-search.tsx` implements both) |
+| ca8f60b3 | Business logic — save kudos to DB | New entry in feed | `e2e/kudos-integration.spec.ts` item 2 | covered |
+| 926d92a5 | Business logic — empty list "Hiện tại chưa có Kudos nào." | Message shown | `src/components/kudos/board/__tests__/kudos-feed.test.tsx`: "renders the empty-state copy…" (unit test — not e2e-assertable against seeded sample data) | covered |
+| d662780b | Business logic — empty leaderboard "Chưa có dữ liệu" | Message shown | "spotlight renders word cloud…" (gift leaderboard asserted empty) | covered |
+| 63645b03 | Business logic — sender cannot like own kudos | Heart button disabled | `e2e/kudos-board.spec.ts`: "heart is disabled on the viewer's own kudos"; `e2e/kudos-integration-heart-filters.spec.ts` item 6 | covered |
+| 91e102ba | Business logic — one like per user per kudos | Second like blocked | `heart`'s composite PK `(kudos_id, user_id)` enforces this at the DB level; no test directly attempts a duplicate insert and asserts the constraint violation | not-covered (reason: enforced by schema, not exercised by any test this round) |
+| 31936b72 | Business logic — like on special day, +2 hearts | Sender +2 | `e2e/kudos-integration-heart-filters.spec.ts` item 7; `src/lib/kudos/write/__tests__/heart-rules.test.ts` | covered |
+| 43b54c29 | Business logic — Open box opens Secret Box dialog | Dialog opens | N/A — "Mở quà" is `disabled` this round (Secret Box open flow deferred) | deferred (clarifications.md Round 2: "nút 'Mở quà' disabled + tooltip") |
+| d035e3b8 | Business logic — Spotlight state: loading, empty, interactive | Loading indicator, empty message, or interactive as appropriate | "spotlight renders word cloud…" (interactive/populated state only) | covered (partial: loading and empty variants are not exercised against seeded sample data, same limitation as the feed's own empty state) |
+| 0e56cacb | Component interaction — Hashtag dropdown filters | Menu opens, filters list | `e2e/kudos-integration-heart-filters.spec.ts` item 8 | covered |
+| 159fed13 | Component interaction — Phòng ban dropdown filters | Menu opens, filters list | same test | covered |
+| d01729d4 | Component interaction — hashtag chip click filters | List updates to that tag | same test | covered |
+| 81446f61 | Component interaction — carousel arrows, disabled at ends | Next/Prev disable correctly | "highlight carousel shows 5 slides, pagination, and filter dropdowns" | covered |
+| 7a7ec63e | Component interaction — heart like/unlike toggle | Color + count toggle | `e2e/kudos-integration-heart-filters.spec.ts` item 6 | covered |
+| 0adfd7ce | Component interaction — Copy Link, clipboard + toast | URL copied, toast shown | `e2e/kudos-integration.spec.ts` item 4 | covered |
+| 8c0d1781 | Component interaction — View Details navigates | Detail page opens | `e2e/kudos-integration.spec.ts` item 4; `e2e/kudos-detail.spec.ts` "Item 1" | covered |
+| 2cd77a0c | Component interaction — sender profile navigation | Profile opens | `e2e/kudos-integration.spec.ts`: "4b" (clicks `kudos-card-sender-name`, asserts `/profile?id=<sender>`) | covered |
+| 630f42a3 | Component interaction — receiver profile navigation | Profile opens | none — same `CardAuthorBlock` `Link` component as the tested sender case (4b), but no test clicks the receiver name specifically | covered (partial: identical component/mechanism as the tested sender case; not independently exercised) |
+| cac4b7a3 | Component interaction — Pan/zoom toggle | Mode toggles | "spotlight renders word cloud…" (button visibility only) | covered (partial: visibility asserted; the toggle actually switching pan↔zoom mode is not asserted) |
+| 33ca8f8a | Component interaction — Spotlight node hover/click | Tooltip on hover, opens detail on click | `e2e/kudos-integration.spec.ts` item 4 (click → detail nav asserted; hover tooltip content not separately asserted) | covered (partial) |
+| f9b68ffa | Component interaction — image gallery click opens full-size | Full-size image opens | none | not-covered (reason: **not implemented** — `CardAttachedImages` thumbnails have no click handler) |
+| 6b1e2359 | Component interaction — leaderboard avatar/name click + hover preview | Profile opens; hover shows preview | none | not-covered (reason: click is now implemented — `LeaderboardList` wraps each entry in a `Link` to `/profile?id=` — but no test clicks a leaderboard entry, and no hover-preview affordance exists at all) |
+
+### Add link box (`docs/momorph/addlink-box/test-cases.csv`, 25 cases, UUID `TC_ID`)
+
+| TC ID (first 8 chars) | Category / objective | Expected result | Test file : test title | Status |
+|---|---|---|---|---|
+| 70006b13 | Access condition — authorized user access | Modal shows, or access denied | N/A — sub-dialog inherits the parent compose modal's own auth guard, no independent access control | not-covered (reason: not a meaningfully separate scenario from the parent modal's own guard, and not exercised as such) |
+| 1a55a427 | Access condition — no duplicate modal instances | Only one instance open | none | not-covered (reason: no test opens the link tool twice and checks for a duplicate dialog) |
+| 2efb76ce | Layout — modal centered with overlay, page not interactable | Modal displays correctly | `e2e/kudos-compose.spec.ts` "G4-01"–"G4-04" open the dialog | covered (partial: dialog visibility asserted; centering/overlay/non-interactability of the page behind it is visual-only) |
+| e669b7ef | Layout — title "Add link" position | Title shown top-center | none | not-covered (reason: visual-only; also the shipped VN copy is "Thêm đường dẫn", not literally "Add link" — the CSV's English title names the MoMorph screen, not the rendered string) |
+| 24d2a229 | Layout — Text input visibility/size 672×56 | Input shown, sized correctly | "G4-01"–"G4-04" interact with the field | covered (partial: presence asserted; exact pixel size is visual-only) |
+| a98b51d4 | Layout — "Text" label left of input | Label positioned left | none | not-covered (reason: visual-only) |
+| 28793eb6 | Layout — Link input visibility/size | Input shown, sized correctly | "G4-01"–"G4-04" interact with the field | covered (partial: presence asserted; exact pixel size is visual-only) |
+| 96b032e1 | Layout — "Link" label left of input | Label positioned left | none | not-covered (reason: visual-only) |
+| abddef4b | Layout — button group anchored at bottom during scroll | Buttons stay anchored | none | not-covered (reason: visual-only, no scroll test) |
+| b13a3dcc | Layout — "Hủy" bordered, smaller than "Lưu" | Bordered, smaller | "G4-04" clicks Hủy | covered (partial: presence/click asserted; relative sizing is visual-only) |
+| 096b9346 | Layout — "Lưu" large, yellow, with icon | Large yellow button with icon | "G4-01"–"G4-03" assert its disabled state | covered (partial: presence asserted; color/size is visual-only) |
+| 7d5ff602 | Initialize — Text input empty by default | Empty on open | none | not-covered (reason: no test inspects the field's value immediately after opening, before typing) |
+| 57a9b74f | Initialize — Link input empty by default | Empty on open | none | not-covered (reason: same as above) |
+| f0c0e8f1 | Component interaction — Text input focus border highlight | Border highlights on focus | none | not-covered (reason: CSS-only `focus:outline` state, not asserted by any test) |
+| 8100906c | Component interaction — label click focuses input | Cursor focuses the input | none | not-covered (reason: the "Text"/"Link" labels are plain `<span>` elements, not `<label htmlFor>` — clicking one does not focus the input; not asserted, and not actually implemented as a label-click affordance) |
+| 48467d34 | Component interaction — "Hủy" closes without saving | Modal closes, no changes saved | "G4-04: Addlink closes on Esc/Hủy" | covered |
+| 13c491cb | Component interaction — "Lưu" validates, saves, closes | Data saved, modal closes | `e2e/kudos-compose.spec.ts`: "G4-05: Addlink SAVE succeeds — link mark lands in the editor" (fills valid Text+Link, saves, asserts the dialog closes and the `<a href>` mark appears in the editor) | covered |
+| 3912184e | Data validation — Text required | Error shown, save blocked | "G4-01: Blank text rejected" | covered (partial: `save` disabled is asserted; the inline error text itself is not, since the code's error paragraph only renders for non-empty invalid text — see edge-cases.md) |
+| adb699ca | Data validation — Text whitespace-only rejected | Error shown, save blocked | none | not-covered (reason: "G4-01" tests a fully empty string, not a whitespace-only one — same code path, but not the literal fixture this TC names) |
+| 7d85997d | Data validation — Text 1–100 chars | Accepted at 100, rejected at 101 | "G4-02: Text >100 chars rejected" | covered (partial: over-length rejection tested; the 100-char accepted boundary is not) |
+| 97dc4028 | Data validation — Link required | Error shown, save blocked | "G4-03: Invalid link rejected" (tests an invalid scheme, `"ftp:"`, not an empty Link) | covered (partial: same `isLinkValid()` code path, not the literal empty-field fixture) |
+| db2ca333 | Data validation — Link valid URL format | Invalid rejected, valid accepted | "G4-03" (invalid scheme rejected); "G4-05" (a valid `https://` URL is accepted and saved) | covered |
+| aad5791a | Data validation — Link 5–2048 chars | Rejected under 5, accepted in range | "G4-03" uses `"ftp:"` (4 chars, also wrong scheme) — both conditions overlap in that one fixture | covered (partial: the length floor and the scheme check are not independently isolated by any test) |
+| e5632ac7 | Error handling — validation error shown, save blocked | Error per invalid/empty field, modal stays open | "G4-01"–"G4-03" (save-disabled asserted; visible error text not asserted, see `3912184e`) | covered (partial) |
+| ef4d0413 | Business logic — successful save closes modal | Data saved, modal closes | `e2e/kudos-compose.spec.ts`: "G4-05" | covered |
+
+### Summary (Round 2)
+
+| Screen | Total | Covered | Deferred | Not-covered |
+|---|---|---|---|---|
+| Viết Kudo | 57 | 47 | 0 | 10 |
+| Sun* Kudos Live board | 41 | 35 | 1 | 5 |
+| Add link box | 25 | 14 | 0 | 11 |
+| **Total** | **123** | **96** | **1** | **26** |
+
+Recounted programmatically (regex over the actual written rows, not hand-tallied) after both
+2026-09-02 post-pass updates above. **Wave 1** (avatar/name → `/profile`, successful Addlink
+save): moved 6 rows from not-covered to covered (`0952e2f0`\*, `2cd77a0c`, `630f42a3`\*,
+`13c491cb`, `db2ca333`, `ef4d0413`; \* = "covered (partial)" — see their rows for what's still
+untested). **Wave 2** (feed-card content click, detail-page heart/Copy Link): `31693bb7` was
+already counted covered (via the "View Details" button path) and stays covered — its remaining
+"or content" caveat is now resolved, so the row's status text lost its "(partial: …)" qualifier
+but the summary count doesn't change. Net across both waves: 96 covered / 1 deferred / 26
+not-covered, up from the original pass's 91/1/31. `6b1e2359` stays not-covered: the leaderboard
+click is implemented in code but still has zero test coverage, and its hover-preview half
+doesn't exist at all.
+
+Every "covered (partial: …)" row above counts as **covered** in this summary — the underlying
+rule or interaction has real test evidence, even where a visual/pixel detail or a secondary
+sub-case is not separately asserted. Rows counted **not-covered** have no test evidence at all
+for the behavior the TC describes; two of them (`6b1e2359`, `f9b68ffa`) are not-covered because
+the affordance is **not implemented or not tested at all**, not merely missing one visual
+assertion — flagged individually above rather than folded into a generic "visual-only" reason.
+`31693bb7` stays **covered**, unchanged, via the "View Details" button path — only its "or
+content" alternative is the open gap (tracked below, not a traceability regression).
+
+### Gaps to close (candidates for a follow-up round)
+
+Ranked by how cheaply each could be closed without new infrastructure. Two earlier items on
+this list — a feed card's content click to `/kudos/[id]`, and detail-page heart toggle/Copy
+Link — shipped within this same round (2026-09-02, verified on disk, TCs `31693bb7` and the
+detail Item 2 e2e assertions now green) and are removed from the list below.
+
+1. **Exercise the leaderboard avatar/name click** (`6b1e2359`) — `LeaderboardList` now wraps
+   each entry in a real `Link`; one e2e test clicking a rank/gift-leaderboard entry and
+   asserting `/profile?id=` would close the click half. The hover-preview half still needs a
+   design decision (no such affordance exists in code at all).
+2. **Image gallery full-size click** (`f9b68ffa`) — `CardAttachedImages` has no lightbox/enlarge
+   affordance at all; needs a design decision (new overlay component) before it can be built.
+3. **Isolated single-field-required assertions** (`ID-7`, `ID-11`, `ID-14`, `ID-50`–`52` in
+   Viết Kudo) — the server-side rule is unit-tested, but no e2e test isolates one empty field
+   at a time and asserts the specific red-border/inline-error render; cheap to add once a
+   `compose-helpers.ts` field-error locator exists.
+4. **Addlink label-click-to-focus** (`8100906c`) — currently unimplementable as specified
+   because the "Text"/"Link" labels are plain `<span>`s; converting them to
+   `<label htmlFor="...">` would both fix the a11y gap and make the TC coverable.
+
+## Copy gaps (Round 2)
+
+Per the same copy-gap convention Phase 07 established (round 1): a string with no design
+source ships as a minimal, logged Vietnamese decision, never invented English. Three strings in
+this round had no `specs.csv` row or verbatim `get_node().character` match — resolved
+2026-09-01 by querying the MCP node text first, per `plans/clarifications.md`'s Round 2 session:
+
+| Copy | Resolution | Key |
+|---|---|---|
+| Recipient-required error | "Không được để trống" — reused from the content/hashtag required-field copy (inferred from the same form's other required-field TC rows, not invented) | `compose.recipient.requiredError` |
+| "Mở quà" tooltip (disabled button) | "Sắp ra mắt" | `kudos.sidebar.openGiftTooltip` |
+| Spotlight search validation | "Tối đa 100 ký tự" / "Vui lòng nhập từ khóa" | `kudos.spotlight.searchMaxLengthError` / `kudos.spotlight.searchEmptyError` |
+
+### `[VN]`-mirrored EN keys (Round 2)
+
+Every value below is identical in `messages/vi/*.json` and `messages/en/*.json` — a deliberate
+Vietnamese-verbatim mirror per the round-1 EN-copy rule (no confirmed Figma EN source), not a
+translation left undone. Recounted programmatically 2026-09-02 (flatten both catalogues per
+namespace, key-set-equality assert, compare every value pairwise) after a coordinator flag that
+the first-pass list, built by manual read, undercounted — it excluded genuine mirrors that
+happen to be short design terms or proper nouns (e.g. `card.copyLink`, `highlight.caption`,
+`heroTier.*`), not just the copy-gap strings. **56 keys mirrored** across the three namespaces
+(was 36 in the first pass), key set and count both re-verified against the files on disk, not
+carried forward from any prior list.
+
+**`kudos.json`** — 29 of 39 keys mirrored: `allKudos.caption`, `allKudos.emptyFeed`,
+`allKudos.heading`, `allKudos.loadMore`, `allKudos.loading`, `asterisk.tier1`, `asterisk.tier2`,
+`asterisk.tier3`, `banner.title`, `card.copyLink`, `card.copyLinkToast`, `filters.hashtagLabel`,
+`heroTier.legend`, `heroTier.new`, `heroTier.rising`, `heroTier.super`, `highlight.caption`,
+`highlight.heading`, `sidebar.giftLeaderboardTitle`, `sidebar.leaderboardEmpty`,
+`sidebar.openGift`, `sidebar.openGiftTooltip`, `spotlight.caption`, `spotlight.heading`,
+`spotlight.panZoomLabel`, `spotlight.searchEmptyError`, `spotlight.searchMaxLengthError`,
+`spotlight.tickerSuffix`, `spotlight.totalSuffix`.
+Translated (10): `card.viewDetail`, `composePill.placeholder`, `filters.departmentLabel`,
+`sidebar.heartsReceived`, `sidebar.kudosReceived`, `sidebar.kudosSent`,
+`sidebar.rankLeaderboardTitle`, `sidebar.secretBoxOpened`, `sidebar.secretBoxUnopened`,
+`spotlight.searchPlaceholder`.
+
+**`compose.json`** — 26 of 39 keys mirrored: `addlink.linkInvalidError`, `addlink.linkLabel`,
+`addlink.textRequiredError`, `anonymous.namePlaceholder`, `editor.requiredError`,
+`genericError`, `hashtag.addButtonLabel`, `hashtag.addButtonNote`, `hashtag.label`,
+`hashtag.maxError`, `hashtag.requiredError`, `image.addButtonLabel`, `image.addButtonNote`,
+`image.invalidFormatError`, `image.label`, `image.tooLargeError`, `mention.empty`,
+`recipient.requiredError`, `selfKudosError`, `toolbar.bold`, `toolbar.italic`, `toolbar.link`,
+`toolbar.orderedList`, `toolbar.quote`, `toolbar.strike`, `uploadError`.
+Translated (13): `addlink.cancel`, `addlink.save`, `addlink.textLabel`, `addlink.title`,
+`anonymous.label`, `editor.hint`, `editor.placeholder`, `footer.cancel`, `footer.submit`,
+`recipient.label`, `recipient.placeholder`, `title`, `toolbar.communityStandards`.
+
+**`profile.json`** — 1 of 1 key mirrored: `developing`.

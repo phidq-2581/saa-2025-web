@@ -157,3 +157,112 @@ Spec is silent or self-contradictory on each of these. **Do not guess these in c
 17. Countdown "khóa điều hướng đến các trang khác" — mechanism, scope and bypass for admins unstated.
 18. Anonymous name: no validation, no uniqueness, no length; and whether it displaces the masked
     alias on the public feed is not stated.
+
+## Kudos Cluster (Round 2 — verified in code)
+
+Everything above this section was derived from spec rows before any Kudos code existed, and
+several of its open items (8, 9, 10, 11, 14, 16, 18) are now resolved. This section documents
+the **shipped** schema (`supabase/migrations/20260831*.sql`, `20260902000000*.sql`), not another
+spec-derived guess — it supersedes the `kudos`/`hashtag`/`department`/`heart`/`secret_box`/
+`badge`/`event config` entries above wherever they disagree; those entries are kept for their
+spec-derivation history, per the same convention `award_category` already uses.
+
+### Tables (8 new — the Stage-1.5 spec draft counted 7; `secret_box_gift` was added during
+implementation per a clarifications ruling not yet recorded when that draft was written)
+
+| Table | Key columns | RLS (`authenticated`) | Notes |
+|---|---|---|---|
+| `department` | `name text primary key` | select: `using (true)`, no write | Seed-only, 50 rows |
+| `hashtag` | `id uuid pk`, `name text unique` | select: `using (true)`, no write | Seed-only, 13 rows (verbatim VN names) |
+| `kudos` | `id uuid pk`, `sender_id`/`receiver_id → auth.users`, `content jsonb`, `is_anonymous`, `anonymous_display_name`, `created_at` | select: all; insert: `with check (sender_id = auth.uid())` | No `update`/`delete`. `sender_id`/`receiver_id` deliberately unconstrained at the schema level — self-kudos is blocked in application code only (see `docs/features/F005_KudosCompose/technical-spec.md` BR-009) |
+| `kudos_image` | `id uuid pk`, `kudos_id → kudos`, `storage_path text`, `position smallint` (0–4) | select: all; insert: caller must own the parent `kudos` row | No `update`/`delete` — immutable once submitted |
+| `kudos_hashtag` | `pk (kudos_id, hashtag_id)` | select: all; insert: caller must own the parent `kudos` row | PK doubles as the no-duplicate-tag rule |
+| `heart` | `pk (kudos_id, user_id)`, `granted_amount smallint check in (1,2)`, `created_at` | select: all; insert: `with check (user_id = auth.uid() and user_id <> (select sender_id from kudos where id = kudos_id))`; delete: `using (user_id = auth.uid())` | PK doubles as the one-heart-per-user-per-kudos rule; insert `with check` is the DB-level half of "sender cannot heart own kudo" |
+| `special_days` | `day date primary key` | select: `using (true)`, no write | Seed empty; admin edits via SQL/Studio |
+| `secret_box_gift` | `id uuid pk`, `recipient_id → auth.users`, `granted_at` | select: `using (true)`, no write | Seed empty; drives the sidebar's "opened" counter honestly (real query, real 0) instead of a hardcoded value; no redemption flow this round |
+
+### `kudos_card_view` (aggregate view, `security_invoker = true`)
+
+One row per kudos: `kudos.*` joined with sender/receiver `profile` (name, avatar), a live
+`heart_count` (`count(*)` over `heart`), and aggregated `hashtag_ids`/`hashtag_names`/
+`image_paths` arrays via lateral subqueries (no N+1, no row fan-out). `security_invoker` is
+load-bearing — without it the view runs as its owner and silently bypasses the RLS on every
+table it joins. Every board query (Highlight, feed, Spotlight, leaderboards) reads from this
+view, never the base `kudos` table directly.
+
+### `create_kudos(...)` RPC
+
+One atomic `plpgsql` function (`security invoker`), called by the compose Server Action after
+client + server validation both pass. Guards 1–5 hashtags and ≤5 images so a partial write can
+never land at rest; an unhandled `raise exception` rolls back the whole `kudos` +
+`kudos_hashtag` + `kudos_image` insert. `sender_id` is `auth.uid()` inside the function body,
+never a parameter — a client cannot claim to be someone else's sender even by calling the RPC
+directly.
+
+### `public.profile` — RLS widening (resolves open item 5's identity-mapping ambiguity, partially)
+
+Round 2 drops `profile_select_own` and replaces it with `profile_select_all_authenticated`
+(`using (true)`) — see `docs/system-architecture.md` § Data flow for the full rationale. No
+column changes; `email` still stays out of every payload this table's readers select.
+
+### Storage — bucket `images`
+
+Declared in `supabase/config.toml` since round 1 but unused before this round (resolves open
+item 8). `allowed_mime_types` gained `image/webp` (was png/jpeg only); `file_size_limit` stays
+the bucket-wide 50MiB ceiling, with a ≤5MB-per-image check enforced app-side (Storage has no
+per-request override). Path convention: `kudos/{sender_id}/{kudos_id}/{position}-{filename}`.
+
+Two `storage.objects` policies exist for this bucket, one of them corrected mid-round:
+
+- `images_select_authenticated` — `using (bucket_id = 'images')`, unchanged since it was first
+  written: every signed-in Sunner must see every kudos's images in the feed, not just their own.
+- `images_insert_authenticated` — **originally** `with check (bucket_id = 'images')` only (no
+  path-ownership check at all: any authenticated Sunner could upload into another Sunner's
+  `kudos/{their_id}/...` folder). A Group-3 review flagged it High/Security; migration
+  `20260902000000_scope_images_insert_policy.sql` drops and recreates it scoped to
+  `(storage.foldername(name))[1] = 'kudos' and (storage.foldername(name))[2] = auth.uid()::text`.
+
+### Content storage format (resolves open item 9)
+
+`kudos.content` is `jsonb` holding TipTap's document JSON — not HTML, not Markdown. Both the
+write path (`validate-content.ts`, depth-capped at 20, node-count-capped at 2000) and the
+render path (`kudos-content-renderer.tsx`) independently allow-list node types (`doc`,
+`paragraph`, `text`, `blockquote`, `orderedList`, `listItem`, `mention`) and mark types (`bold`,
+`italic`, `strike`, `link` — `http`/`https` schemes only); no raw `html` mark is ever accepted
+or rendered. This decision (2026-08-31) supersedes the 2026-08-28 "sanitised HTML" placeholder
+recorded in `plans/clarifications.md` § Session 2026-08-28 — the later, Round 2 session is
+authoritative.
+
+### Special-day heart rule (resolves open item 11)
+
+`special_days` (seeded empty, admin-managed via SQL/Studio — no admin UI this round) is read
+server-side inside the same write path that inserts a `heart` row. A heart normally credits the
+kudos's **sender** +1; +2 if the current date, cast to `Asia/Ho_Chi_Minh` (Postgres/JS
+`current_date`/`Date` default to UTC, ~7h out of phase around VN midnight), is present in
+`special_days`. This is an app-level invariant, not a DB-level one — RLS cannot itself compute
+"was today special". A revoke reads the exact `granted_amount` back off the row it deletes, in
+one atomic round trip, never a hardcoded 1.
+
+### Spotlight word cloud (partially resolves open item 14)
+
+The word cloud is a **recipient** cloud — one node per kudos, labeled by its receiver's name
+(`deriveSpotlightNodes()`), not a hashtag cloud. The "N KUDOS" header total is always a live
+`count(*) from kudos`, never the design's `388` placeholder.
+
+### Rank-promotion leaderboard (new — not in the original 18 open items)
+
+No new table. A Sunner's 10th, 20th, and 50th received kudos each count as a promotion event,
+timestamped by that kudos's `created_at` (`plans/clarifications.md` "Suy từ mốc hoa thị"). All
+events across all Sunners are pooled and the 10 most recent shown. The sibling gift-recipient
+leaderboard stays legitimately empty — `secret_box_gift` has no redemption/write flow yet.
+
+### Still open after Round 2
+
+- **Anonymous display name** (open item 18): required when `is_anonymous = true`, no max length
+  or uniqueness rule in spec or code.
+- **`profile.department` vs. the new `department` table are not FK-linked** — the department
+  filter reads `profile.department` (free text); the reference table is the dropdown's option
+  set, not a foreign-key target. Values could drift (casing, spelling) with no constraint to
+  catch it.
+- Every other open item from Round 1 not named above (12, 13, 15, 17, and items 1–7) remains
+  open — this round did not touch Login/Homepage/Award System/Profile/Countdown.

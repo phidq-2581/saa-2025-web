@@ -1,8 +1,81 @@
 # Project Changelog — SAA 2025 Web
 
-Reverse-chronological record of delivered work. One entry per delivery group from
-`plans/260828-1257-saa-2025-web-login-homepage-awards/`; see `docs/development-roadmap.md` for
+Reverse-chronological record of delivered work. Round 1 entries are per delivery group from
+`plans/260828-1257-saa-2025-web-login-homepage-awards/`; round 2 entries are per delivery group
+from `plans/260831-2303-saa-2025-web-kudos-round-2/`. See `docs/development-roadmap.md` for
 phase status and `docs/test-traceability.md` / `docs/visual-qa/` for verification evidence.
+
+## 2026-09-02 — Round 2 Group 4 (Phase 07 + 08): integration wiring, hardening, docs promotion
+
+- **Feature**: Kudos cluster now fully wired end to end — real submit (compose modal → DB),
+  real heart toggle with special-day 2× grant, real hashtag/department filtering, infinite
+  scroll, Copy Link/detail navigation, EN catalogues for the three new namespaces
+  (`compose`, `kudos`, `profile`). Phase 07 evidence: full e2e suite 89/89 passing, gate
+  (lint/typecheck/unit/build) all exit 0, after reverting a set of tester-side test weakenings
+  (unique `contentText` markers + `expect.poll`/`waitForURL` replacing fixed sleeps, a real
+  `memberSession` fixture for the disabled-heart-on-own-kudos case, `pickFirstHashtags` no
+  longer force-closing the picker).
+- **Security fix**: `storage.objects`' insert policy for the `images` bucket, originally scoped
+  only to `bucket_id = 'images'` (any authenticated Sunner could upload into another Sunner's
+  folder), re-scoped to the caller's own `kudos/{auth.uid()}/...` path segment
+  (`supabase/migrations/20260902000000_scope_images_insert_policy.sql`) — a Group-3 review
+  finding (High/Security).
+- **Behavior fix**: self-kudos (sending to yourself) is now blocked in `createKudos` — a
+  Group-3 checkpoint decision closing a gap the review flagged (no spec/TC row addressed it;
+  farming the 10/20/50 hoa-thị milestones was the risk).
+- **Docs**: `docs/features/F005_KudosCompose/` and `docs/features/F006_KudosLiveBoard/` (5
+  files each) promoted from the round's Stage-1.5 spec drafts, reconciled to the shipped code —
+  fixes include the TipTap link-extension claim (StarterKit's bundled `link`, not a separate
+  `@tiptap/extension-link` package), the rank-promotion leaderboard (populated from real
+  10/20/50-kudos milestones, not permanently empty as the draft assumed), the sidebar stat
+  count (5 real rows, not the design prose's miscounted 6), and two genuine implementation
+  gaps found only during this promotion pass — avatar/name clicks do not open `/profile` on
+  any card or leaderboard (no `onClick`/`<Link>` exists), and no test exercises a successful
+  Addlink save. `docs/screens/SCR007_KudosCompose/spec.md` and
+  `docs/screens/SCR008_KudosLiveBoard/spec.md` added (mirroring SCR004's shape).
+  `docs/screens/SCR004_Fab/spec.md` corrected — "Viết KUDOS" now opens F005's compose modal
+  (the prior "nothing opens this round" line was a live contradiction with Phase 03's own
+  delivery). `docs/system-architecture.md` gained a Kudos-domain section and its "Data flow"
+  section's stale `profile_select_own` claim was replaced with the round-2 widened policy.
+  `docs/data-model.md` gained a verified-in-code Kudos Cluster section (8 tables, the
+  `kudos_card_view` aggregate, the `create_kudos` RPC, storage, the special-day rule).
+  `docs/system/permissions.md`'s inverted profile-boundary statement was **replaced**, not
+  appended to: profile-read is now the system's widest boundary (any authenticated user reads
+  any profile row), reversing the round-1 "stricter than the role boundary" framing.
+  `docs/test-traceability.md` gained a 123-case Kudos traceability table (91 covered, 1
+  deferred, 31 not-covered) and a round-2 copy-gap log (3 design-gap strings, 21 `[VN]`-mirrored
+  EN keys across `compose`/`kudos`/`profile`, 3 of them found by direct file comparison rather
+  than carried from any prior list).
+
+## 2026-08-31/09-02 — Round 2 Groups 1–3 (Phases 01–06): Kudos cluster schema, read/write layers, UI
+
+- **Schema** (Phase 01, alone — edits `supabase/config.toml`): 8 new tables (`department`,
+  `hashtag`, `kudos`, `kudos_image`, `kudos_hashtag`, `heart`, `special_days`,
+  `secret_box_gift` — the Stage-1.5 spec draft counted 7; `secret_box_gift` was added during
+  implementation per a clarifications ruling), the `kudos_card_view` aggregate (`security_invoker`),
+  the atomic `create_kudos` RPC, `profile` RLS widened to read-all-authenticated (replacing
+  `profile_select_own`), `images` storage bucket policies, 13-hashtag + 50-department seed.
+  New pinned dependencies: `@tiptap/{core,pm,react,starter-kit,extension-mention,suggestion}@3.30.6`,
+  `d3-cloud`/`d3-zoom`/`d3-selection`.
+- **Read layer** (Phase 02): `src/lib/kudos/queries/**` (highlight top-5, feed pages, spotlight,
+  sidebar stats, leaderboards, recipients) + `src/lib/kudos/derive/**` (pure filter/sort/tier/
+  milestone functions) — reworked mid-phase after a plan-owner ruling corrected the Spotlight
+  word cloud from a hashtag-shaped stub to a recipient cloud (one node per kudos).
+- **Viết Kudo compose modal UI** (Phase 03): TipTap editor (bold/italic/strike/ordered-list/
+  quote/link/mention), Addlink Box sub-dialog, hashtag picker, image attachment grid, anonymous
+  toggle — client-side only this phase, wired to real data in Phase 07.
+- **Kudos Live board UI** (Phase 04): KV banner, Highlight carousel, Hashtag/Phòng ban filter
+  dropdowns, Spotlight word cloud (d3-cloud + d3-zoom), All Kudos feed, sidebar (stats +
+  leaderboards) — reviewed SEALED 9/10 at the Group 2 checkpoint, 2 High findings fixed and
+  re-verified.
+- **Write layer** (Phase 05): `createKudos`/`toggleHeart` Server Actions, content/draft/image
+  validators, storage-path builder + verifier — the special-day 2× heart grant is decided
+  server-side only, in `Asia/Ho_Chi_Minh`, never trusting a client-supplied amount.
+- **Detail + profile stub UI** (Phase 06): `/kudos/[id]` (full, untruncated card, real gallery),
+  `/profile?id={uuid}` (minimal placeholder) — reused Phase 04's card/avatar building blocks,
+  no forked components. Group 3 checkpoint: SEALED 8/10, 2 High + 1 Med + 1 Low fixed & verified
+  (storage insert-policy scoping, content depth/size caps, atomic heart-revoke round trip,
+  self-kudos block).
 
 ## 2026-08-31 — Group 4b (Phase 08 + 08b): hardening, a11y, docs sync
 

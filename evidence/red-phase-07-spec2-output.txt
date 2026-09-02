@@ -1,0 +1,79 @@
+
+> saa-web@0.1.0 test:e2e
+> playwright test e2e/kudos-integration-heart-filters.spec.ts
+
+◇ injected env (5) from .env.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+Running 4 tests using 4 workers
+
+◇ injected env (0) from .env.local // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env.local // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env.local // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+  ✓  4 [chromium] › e2e/kudos-integration-heart-filters.spec.ts:277:7 › Phase 07: Kudos Heart & Filters Integration › 9. Spotlight total tracks live delta, never hardcoded 388 (SC-005) (1.5s)
+  ✘  3 [chromium] › e2e/kudos-integration-heart-filters.spec.ts:35:7 › Phase 07: Kudos Heart & Filters Integration › 6. Heart toggle non-sender (+1 active, revoke to baseline); sender disabled; RLS rejects self (TC 7a7ec63e, 63645b03, SC-002) (1.5s)
+  ✘  1 [chromium] › e2e/kudos-integration-heart-filters.spec.ts:123:7 › Phase 07: Kudos Heart & Filters Integration › 7. Special day 2× grant/revoke via sidebar stat delta (TC 31936b72, SC-003) (1.7s)
+  ✘  2 [chromium] › e2e/kudos-integration-heart-filters.spec.ts:182:7 › Phase 07: Kudos Heart & Filters Integration › 8. Filter hashtag+department refilters Highlight+feed, resets carousel to 1; chip click filters (TC 0e56cacb, 159fed13, d01729d4) (30.1s)
+
+
+  1) [chromium] › e2e/kudos-integration-heart-filters.spec.ts:35:7 › Phase 07: Kudos Heart & Filters Integration › 6. Heart toggle non-sender (+1 active, revoke to baseline); sender disabled; RLS rejects self (TC 7a7ec63e, 63645b03, SC-002) 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1281
+    Received: 1280
+
+      68 |       ? parseInt(afterClickText.match(/\d+/)![0], 10)
+      69 |       : 0;
+    > 70 |     expect(afterClickCount).toBe(initialCount + 1);
+         |                             ^
+      71 |
+      72 |     // Assert active styling (aria-pressed or data attribute)
+      73 |     const isActive = await heartBtn.evaluate((el) => {
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration-heart-filters.spec.ts:70:29
+
+    Error Context: test-results/kudos-integration-heart-fi-9f85b-C-7a7ec63e-63645b03-SC-002--chromium/error-context.md
+
+  2) [chromium] › e2e/kudos-integration-heart-filters.spec.ts:123:7 › Phase 07: Kudos Heart & Filters Integration › 7. Special day 2× grant/revoke via sidebar stat delta (TC 31936b72, SC-003) 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2344
+    Received: 2342
+
+      158 |
+      159 |       // Should be +2 (special day multiplier)
+    > 160 |       expect(statAfter).toBe(statBefore + 2);
+          |                         ^
+      161 |
+      162 |       // Click again to revoke
+      163 |       await heartBtn.click();
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration-heart-filters.spec.ts:160:25
+
+    Error Context: test-results/kudos-integration-heart-fi-49b90-t-delta-TC-31936b72-SC-003--chromium/error-context.md
+
+  3) [chromium] › e2e/kudos-integration-heart-filters.spec.ts:182:7 › Phase 07: Kudos Heart & Filters Integration › 8. Filter hashtag+department refilters Highlight+feed, resets carousel to 1; chip click filters (TC 0e56cacb, 159fed13, d01729d4) 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.textContent: Target page, context or browser has been closed
+    Call log:
+      - waiting for locator('[data-testid="hashtag-filter-menu"]').locator('[data-testid="hashtag-filter-option"]').first()
+
+
+      204 |     // Select first hashtag option
+      205 |     const hashtagOption = hashtagMenu.locator('[data-testid="hashtag-filter-option"]').first();
+    > 206 |     const selectedHashtag = await hashtagOption.textContent();
+          |                                                 ^
+      207 |     await hashtagOption.click();
+      208 |
+      209 |     // Wait for refilter
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration-heart-filters.spec.ts:206:49
+
+    Error Context: test-results/kudos-integration-heart-fi-30361-0e56cacb-159fed13-d01729d4--chromium/error-context.md
+
+  3 failed
+    [chromium] › e2e/kudos-integration-heart-filters.spec.ts:35:7 › Phase 07: Kudos Heart & Filters Integration › 6. Heart toggle non-sender (+1 active, revoke to baseline); sender disabled; RLS rejects self (TC 7a7ec63e, 63645b03, SC-002) 
+    [chromium] › e2e/kudos-integration-heart-filters.spec.ts:123:7 › Phase 07: Kudos Heart & Filters Integration › 7. Special day 2× grant/revoke via sidebar stat delta (TC 31936b72, SC-003) 
+    [chromium] › e2e/kudos-integration-heart-filters.spec.ts:182:7 › Phase 07: Kudos Heart & Filters Integration › 8. Filter hashtag+department refilters Highlight+feed, resets carousel to 1; chip click filters (TC 0e56cacb, 159fed13, d01729d4) 
+  1 passed (32.0s)

@@ -1,0 +1,115 @@
+
+> saa-web@0.1.0 test:e2e
+> playwright test e2e/kudos-integration.spec.ts
+
+◇ injected env (5) from .env.local // tip: ⌘ suppress logs { quiet: true }
+
+Running 5 tests using 5 workers
+
+◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+  ✘  5 [chromium] › e2e/kudos-integration.spec.ts:234:7 › Phase 07: Kudos Integration Wiring › 5. EN locale renders MoMorph-sourced strings; VN unchanged (TC count EN keys) (473ms)
+  ✓  3 [chromium] › e2e/kudos-integration.spec.ts:34:7 › Phase 07: Kudos Integration Wiring › 1. Unauthenticated routes redirect to login with next param (TC 71b3ef43, SC-004) (2.3s)
+  ✘  1 [chromium] › e2e/kudos-integration.spec.ts:146:7 › Phase 07: Kudos Integration Wiring › 3. Infinite scroll: seed 12 kudos, scroll to bottom, next page appends (TC 9dfda316) (3.2s)
+  ✘  4 [chromium] › e2e/kudos-integration.spec.ts:191:7 › Phase 07: Kudos Integration Wiring › 4. Copy link toast, detail nav, spotlight node, avatar nav (TC 0adfd7ce, 8c0d1781) (6.4s)
+  ✘  2 [chromium] › e2e/kudos-integration.spec.ts:69:7 › Phase 07: Kudos Integration Wiring › 2. Submit real kudos: modal closes, card appears in feed with content, hashtags, time (TC ID-46, ID-47) (6.7s)
+
+
+  1) [chromium] › e2e/kudos-integration.spec.ts:69:7 › Phase 07: Kudos Integration Wiring › 2. Submit real kudos: modal closes, card appears in feed with content, hashtags, time (TC ID-46, ID-47) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="kudos-compose-recipient-option"]').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-testid="kudos-compose-recipient-option"]').first()
+
+
+      87 |     await page.waitForTimeout(200);
+      88 |     const recipientOptions = page.locator('[data-testid="kudos-compose-recipient-option"]');
+    > 89 |     await expect(recipientOptions.first()).toBeVisible();
+         |                                            ^
+      90 |     await recipientOptions.first().click();
+      91 |
+      92 |     // Add content
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration.spec.ts:89:44
+
+    Error Context: test-results/kudos-integration-Phase-07-81345-shtags-time-TC-ID-46-ID-47--chromium/error-context.md
+
+  2) [chromium] › e2e/kudos-integration.spec.ts:146:7 › Phase 07: Kudos Integration Wiring › 3. Infinite scroll: seed 12 kudos, scroll to bottom, next page appends (TC 9dfda316) 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 13
+    Received:   13
+
+      178 |     // Feed should have more cards (next page loaded)
+      179 |     const finalCount = await feed.count();
+    > 180 |     expect(finalCount).toBeGreaterThan(initialCount);
+          |                        ^
+      181 |   });
+      182 |
+      183 |   /**
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration.spec.ts:180:24
+
+    Error Context: test-results/kudos-integration-Phase-07-9dd81-t-page-appends-TC-9dfda316--chromium/error-context.md
+
+  3) [chromium] › e2e/kudos-integration.spec.ts:191:7 › Phase 07: Kudos Integration Wiring › 4. Copy link toast, detail nav, spotlight node, avatar nav (TC 0adfd7ce, 8c0d1781) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-testid="toast"], [role="status"]').first()
+    Expected substring: "Link copied — ready to share!"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('[data-testid="toast"], [role="status"]').first()
+
+
+       at support/integration-helpers.ts:84
+
+      82 | export async function expectToastWithText(page: Page, text: string): Promise<void> {
+      83 |   const toastLocator = page.locator('[data-testid="toast"], [role="status"]').first();
+    > 84 |   await expect(toastLocator).toContainText(text);
+         |                              ^
+      85 | }
+      86 |
+      87 | /**
+        at expectToastWithText (/Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/support/integration-helpers.ts:84:30)
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration.spec.ts:213:30
+
+    Error Context: test-results/kudos-integration-Phase-07-e1671-r-nav-TC-0adfd7ce-8c0d1781--chromium/error-context.md
+
+  4) [chromium] › e2e/kudos-integration.spec.ts:234:7 › Phase 07: Kudos Integration Wiring › 5. EN locale renders MoMorph-sourced strings; VN unchanged (TC count EN keys) 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "vi"
+    Received: undefined
+
+      237 |     // Load /kudos in VN locale (default)
+      238 |     const viCookie = await getLocaleCookie(page);
+    > 239 |     expect(viCookie).toBe("vi");
+          |                      ^
+      240 |     await page.goto("/kudos");
+      241 |
+      242 |     // Capture some VN text from the board
+        at /Users/duong.quang.phi/Documents/agentic-coding-hands-on/e2e/kudos-integration.spec.ts:239:22
+
+    Error Context: test-results/kudos-integration-Phase-07-19437-unchanged-TC-count-EN-keys--chromium/error-context.md
+
+  4 failed
+    [chromium] › e2e/kudos-integration.spec.ts:69:7 › Phase 07: Kudos Integration Wiring › 2. Submit real kudos: modal closes, card appears in feed with content, hashtags, time (TC ID-46, ID-47) 
+    [chromium] › e2e/kudos-integration.spec.ts:146:7 › Phase 07: Kudos Integration Wiring › 3. Infinite scroll: seed 12 kudos, scroll to bottom, next page appends (TC 9dfda316) 
+    [chromium] › e2e/kudos-integration.spec.ts:191:7 › Phase 07: Kudos Integration Wiring › 4. Copy link toast, detail nav, spotlight node, avatar nav (TC 0adfd7ce, 8c0d1781) 
+    [chromium] › e2e/kudos-integration.spec.ts:234:7 › Phase 07: Kudos Integration Wiring › 5. EN locale renders MoMorph-sourced strings; VN unchanged (TC count EN keys) 
+  1 passed (8.7s)
