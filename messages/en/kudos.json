@@ -1,1 +1,61 @@
-{}
+{
+  "banner": {
+    "title": "Hệ thống ghi nhận lời cảm ơn"
+  },
+  "composePill": {
+    "placeholder": "Today, who would you like to thank and acknowledge?"
+  },
+  "highlight": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "HIGHLIGHT KUDOS"
+  },
+  "filters": {
+    "hashtagLabel": "Hashtag",
+    "departmentLabel": "Department"
+  },
+  "spotlight": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "SPOTLIGHT BOARD",
+    "totalSuffix": "KUDOS",
+    "panZoomLabel": "Pan/Zoom",
+    "searchPlaceholder": "Search",
+    "searchMaxLengthError": "Tối đa 100 ký tự",
+    "searchEmptyError": "Vui lòng nhập từ khóa",
+    "tickerSuffix": "đã nhận được một Kudos mới"
+  },
+  "allKudos": {
+    "caption": "Sun* Annual Awards 2025",
+    "heading": "ALL KUDOS",
+    "emptyFeed": "Hiện tại chưa có Kudos nào.",
+    "loadMore": "Xem thêm",
+    "loading": "Đang tải..."
+  },
+  "card": {
+    "copyLink": "Copy Link",
+    "viewDetail": "View Details",
+    "copyLinkToast": "Link copied — ready to share!"
+  },
+  "sidebar": {
+    "kudosReceived": "Number of Kudos you received:",
+    "kudosSent": "Number of Kudos you've sent:",
+    "heartsReceived": "Number of likes you received:",
+    "secretBoxOpened": "Number of Secret Boxes opened:",
+    "secretBoxUnopened": "Number of Secret Boxes unopened:",
+    "openGift": "Mở quà",
+    "openGiftTooltip": "Sắp ra mắt",
+    "rankLeaderboardTitle": "10 SUNNER with the latest upgrades",
+    "giftLeaderboardTitle": "10 SUNNER NHẬN QUÀ MỚI NHẤT",
+    "leaderboardEmpty": "Chưa có dữ liệu"
+  },
+  "asterisk": {
+    "tier1": "Sunner đã nhận được 10 Kudos và bắt đầu lan tỏa năng lượng ấm áp đến mọi người xung quanh.",
+    "tier2": "Sunner đã nhận được 20 Kudos và chứng minh sức ảnh hưởng của mình qua những hành động lan tỏa tích cực mỗi ngày.",
+    "tier3": "Sunner đã nhận được 50 Kudos và trở thành hình mẫu của sự công nhận, sẻ chia và lan tỏa tinh thần Sun*."
+  },
+  "heroTier": {
+    "new": "New Hero",
+    "rising": "Rising Hero",
+    "super": "Super Hero",
+    "legend": "Legend Hero"
+  }
+}

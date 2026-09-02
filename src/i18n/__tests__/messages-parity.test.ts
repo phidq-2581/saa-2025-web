@@ -7,12 +7,24 @@ import homeVi from "../../../messages/vi/home.json";
 import homeEn from "../../../messages/en/home.json";
 import awardsVi from "../../../messages/vi/awards.json";
 import awardsEn from "../../../messages/en/awards.json";
+import composeVi from "../../../messages/vi/compose.json";
+import composeEn from "../../../messages/en/compose.json";
+import kudosVi from "../../../messages/vi/kudos.json";
+import kudosEn from "../../../messages/en/kudos.json";
+import profileVi from "../../../messages/vi/profile.json";
+import profileEn from "../../../messages/en/profile.json";
 
 // Phase 03 owned exactly one namespace file ("common"); Phase 07 extends
-// this list to the full four-screen set. Verifies vi/en carry identical
-// key sets and that no value was left blank (a blank string is worse than
-// a missing key -- it renders silently wrong instead of loudly missing).
-const NAMESPACES = ["common", "login", "home", "awards"] as const;
+// this list to the full seven-screen set (adds the Kudos cluster: compose,
+// kudos, profile). Verifies vi/en carry identical key sets and that no
+// value was left blank (a blank string is worse than a missing key -- it
+// renders silently wrong instead of loudly missing). Round-1 rule (see
+// clarifications.md 2026-08-29/2026-08-31): a key with no MoMorph EN
+// localization mirrors the Vietnamese string verbatim rather than a
+// machine translation -- so vi===en for a given key is an EXPECTED,
+// intentional value here, not a bug this test should flag; the actual gap
+// list lives in docs (traceability), not in the runtime catalogs.
+const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile"] as const;
 const CATALOGS: Record<
   (typeof NAMESPACES)[number],
   { vi: Record<string, unknown>; en: Record<string, unknown> }
@@ -21,6 +33,9 @@ const CATALOGS: Record<
   login: { vi: loginVi, en: loginEn },
   home: { vi: homeVi, en: homeEn },
   awards: { vi: awardsVi, en: awardsEn },
+  compose: { vi: composeVi, en: composeEn },
+  kudos: { vi: kudosVi, en: kudosEn },
+  profile: { vi: profileVi, en: profileEn },
 };
 
 // `awards.json` carries a genuine array field (`cardContent.*.prizes`), so

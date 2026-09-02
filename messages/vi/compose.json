@@ -52,5 +52,8 @@
     "linkInvalidError": "Đường dẫn không hợp lệ",
     "cancel": "Hủy",
     "save": "Lưu"
-  }
+  },
+  "selfKudosError": "Không thể gửi Kudos cho chính mình.",
+  "genericError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+  "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại."
 }

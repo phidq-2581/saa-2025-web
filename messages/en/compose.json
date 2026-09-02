@@ -1,1 +1,59 @@
-{}
+{
+  "title": "Send thanks and recognition to teammates",
+  "recipient": {
+    "label": "Recipient",
+    "placeholder": "Search",
+    "requiredError": "Không được để trống"
+  },
+  "editor": {
+    "placeholder": "Please send your thanks and recognition to your teammates here!",
+    "hint": "You can '@ + name' to mention another colleague",
+    "requiredError": "Không được để trống"
+  },
+  "toolbar": {
+    "bold": "In đậm",
+    "italic": "In nghiêng",
+    "strike": "Gạch ngang",
+    "orderedList": "Đánh số",
+    "link": "Chèn liên kết",
+    "quote": "Trích dẫn",
+    "communityStandards": "Community Standards"
+  },
+  "mention": {
+    "empty": "Không tìm thấy đồng nghiệp"
+  },
+  "hashtag": {
+    "label": "Hashtag",
+    "addButtonLabel": "Hashtag",
+    "addButtonNote": "Tối đa 5",
+    "requiredError": "Không được để trống",
+    "maxError": "Tối đa 5 hashtag"
+  },
+  "image": {
+    "label": "Image",
+    "addButtonLabel": "Image",
+    "addButtonNote": "Tối đa 5",
+    "invalidFormatError": "Định dạng file không hợp lệ",
+    "tooLargeError": "Dung lượng ảnh tối đa 5MB"
+  },
+  "anonymous": {
+    "label": "Send thanks and recognition anonymously",
+    "namePlaceholder": "Nhập tên hiển thị"
+  },
+  "footer": {
+    "cancel": "Cancel",
+    "submit": "Send"
+  },
+  "addlink": {
+    "title": "Add path",
+    "textLabel": "Content",
+    "textRequiredError": "Không được để trống",
+    "linkLabel": "URL",
+    "linkInvalidError": "Đường dẫn không hợp lệ",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "selfKudosError": "Không thể gửi Kudos cho chính mình.",
+  "genericError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+  "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại."
+}
