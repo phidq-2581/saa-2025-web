@@ -115,4 +115,31 @@ describe("submitKudos", () => {
 
     expect(result).toEqual({ ok: false, code: "invalid-draft", reason: "invalid-hashtag-count" });
   });
+
+  // Api-map dead-code finding: validate-image.ts's validateImages had zero
+  // production call sites -- nothing stood behind the compose UI's own
+  // inline filtering except the RPC's count guard and the bucket's mime
+  // allow-list. submitKudos must re-run it server-of-truth-side (client
+  // orchestration, but the last line of defense before any network call)
+  // and refuse to upload a single byte on a rejected file set.
+  it("rejects an unsupported mime type before attempting any upload", async () => {
+    const { submitKudos } = await import("../submit-kudos");
+
+    const result = await submitKudos(baseInput({ images: [makeFile("doc.pdf", "application/pdf")] }));
+
+    expect(result).toEqual({ ok: false, code: "invalid-images", reason: "unsupported-type", index: 0 });
+    expect(uploadMock).not.toHaveBeenCalled();
+    expect(createKudosMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a 6th image before attempting any upload", async () => {
+    const { submitKudos } = await import("../submit-kudos");
+
+    const images = Array.from({ length: 6 }, (_, index) => makeFile(`img-${index}.jpg`));
+    const result = await submitKudos(baseInput({ images }));
+
+    expect(result).toEqual({ ok: false, code: "invalid-images", reason: "too-many-images" });
+    expect(uploadMock).not.toHaveBeenCalled();
+    expect(createKudosMock).not.toHaveBeenCalled();
+  });
 });

@@ -1,7 +1,10 @@
 /**
  * Phase 05 (F005 BR-004_ImageMaxCountTypeSize): jpg/png/webp, <=5MB each,
- * <=5 files -- checked client-side (submit-kudos.ts) before any upload
- * starts, so a rejected file never reaches Supabase Storage.
+ * <=5 files. `submit-kudos.ts` calls `validateImages` as the first step of
+ * `submitKudos`, before any upload starts, so a rejected file set never
+ * reaches Supabase Storage -- that is this module's only production call
+ * site; the compose UI's own inline file filtering is first-line UX, not a
+ * substitute for this check (api-map dead-code finding, 2026-09-02).
  */
 
 export const MAX_IMAGE_COUNT = 5;
@@ -17,6 +20,8 @@ export interface ImageFileLike {
   type: string;
   size: number;
 }
+
+export type ImageValidationReason = "too-many-images" | "unsupported-type" | "too-large";
 
 export type ImageValidationResult =
   | { ok: true }

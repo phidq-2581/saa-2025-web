@@ -18,8 +18,9 @@ export type SiteHeaderProps = {
 const NAV_LINKS: { label: string; href?: string }[] = [
   { label: "About SAA 2025", href: "/" },
   { label: "Awards Information", href: "/he-thong-giai" },
-  // Sun* Kudos has no confirmed destination yet -- render only (BR-004)
-  { label: "Sun* Kudos" },
+  // Round 2: /kudos exists — the round-1 "no confirmed destination" (BR-004)
+  // rendering is superseded by the shipped Sun* Kudos Live board.
+  { label: "Sun* Kudos", href: "/kudos" },
 ];
 
 /**

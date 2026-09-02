@@ -39,9 +39,9 @@ export async function SiteFooter() {
           <Link href="/he-thong-giai" className="font-body text-base font-bold text-white">
             Awards Information
           </Link>
-          <span role="link" tabIndex={0} className="font-body text-base font-bold text-white">
+          <Link href="/kudos" className="font-body text-base font-bold text-white">
             Sun* Kudos
-          </span>
+          </Link>
           <button type="button" className="font-body text-base font-bold text-white">
             {t("footer.generalStandards")}
           </button>
