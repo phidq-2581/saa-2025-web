@@ -5,6 +5,41 @@ Reverse-chronological record of delivered work. Round 1 entries are per delivery
 from `plans/260831-2303-saa-2025-web-kudos-round-2/`. See `docs/development-roadmap.md` for
 phase status and `docs/test-traceability.md` / `docs/visual-qa/` for verification evidence.
 
+## 2026-09-02 — Post-Group-4 docs verification: nav-link fix, validateImages wiring, gen-gate re-baseline
+
+- **Gen-gate re-baseline**: `docs/generated/*` (11 artifacts + permissions-matrix) and
+  `docs/system/{overview,architecture,business-rules}.md` regenerated (code-derived layer,
+  machine-owned). `docs/generated/api-map.md` now carries a "Validation gate confirmed active"
+  note for `validateImages` — closes the dead-code finding that the function had no confirmed
+  production caller.
+- **Product fix**: `site-header.tsx`/`site-footer.tsx` — the header/footer "Sun* Kudos" link now
+  points at `/kudos` (a real `<Link>`, was a non-navigating `<span role="link">`), superseding
+  round-1 BR-004's "no confirmed destination" deferral. New e2e:
+  `e2e/navigation-shell.spec.ts` "06" clicks it and confirms landing on the live board.
+- **Product fix**: `submit-kudos.ts` now calls `validateImages()` as `submitKudos`'s first gate,
+  before any upload starts, returning a new `invalid-images` result (`too-many-images` /
+  `unsupported-type` / `too-large`) on rejection — the compose UI's own inline file filtering was
+  never a trust-boundary substitute for this check.
+- **Docs**: hand-reconciled `docs/features/F002_NavigationShell/technical-spec.md` (BR-004's scope
+  narrowed to the still-deferred "Tiêu chuẩn chung"/FAB "Thể lệ" affordances; US004/US005
+  acceptance scenarios, Assumptions, and 3 Source Code References updated) and `edge-cases.md`
+  (removed the now-stale "Sun* Kudos… inert" row — no longer an edge case);
+  `docs/features/F005_KudosCompose/technical-spec.md` (2 Source Code References for
+  `validate-image.ts`/`submit-kudos.ts` updated to their current line counts and behavior);
+  `docs/test-traceability.md` (TC ID-22 moved deferred → covered; Homepage SAA/Total summary
+  counts recounted programmatically: 42/3/17 and 63/5/26); `docs/system-architecture.md` (the
+  Documentation-layers note's "no regeneration planned" claim corrected — `docs/features/.stale`
+  reappeared today after the gen-gate re-baseline ran, and a `/tkm:rebuild-spec --feature-specs`
+  pass is pending for the code-derived layer, though the affected SDD specs above were already
+  hand-reconciled). `docs/screens/SCR002_Header/spec.md`, `SCR003_Footer/spec.md`, and
+  `SCR004_Fab/spec.md` re-checked — already accurate, no edit needed (SCR004_Fab was corrected
+  earlier the same day).
+- **Verification**: `npm run typecheck` clean; `npm run lint` 0 errors (40 pre-existing
+  `@next/next/no-img-element` warnings, unrelated); both `validate_feature_spec.py` and
+  `validate_source_citations.py` report zero issues across all 6 feature specs;
+  `src/lib/kudos/write/__tests__/submit-kudos.test.ts` 6/6 passing. Full `test:e2e` suite not
+  re-run this pass — see the Group 4 review below for the last full-diff verification.
+
 ## 2026-09-02 — Round 2 Group 4 (Phase 07 + 08): integration wiring, hardening, docs promotion
 
 - **Feature**: Kudos cluster now fully wired end to end — real submit (compose modal → DB),

@@ -1,9 +1,9 @@
 <!-- layout-exempt: rebuild-spec owns all docs/system|features|generated|flows paths — all references here are output targets or internal definitions -->
-# Business Rules (DRAFT)
+# Business Rules
 
 **Project**: SAA 2025 Web
-**Generated**: 2026-08-31
-**Analysis Scope**: Wave 3 — derived from `behavior-logic.md`'s 5 BL items, plus the countdown
+**Generated**: 2026-08-31 · **Updated**: 2026-09-02 (round 2 — Kudos rules appended)
+**Analysis Scope**: Wave 3 — derived from `behavior-logic.md`'s BL items (5 in round 1, 6 after round 2), plus the countdown
 "reached" behavior and the EN-copy fallback behavior, both confirmed against source.
 
 > Plain-language rules the system enforces. No `PERM###`/`BL###` codes here — see
@@ -56,3 +56,42 @@
 **Applies when:** a visitor views the site in English, and a piece of content has no confirmed English translation from the design source.
 **Says:** rather than showing an empty string, an error, or a visible "untranslated" marker, the system displays the original Vietnamese text on the English page for that piece of content. This currently affects roughly 15 specific pieces of copy across the Login, Homepage, and Award System pages — subtitle/tagline text, event details, and several award descriptions.
 **Source artifact:** [Test Traceability § EN copy gaps](../../../docs/test-traceability.md)
+
+---
+
+## Round 2 — Sun* Kudos rules (2026-09-02)
+
+### A Kudos Always Has a Recipient, Content and 1–5 Hashtags
+**Applies when:** a Sunner submits the Viết Kudo form.
+**Says:** the system refuses to store a kudos missing a recipient, with empty content, or with fewer than 1 or more than 5 hashtags. This is enforced twice — in the server action before any write, and by the database function that inserts the kudos, its hashtag links and its images as one all-or-nothing transaction — so a half-written kudos can never exist at rest.
+**Source artifact:** [Permissions § PERM016](../generated/permissions-matrix.md) · [Data Model § create_kudos](../data-model.md)
+
+### You Cannot Send a Kudos to Yourself
+**Applies when:** the chosen recipient is the signed-in sender.
+**Says:** the server rejects the submission outright with a dedicated error; anonymity does not bypass this — the real sender identity is always resolved server-side.
+**Source artifact:** [Permissions § PERM016](../generated/permissions-matrix.md)
+
+### One Heart per Sunner per Kudos — Never Your Own
+**Applies when:** a Sunner taps the heart on a kudos card.
+**Says:** each Sunner can heart a given kudos at most once (a second tap withdraws it), and nobody can heart a kudos they sent themselves — blocked in the action and again by the database's own row rules.
+**Source artifact:** [Permissions § PERM012/PERM017](../generated/permissions-matrix.md)
+
+### Special Days Double the Heart — and the Withdrawal
+**Applies when:** a heart is granted on a date listed in the special-days table (evaluated in Vietnam time, not UTC).
+**Says:** the kudos SENDER is credited 2 hearts instead of 1; withdrawing that heart later takes back exactly what was granted (2, not 1), because the credit is read from the stored row, never recomputed.
+**Source artifact:** [Behavior Logic — BL006](../generated/behavior-logic.md) · [Data Model § heart](../data-model.md)
+
+### Kudos Content Is Allow-Listed, Not Trusted
+**Applies when:** kudos rich-text content is written or rendered.
+**Says:** only the sanctioned node and mark kinds (paragraphs, lists, quotes, bold/italic/strike, mentions, http/https links) survive; unknown shapes and unsafe link schemes are rejected on write and dropped on render, so a row written outside the app still cannot inject markup.
+**Source artifact:** [Data Model § content discriminators](../data-model.md)
+
+### Images: at Most 5, Image Types Only, Your Own Folder Only
+**Applies when:** images are attached to a kudos.
+**Says:** at most 5 files, jpg/png/webp only, ≤5MB each — checked before any upload starts — and the storage bucket itself only accepts writes under the uploader's own folder path, so one Sunner cannot overwrite another's images.
+**Source artifact:** [Permissions § PERM015](../generated/permissions-matrix.md)
+
+### Anonymity Hides the Name, Not the Accountability
+**Applies when:** a kudos is sent with the anonymous toggle on.
+**Says:** readers see the chosen display name instead of the sender, but the real sender is always recorded — anonymity is presentation-only and never changes who the system holds responsible or who receives heart credit.
+**Source artifact:** [Data Model § kudos.is_anonymous](../data-model.md)

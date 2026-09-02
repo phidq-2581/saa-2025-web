@@ -225,7 +225,13 @@ SDD-authored at component granularity — that decomposition is the project deli
 `docs/generated/screen-list.md` counts 3 screens at route granularity instead of 6; this is an
 intentional divergence between two different units of decomposition, not a defect, and is documented
 in `screen-list.md`'s own preamble. `docs/features/.stale` was removed deliberately as part of this
-checkpoint; no regeneration of the SDD layer is planned.
+checkpoint. That marker has since reappeared (2026-09-02): the code-derived layer (`docs/generated/*`,
+`docs/system/{overview,architecture,business-rules}.md`) was re-baselined once already this same day,
+then two small post-baseline product fixes landed (`site-header.tsx`/`site-footer.tsx`'s "Sun* Kudos"
+link now points at `/kudos`; `submitKudos` wires `validateImages` as its first gate) — a
+`/tkm:rebuild-spec --feature-specs` pass is pending for the code-derived layer, but the affected
+SDD-authored specs (`docs/features/F002_NavigationShell/`, `docs/features/F005_KudosCompose/`) were
+hand-reconciled to the shipped code in this same pass, so no SDD-layer content is currently stale.
 
 ## Decisions log
 

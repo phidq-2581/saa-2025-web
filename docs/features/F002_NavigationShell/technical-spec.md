@@ -75,8 +75,8 @@ on toggleClick (while open) / outsideClick / Escape: close()
 #### BR-004_DeferredAffordancesRenderOnly
 **Linked FR:** N/A — no backing route/data this round
 **Source:** TBD (draft)
-**Applies to:** Sun* Kudos link (header + footer), notification bell panel, FAB's two destinations (Thể lệ, Viết KUDOS), Admin Dashboard menu item
-**Rule:** These elements render visibly (link, icon, badge, menu row) but perform no navigation or side effect this round — deferred per `clarifications.md`.
+**Applies to:** footer "Tiêu chuẩn chung" button, notification bell panel, FAB's "Thể lệ" destination, Admin Dashboard menu item
+**Rule:** These elements render visibly (link, icon, badge, menu row) but perform no navigation or side effect this round — deferred per `clarifications.md`. (Round 2: the header/footer "Sun* Kudos" link and the FAB's "Viết KUDOS" destination were the round-1 members of this rule; both now navigate to real destinations — `/kudos` and F005's compose modal respectively — and are out of BR-004's scope as of Round 2. See `US004`/`US005` below and `docs/screens/SCR004_Fab/spec.md`.)
 
 **Pseudocode:**
 ```text
@@ -139,7 +139,7 @@ None — logout submits to `src/app/auth/sign-out/route.ts` (a Route Handler, no
 - **SC-001** Selecting a language updates the displayed locale and survives a full page reload (covers BR-001, FR-001)
 - **SC-002** Logout clears the session and lands the user on Homepage SAA with no confirmation dialog (covers BR-002, FR-002)
 - **SC-003** Every dropdown and the FAB close on outside click, `Esc`, and a repeat click of their own trigger (covers BR-003, SM-001, SM-002)
-- **SC-004** Sun* Kudos link, notification bell, FAB's two destinations, and the Admin Dashboard menu item are visible but clicking them performs no navigation (covers BR-004)
+- **SC-004** Footer "Tiêu chuẩn chung" button, notification bell, FAB's "Thể lệ" destination, and the Admin Dashboard menu item are visible but clicking them performs no navigation (covers BR-004)
 
 **Client behavior:** see behavior-logic.md, permissions.md, screen-flow.md
 
@@ -217,11 +217,12 @@ None — logout submits to `src/app/auth/sign-out/route.ts` (a Route Handler, no
 **Acceptance Scenarios:**
 1. **Given** the user is on any page, **When** they click the logo, **Then** they land on Homepage SAA scrolled to top.
 2. **Given** the user is already on the page a nav link points to, **When** they click that link again, **Then** the page scrolls to top rather than reloading.
-3. **Given** the user clicks "Sun* Kudos" or the footer's "Tiêu chuẩn chung" button, **When** the click fires, **Then** it renders normally but performs no navigation (destination deferred/unresolved this round).
+3. **Given** the user clicks the footer's "Tiêu chuẩn chung" button, **When** the click fires, **Then** it renders normally but performs no navigation (destination deferred/unresolved this round).
+4. **Given** the user clicks "Sun* Kudos" in the header or footer, **When** the click fires, **Then** they land on the Sun* Kudos Live board at `/kudos` (Round 2 — supersedes the round-1 BR-004 deferral; `e2e/navigation-shell.spec.ts` "06").
 
 **Requirements fulfilled:** none — client-side link navigation and scroll, no backend call.
 
-**Rules enforced:** BR-004 (Sun* Kudos / Tiêu chuẩn chung subset)
+**Rules enforced:** BR-004 (Tiêu chuẩn chung subset only, as of Round 2)
 
 **Verification:**
 - **SC-004** (deferred-link subset)
@@ -230,21 +231,22 @@ None — logout submits to `src/app/auth/sign-out/route.ts` (a Route Handler, no
 
 ### US005_OpenFabQuickActions — Open FAB Quick Actions (Priority: P2)
 
-**What happens:** An authenticated user clicks the floating widget; it expands to show Thể lệ and Viết KUDOS options plus a Hủy (cancel) button; both destinations render but do not open this round.
-**Why this priority:** Visible affordance matters for perceived completeness, but the two destinations behind it are explicitly deferred.
-**Independent Test:** Click the widget, confirm 3 buttons appear; click Hủy, confirm it collapses.
+**What happens:** An authenticated user clicks the floating widget; it expands to show Thể lệ and Viết KUDOS options plus a Hủy (cancel) button. Since Round 2, Viết KUDOS opens F005_KudosCompose's compose modal (collapsing the widget first); Thể lệ remains deferred — still no destination this round.
+**Why this priority:** Visible affordance matters for perceived completeness; Thể lệ's destination is still explicitly deferred, but Viết KUDOS now opens a real flow.
+**Independent Test:** Click the widget, confirm 3 buttons appear; click Viết KUDOS, confirm the compose modal opens; click Hủy on the collapsed widget, confirm it collapses.
 
 **Acceptance Scenarios:**
 1. **Given** the widget is collapsed, **When** the user clicks it, **Then** it expands to show Thể lệ, Viết KUDOS, and Hủy.
-2. **Given** the widget is expanded, **When** the user clicks Thể lệ or Viết KUDOS, **Then** nothing opens (deferred) and the widget only collapses via Hủy/outside-click/re-click.
+2. **Given** the widget is expanded, **When** the user clicks Viết KUDOS, **Then** F005's compose modal opens and the widget collapses (`docs/screens/SCR004_Fab/spec.md`).
+3. **Given** the widget is expanded, **When** the user clicks Thể lệ, **Then** nothing opens (deferred) and the widget only collapses via Hủy/outside-click/re-click.
 
-**Requirements fulfilled:** none.
+**Requirements fulfilled:** none — opening F005's modal is that feature's own concern; F002 owns only the widget's dispatch/collapse mechanics (see `## Overview`).
 
-**Rules enforced:** BR-003, BR-004
+**Rules enforced:** BR-003, BR-004 (Thể lệ subset only, as of Round 2)
 **State transitions:** SM-002
 
 **Verification:**
-- **SC-003**, **SC-004**
+- **SC-003**, **SC-004** (Thể lệ subset)
 
 ---
 
@@ -296,13 +298,13 @@ See edge-cases.md.
 - `profile.role` holds exactly `admin` or `member` this round (per clarifications.md); no third role is provisioned.
 - The notification bell's unread-count source and the account-menu's Dashboard-route destination are both undecided; this feature renders their affordances without implementing backing data or a route this round.
 - Header, footer, and the FAB are one shared component set imported by every page's layout (Login gets header logo+language only, pre-auth), not duplicated per page.
-- The footer's "Tiêu chuẩn chung" button and the header/footer "Sun* Kudos" link have no confirmed destination; they render as visible, non-navigating affordances until a target is defined (see `## Gaps for Clarification` in the delivery report).
+- The footer's "Tiêu chuẩn chung" button has no confirmed destination; it renders as a visible, non-navigating affordance until a target is defined (see `## Gaps for Clarification` in the delivery report). The header/footer "Sun* Kudos" link carried the same assumption in round 1 — resolved in Round 2, it now links to `/kudos` (F006_KudosLiveBoard).
 
 ## Source Code References
 
-**Source:** `src/components/layout/site-header.tsx:1-84` — header (nav links, guest/authed variant gating for bell + account menu, mobile drawer trigger).
-**Source:** `src/components/layout/site-footer.tsx:1-42` — footer (logo, nav links, "Sun* Kudos"/"Tiêu chuẩn chung" deferred affordances per BR-004).
-**Source:** `src/components/layout/fab-widget.tsx:1-76` — FAB (SM-002_FabWidgetState collapsed/expanded, Thể lệ/Viết KUDOS deferred per BR-004).
+**Source:** `src/components/layout/site-header.tsx:1-85` — header (nav links, guest/authed variant gating for bell + account menu, mobile drawer trigger).
+**Source:** `src/components/layout/site-footer.tsx:1-53` — footer (logo, nav links; "Tiêu chuẩn chung" still a deferred affordance per BR-004; "Sun* Kudos" is a real `<Link href="/kudos">` as of Round 2, no longer BR-004).
+**Source:** `src/components/layout/fab-widget.tsx:1-114` — FAB (SM-002_FabWidgetState collapsed/expanded; "Thể lệ" deferred per BR-004, "Viết KUDOS" opens F005's compose modal as of Round 2).
 **Source:** `src/components/layout/language-dropdown.tsx:1-75` — language switcher (BR-001_LocalePersistence).
 **Source:** `src/components/layout/account-menu.tsx:1-90` — role-aware account menu (DISC-001 member/admin variants, BR-002_LogoutClearsSession).
 **Source:** `src/components/layout/notification-bell.tsx:1-28` — notification badge (US006, unread-count source still TBD).

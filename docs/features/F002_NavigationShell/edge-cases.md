@@ -7,7 +7,6 @@ lang: en
 
 | Scenario | What Happens | User-Facing Message |
 |----------|--------------|----------------------|
-| User clicks "Sun* Kudos" in header or footer | Link renders normally but performs no navigation (destination deferred this round) | "None — link is visibly present but inert" |
 | User clicks the footer's "Tiêu chuẩn chung" button | Button renders but its destination is unresolved; no navigation occurs | "None — silent handling" |
 | Admin's account menu shows "Dashboard" and the user clicks it | Row renders as a normal menu item, but the destination route does not exist yet, so nothing happens | "None — silent handling" |
 | A member somehow reaches an admin-only affordance (e.g. stale cached HTML) | The menu re-derives from the current role on every render; a member never sees the Dashboard row regardless of cached markup | "None — menu re-renders from the live role" |

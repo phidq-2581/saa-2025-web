@@ -63,7 +63,7 @@ inferred from a test title alone without opening the file.
 | ID-19 | Interaction / footer logo click | Navigates home, scrolls to top | none | not-covered (reason: same as ID-4 — plain Link, not click-tested) |
 | ID-20 | Interaction / header nav link click behavior | Scrolls to About section or reloads homepage | none | not-covered (reason: same as ID-3) |
 | ID-21 | Interaction / "Awards Information" nav click | Navigates to Awards Information page | none | not-covered (reason: href="/he-thong-giai" is implemented in site-header.tsx/site-footer.tsx; only presence, never a click, is asserted) |
-| ID-22 | Interaction / "Sun* Kudos" nav click | Navigates to Sun* Kudos page | site-header.tsx / site-footer.tsx render "Sun* Kudos" as a non-navigating `<span role="link">` | deferred (clarifications.md § Navigation: "Kudos detail page… Out of scope. Keep the affordances visible, do not navigate") |
+| ID-22 | Interaction / "Sun* Kudos" nav click | Navigates to Sun* Kudos page | `site-header.tsx`/`site-footer.tsx` now render "Sun* Kudos" as a real `<Link href="/kudos">` (Round 2, supersedes the round-1 BR-004 deferral); `e2e/navigation-shell.spec.ts`: "06: Header 'Sun* Kudos' navigates to /kudos (round-2 wiring)" | covered |
 | ID-23 | Interaction / nav link hover state | Bright background highlight | none | not-covered (reason: CSS-only hover effect, not asserted) |
 | ID-24 | Interaction / language button menu toggle | Opens VN/EN menu | navigation-shell.spec.ts: "02: Language dropdown opens and closes" | covered |
 | ID-25 | Interaction / select EN | Interface switches to English | integration-locale-countdown.spec.ts: "4. Language selection EN… (BR-001, SC-001)"; locale-body-copy.spec.ts (tests 1–2) | covered |
@@ -135,10 +135,13 @@ data rows. The screen itself is deferred per clarifications.md § Scope
 | Screen | Total | Covered | Deferred | Not-covered |
 |---|---|---|---|---|
 | Login | 17 | 11 | 0 | 6 |
-| Homepage SAA | 62 | 41 | 4 | 17 |
+| Homepage SAA | 62 | 42 | 3 | 17 |
 | Hệ thống giải | 15 | 10 | 2 | 3 |
 | Dropdown ngôn ngữ | 0 | – | – | – |
-| **Total** | **94** | **62** | **6** | **26** |
+| **Total** | **94** | **63** | **5** | **26** |
+
+Recounted 2026-09-02 after ID-22 moved deferred → covered (header/footer "Sun* Kudos" now a real
+`<Link href="/kudos">`, Round 2 supersedes the round-1 BR-004 deferral — see `e2e/navigation-shell.spec.ts` "06").
 
 ### Gaps to close (candidates for this round's a11y/tester follow-up)
 

@@ -396,13 +396,16 @@ allow-list both the write and render layers import (covers BR-008).
 (20) and node-count- (2000) capped recursive validator run before every insert (BR-008).
 **Source:** `src/lib/kudos/write/validate-draft.ts:1-82` — `validateDraft()` and
 `isSelfKudos()`, the server-side mirror of DEC-001 plus BR-009 (covers BR-001–004, 007, 009).
-**Source:** `src/lib/kudos/write/validate-image.ts:1-49` — client-side image type/size/count
-checks before any upload starts (BR-004).
+**Source:** `src/lib/kudos/write/validate-image.ts:1-54` — `validateImages()`, image type/size/count
+checks (BR-004). `submit-kudos.ts` calls it as `submitKudos`'s first gate, before any upload
+starts — the compose UI's own inline file filtering is first-line UX only, not this check's
+replacement (confirmed wired via the round-2 api-map dead-code finding, 2026-09-02).
 **Source:** `src/lib/kudos/write/storage-path.ts:1-57` — `buildKudosImageStoragePath()` /
 `verifyKudosImageStoragePath()`, the upload path convention and its server-side ownership
 verifier (INT-002, trust boundary).
-**Source:** `src/lib/kudos/write/submit-kudos.ts:1-68` — `submitKudos()`, client orchestration:
-uploads images in order, stops at the first failure, then calls `createKudos()`.
+**Source:** `src/lib/kudos/write/submit-kudos.ts:1-96` — `submitKudos()`, client orchestration:
+runs `validateImages()` first and returns an `invalid-images` result on rejection, then uploads
+images in order, stops at the first upload failure, then calls `createKudos()`.
 **Source:** `src/lib/kudos/write/create-kudos-action.ts:1-133` — `createKudos()` Server Action:
 runtime input-shape guard, `getClaims()`-derived identity, BR-009 self-kudos rejection, draft +
 image-path re-validation, then the `create_kudos` RPC call.
