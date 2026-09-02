@@ -1,5 +1,9 @@
+"use client";
+
+import type { KeyboardEvent, MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { IconLinkArrow } from "@/components/homepage/icon-link-arrow";
 import type { KudosCardSample } from "@/components/kudos/board/kudos-board-types";
 import { KudosContentRenderer } from "@/components/kudos/content/kudos-content-renderer";
@@ -18,6 +22,10 @@ export interface KudosCardProps {
   canHeart: boolean;
   onToggleHeart?: (id: string) => void;
   onCopyLink?: (id: string) => void;
+  /** Phase 07: whether the current viewer already has an active heart on
+   * this specific kudos (see `heart-button.tsx`'s own doc for why this is
+   * session-local state, not a persisted read). */
+  liked?: boolean;
   /** Spec D.4 "Click: Lọc danh sách để chỉ hiển thị Kudos thuộc [tag này]"
    * -- the card's headline hashtag band (below). Optional: filter re-query
    * is out of this phase's scope, so this is wired but has no default
@@ -48,8 +56,10 @@ const VARIANT_STYLES = {
  * actual Figma action bar (C.4, node `I3127:21871;256:5194`) has ONLY
  * "Copy Link" + heart count -- no "Xem chi tiết" button, unlike the
  * highlight card (B.4.4). `variant === "highlight"` gates the button
- * below accordingly; feed satisfies spec C.3 "Click thẻ mở chi tiết" via
- * the whole-card click-through instead (Phase 07 wires that navigation).
+ * below accordingly; feed satisfies spec C.3/C.3.5 "Click thẻ mở chi tiết"
+ * via the content region itself navigating instead (below) -- only that
+ * region, not the whole `<article>`, so the author links and the heart/
+ * copy-link action bar (separate regions) keep their own click targets.
  */
 export function KudosCard({
   view,
@@ -58,9 +68,27 @@ export function KudosCard({
   onToggleHeart,
   onCopyLink,
   onHashtagClick,
+  liked,
 }: KudosCardProps) {
   const t = useTranslations("kudos");
+  const router = useRouter();
   const styles = VARIANT_STYLES[variant];
+
+  // Navigates only on a direct click, never a bubbled one from an embedded
+  // link mark inside the rendered kudos content (content-schema.ts allows
+  // "link" nodes) -- an anchor click already navigates on its own via
+  // native browser behavior, and this handler must not fight that.
+  function handleContentClick(event: MouseEvent<HTMLDivElement>) {
+    if ((event.target as HTMLElement).closest("a")) return;
+    router.push(`/kudos/${view.id}`);
+  }
+
+  function handleContentKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if ((event.target as HTMLElement).closest("a")) return;
+    event.preventDefault();
+    router.push(`/kudos/${view.id}`);
+  }
 
   return (
     // mm:2940:13465 (highlight) / mm:3127:21871 (feed)
@@ -102,10 +130,17 @@ export function KudosCard({
           </button>
         ) : null}
 
-        {/* mm:I2940:13465;335:9450 -- B.3/C.3: truncate with "…" past the line clamp */}
+        {/* mm:I2940:13465;335:9450 -- B.3/C.3: truncate with "…" past the line clamp.
+            Feed only (spec C.2/C.3.5 "Click thẻ mở chi tiết"): this region alone
+            navigates to /kudos/[id] -- highlight already has its own explicit
+            "Xem chi tiết" button (below) and stays a plain, non-interactive div. */}
         <div
           data-testid="kudos-card-content"
-          className={`w-full text-justify rounded-[12px] border border-gold bg-[rgba(255,234,158,0.40)] px-6 py-4 font-body text-xl font-bold leading-8 text-canvas ${styles.content}`}
+          role={variant === "feed" ? "link" : undefined}
+          tabIndex={variant === "feed" ? 0 : undefined}
+          onClick={variant === "feed" ? handleContentClick : undefined}
+          onKeyDown={variant === "feed" ? handleContentKeyDown : undefined}
+          className={`w-full text-justify rounded-[12px] border border-gold bg-[rgba(255,234,158,0.40)] px-6 py-4 font-body text-xl font-bold leading-8 text-canvas ${styles.content} ${variant === "feed" ? "cursor-pointer" : ""}`}
         >
           <KudosContentRenderer content={view.content} />
         </div>
@@ -117,7 +152,7 @@ export function KudosCard({
           {view.hashtags.map((hashtag, index) => (
             <span key={hashtag.id}>
               {index > 0 ? " " : ""}
-              <HashtagChip hashtag={hashtag} />
+              <HashtagChip hashtag={hashtag} onClick={onHashtagClick} />
             </span>
           ))}
         </div>
@@ -128,7 +163,12 @@ export function KudosCard({
 
       {/* mm:I2940:13465;335:9461 */}
       <div className="flex w-full items-center justify-between gap-6">
-        <HeartButton heartCount={view.heartCount} canHeart={canHeart} onToggleHeart={() => onToggleHeart?.(view.id)} />
+        <HeartButton
+          heartCount={view.heartCount}
+          canHeart={canHeart}
+          liked={liked}
+          onToggleHeart={() => onToggleHeart?.(view.id)}
+        />
         {/* mm:I2940:13465;335:9672 */}
         <div className="flex items-center gap-2">
           <CopyLinkButton kudosId={view.id} onCopyLink={onCopyLink} />

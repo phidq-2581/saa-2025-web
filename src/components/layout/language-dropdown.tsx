@@ -43,6 +43,7 @@ export function LanguageDropdown({ locale, onSelectLocale }: LanguageDropdownPro
         <>
           <button
             type="button"
+            data-testid="language-option"
             onClick={() => {
               onSelectLocale?.("vi");
               close();
@@ -58,6 +59,7 @@ export function LanguageDropdown({ locale, onSelectLocale }: LanguageDropdownPro
           </button>
           <button
             type="button"
+            data-testid="language-option"
             onClick={() => {
               onSelectLocale?.("en");
               close();

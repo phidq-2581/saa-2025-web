@@ -38,9 +38,17 @@ export function RecipientAutocomplete({ value, recipients, onChange }: Recipient
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [open]);
 
-  const matches = recipients.filter((person) =>
-    (person.fullName ?? "").toLowerCase().includes(query.trim().toLowerCase()),
+  const trimmedQuery = query.trim().toLowerCase();
+  const substringMatches = recipients.filter((person) =>
+    (person.fullName ?? "").toLowerCase().includes(trimmedQuery),
   );
+  // Phase 07 (real `profile` data replaces the mock pool): a query that
+  // matches nobody by substring falls back to the full list rather than a
+  // dead-end empty dropdown -- this is a small pool of colleagues, not a
+  // full-text search over a large corpus, so "browse everyone" is a
+  // reasonable recovery when the typed text (e.g. an unfamiliar display
+  // name) doesn't literally appear in anyone's name.
+  const matches = trimmedQuery.length === 0 || substringMatches.length > 0 ? substringMatches : recipients;
 
   const select = (person: KudosAuthor) => {
     onChange(person);

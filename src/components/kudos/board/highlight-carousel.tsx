@@ -23,6 +23,12 @@ export type HighlightCarouselProps = {
    * -- disables the heart button on the viewer's own kudos, spec
    * B.3.2/C.4.1). Omit and every heart stays enabled. */
   currentViewerId?: string;
+  /** Phase 07: real action wiring, threaded straight through to
+   * `HighlightCarouselTrack` -- mirrors `kudos-feed.tsx`'s own props. */
+  onToggleHeart?: (id: string) => void;
+  onCopyLink?: (id: string) => void;
+  onHashtagClick?: (hashtagId: string) => void;
+  likedIds?: ReadonlySet<string>;
 };
 
 export function HighlightCarousel({
@@ -30,6 +36,10 @@ export function HighlightCarousel({
   activeSlide,
   onSlideChange,
   currentViewerId,
+  onToggleHeart,
+  onCopyLink,
+  onHashtagClick,
+  likedIds,
 }: HighlightCarouselProps) {
   const t = useTranslations("kudos");
   const [internalIndex, setInternalIndex] = useState(0);
@@ -64,6 +74,10 @@ export function HighlightCarousel({
         activeIndex={index}
         scrollRef={scrollRef}
         currentViewerId={currentViewerId}
+        onToggleHeart={onToggleHeart}
+        onCopyLink={onCopyLink}
+        onHashtagClick={onHashtagClick}
+        likedIds={likedIds}
       />
 
       {/* mm:2940:13473 */}

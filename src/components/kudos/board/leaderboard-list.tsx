@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LeaderboardEntry } from "@/lib/kudos/types";
 
 /**
@@ -10,6 +11,13 @@ import type { LeaderboardEntry } from "@/lib/kudos/types";
  * read-only) has no free-text description field, so the description
  * renders the data the entry actually carries ("{count} Kudos") instead of
  * inventing prose that has no translation key.
+ *
+ * Phase 07 (integration follow-up, TC 6b1e2359): each row links to
+ * `/profile?id={entry.userId}`. The `Link` uses `display: contents`
+ * (`className="contents"`) so it drops out of the flex layout entirely --
+ * the avatar/text pair become the `<li>`'s direct flex children exactly as
+ * before, only now wrapped in an anchor, so the row's visual layout is
+ * unchanged.
  */
 export type LeaderboardListProps = {
   testId: string;
@@ -41,25 +49,27 @@ export function LeaderboardList({ testId, title, entries, emptyLabel }: Leaderbo
           {entries.map((entry) => (
             // mm:2940:13516
             <li key={entry.userId} className="flex w-full items-center gap-2">
-              {/* mm:I2940:13516;256:7460 */}
-              <img
-                src={entry.avatarUrl ?? "/kudos-board/avatar-placeholder.png"}
-                alt=""
-                width={64}
-                height={64}
-                className="h-16 w-16 shrink-0 rounded-full border-[1.87px] border-white object-cover"
-              />
-              {/* mm:I2940:13516;256:7461 */}
-              <div className="flex flex-col gap-0.5">
-                {/* mm:I2940:13516;256:7462 */}
-                <span className="font-body text-[22px] font-bold leading-7 text-gold">
-                  {entry.fullName}
-                </span>
-                {/* mm:I2940:13516;256:7472 */}
-                <span className="font-body text-base font-bold tracking-[0.15px] text-white">
-                  {entry.kudosReceivedCount} Kudos
-                </span>
-              </div>
+              <Link href={`/profile?id=${entry.userId}`} className="contents">
+                {/* mm:I2940:13516;256:7460 */}
+                <img
+                  src={entry.avatarUrl ?? "/kudos-board/avatar-placeholder.png"}
+                  alt=""
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 shrink-0 rounded-full border-[1.87px] border-white object-cover"
+                />
+                {/* mm:I2940:13516;256:7461 */}
+                <div className="flex flex-col gap-0.5">
+                  {/* mm:I2940:13516;256:7462 */}
+                  <span className="font-body text-[22px] font-bold leading-7 text-gold">
+                    {entry.fullName}
+                  </span>
+                  {/* mm:I2940:13516;256:7472 */}
+                  <span className="font-body text-base font-bold tracking-[0.15px] text-white">
+                    {entry.kudosReceivedCount} Kudos
+                  </span>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

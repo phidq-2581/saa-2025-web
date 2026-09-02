@@ -82,6 +82,7 @@ export function HashtagFilterDropdown({
                 key={tag.id}
                 type="button"
                 role="menuitem"
+                data-testid="hashtag-filter-option"
                 onClick={() => onSelect(tag.id)}
                 style={isSelected ? { textShadow: "var(--shadow-glow-gold)" } : undefined}
                 className={`flex items-center gap-1 rounded-chip px-4 py-4 text-left font-body text-base font-bold tracking-[0.5px] text-white ${

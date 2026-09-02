@@ -2,20 +2,21 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { KudosComposeDialog } from "@/components/kudos/compose/kudos-compose-dialog";
-import { MOCK_HASHTAGS, MOCK_RECIPIENTS } from "@/components/kudos/compose/compose-mock-data";
+import type { HashtagRef, KudosAuthor } from "@/lib/kudos/types";
+import { ComposeDialogContainer } from "@/components/kudos/containers/compose-dialog-container";
 
 export type FabWidgetProps = {
   /** Session gating is Phase 07's job; default true keeps the shell visible now. */
   visible?: boolean;
+  /** Phase 07: real data for the shared compose dialog -- `recipients`/
+   * `hashtags`/`currentViewerId` come from `FabWidgetContainer`'s queries.
+   * Defaulted to empty/`""` so a caller that renders `FabWidget` bare
+   * (e.g. an existing unit test) still mounts without crashing; the dialog
+   * simply has nothing to search until real data is supplied. */
+  recipients?: KudosAuthor[];
+  hashtags?: HashtagRef[];
+  currentViewerId?: string;
 };
-
-/** Track A no-op: Phase 05 wires the real insert; resolving immediately
- * keeps the dialog's own submitting/loading state well-defined. Fewer
- * params than `KudosDraft => Promise<void>` is a structurally valid match. */
-async function noopSubmit(): Promise<void> {
-  return Promise.resolve();
-}
 
 /**
  * Floating action widget (Homepage mms_6_Widget Button, collapsed
@@ -37,7 +38,12 @@ async function noopSubmit(): Promise<void> {
  * localized name (`fab.cancel`). Both Thể lệ/Viết KUDOS destinations render
  * only, no navigation (BR-004, SM-002_FabWidgetState).
  */
-export function FabWidget({ visible = true }: FabWidgetProps) {
+export function FabWidget({
+  visible = true,
+  recipients = [],
+  hashtags = [],
+  currentViewerId = "",
+}: FabWidgetProps) {
   const [expanded, setExpanded] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
   const t = useTranslations("common");
@@ -96,12 +102,12 @@ export function FabWidget({ visible = true }: FabWidgetProps) {
         <img src="/nav/fab-icon-saa.svg" alt="" width={24} height={24} aria-hidden="true" />
       </button>
 
-      <KudosComposeDialog
+      <ComposeDialogContainer
         open={composeOpen}
         onClose={() => setComposeOpen(false)}
-        recipients={MOCK_RECIPIENTS}
-        hashtags={MOCK_HASHTAGS}
-        onSubmit={noopSubmit}
+        recipients={recipients}
+        hashtags={hashtags}
+        currentViewerId={currentViewerId}
       />
     </div>
   );

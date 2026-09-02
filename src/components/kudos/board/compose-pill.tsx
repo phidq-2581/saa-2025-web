@@ -1,12 +1,19 @@
 import { useTranslations } from "next-intl";
 
+export interface ComposePillProps {
+  /** Phase 07: opens the shared `KudosComposeDialog` (same modal the FAB's
+   * "Viết KUDOS" opens) -- omitted, the pill stays the inert display-only
+   * element Phase 04 shipped. */
+  onClick?: () => void;
+}
+
 /**
  * A.1_Button ghi nhận (2940:13449, componentId 186:2757) -- the compose
- * trigger pill: pen icon + placeholder text field. Real click-to-open
- * compose dialog behavior is Phase 07 scope; this phase renders a real
- * `<input readOnly>` so the RED contract's
+ * trigger pill: pen icon + placeholder text field. The input stays
+ * `readOnly` (real typing was never in scope -- clicking anywhere on the
+ * pill opens the full compose modal) so the RED contract's
  * `toHaveAttribute("placeholder", ...)` on `kudos-board-compose-pill`
- * resolves against an actual form element.
+ * keeps resolving against an actual form element.
  *
  * DESIGN GAP: a second, identically-styled instance "Tìm kiếm sunner"
  * (2940:13450, same componentId 186:2757) sits next to A.1 in the raw
@@ -14,11 +21,16 @@ import { useTranslations } from "next-intl";
  * is a duplicate/decorative mockup artifact, not a second real search
  * feature, so it is intentionally not rendered here.
  */
-export function ComposePill() {
+export function ComposePill({ onClick }: ComposePillProps) {
   const t = useTranslations("kudos");
   return (
     // mm:2940:13449
-    <div className="flex w-[738px] max-w-full items-center gap-2 rounded-pill border border-border-gold bg-gold-10 px-4 py-6">
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className="flex w-[738px] max-w-full cursor-text items-center gap-2 rounded-pill border border-border-gold bg-gold-10 px-4 py-6 text-left disabled:cursor-default"
+    >
       {/* mm:I2940:13449;186:2758 */}
       <div className="flex flex-1 items-center gap-4">
         {/* mm:I2940:13449;186:2759 */}
@@ -27,12 +39,13 @@ export function ComposePill() {
         <input
           type="text"
           readOnly
+          tabIndex={-1}
           data-testid="kudos-board-compose-pill"
           placeholder={t("composePill.placeholder")}
-          className="w-full flex-1 bg-transparent text-center font-body text-base font-bold tracking-[0.15px] text-white placeholder-white outline-none"
+          className="pointer-events-none w-full flex-1 bg-transparent text-center font-body text-base font-bold tracking-[0.15px] text-white placeholder-white outline-none"
         />
       </div>
-    </div>
+    </button>
   );
 }
 

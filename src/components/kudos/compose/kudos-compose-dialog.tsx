@@ -28,6 +28,12 @@ export type KudosComposeDialogProps = {
   recipients: KudosAuthor[];
   hashtags: HashtagRef[];
   onSubmit: (draft: KudosDraft) => Promise<void>;
+  /** Phase 07: a submit-time error surfaced inline (e.g. self-kudos
+   * rejected, upload failure) -- the dialog itself never calls `onClose()`
+   * when `onSubmit` throws (see `handleSubmit` below), so this renders
+   * alongside the still-open form rather than a page-level toast. `null`/
+   * omitted renders nothing. */
+  errorMessage?: string | null;
 };
 
 const EMPTY_DOC: KudosContentNode = { type: "doc", content: [] };
@@ -49,6 +55,7 @@ export function KudosComposeDialog({
   recipients,
   hashtags,
   onSubmit,
+  errorMessage,
 }: KudosComposeDialogProps) {
   const t = useTranslations("compose");
   const [recipient, setRecipient] = useState<KudosAuthor | null>(null);
@@ -77,6 +84,16 @@ export function KudosComposeDialog({
         anonymousDisplayName: isAnonymous ? anonymousDisplayName : "",
       });
       onClose();
+    } catch (error) {
+      // `ComposeFooter`'s "Gửi" button binds this handler directly to
+      // `onClick` (React never awaits an onClick handler), so a rejection
+      // that reached here would otherwise surface as an unhandled promise
+      // rejection instead of the caller's own `errorMessage` UI (Phase 07:
+      // `onSubmit` throws on purpose to skip the `onClose()` above -- this
+      // catch is what makes that a controlled skip instead of a silent
+      // async failure). The caller is responsible for its own user-facing
+      // message; this only logs for diagnostics and keeps the modal open.
+      console.error("KudosComposeDialog: onSubmit rejected", error);
     } finally {
       setSubmitting(false);
     }
@@ -118,6 +135,12 @@ export function KudosComposeDialog({
           onCheckedChange={setIsAnonymous}
           onDisplayNameChange={setAnonymousDisplayName}
         />
+
+        {errorMessage ? (
+          <p data-testid="kudos-compose-submit-error" role="alert" className="w-full font-body text-sm font-bold text-badge">
+            {errorMessage}
+          </p>
+        ) : null}
 
         <ComposeFooter submitDisabled={!canSubmit} onCancel={onClose} onSubmit={handleSubmit} />
       </div>

@@ -80,6 +80,7 @@ export function DepartmentFilterDropdown({
                 key={department}
                 type="button"
                 role="menuitem"
+                data-testid="dept-filter-option"
                 onClick={() => onSelect(department)}
                 style={isSelected ? { textShadow: "var(--shadow-glow-gold)" } : undefined}
                 className={`flex items-center gap-1 rounded-chip px-4 py-4 text-left font-body text-base font-bold tracking-[0.5px] text-white ${

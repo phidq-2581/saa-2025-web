@@ -1,7 +1,16 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderWithIntl } from "@/test-utils/render-with-intl";
 import { FabWidget } from "../fab-widget";
+
+// Phase 07: `FabWidget` now always mounts `ComposeDialogContainer`, which
+// calls `next/navigation`'s `useRouter()` (for the post-submit
+// `router.refresh()`) even while the dialog itself is closed -- this suite
+// never opens the dialog or submits, so a stub is enough; no assertion
+// here depends on navigation behavior.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
+}));
 
 describe("FabWidget", () => {
   it("toggle starts collapsed with aria-expanded=false and aria-controls pointing at the menu id (BR-004)", () => {

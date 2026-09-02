@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { CardAuthorBlock } from "@/components/kudos/card/card-author-block";
 import { CopyLinkButton } from "@/components/kudos/card/copy-link-button";
 import { formatKudosTime } from "@/components/kudos/card/format-kudos-time";
@@ -6,6 +10,7 @@ import { HeartButton } from "@/components/kudos/card/heart-button";
 import { IconSend } from "@/components/kudos/card/icon-send";
 import type { KudosCardSample } from "@/components/kudos/board/kudos-board-types";
 import { KudosContentRenderer } from "@/components/kudos/content/kudos-content-renderer";
+import { useHeartToggle } from "@/components/kudos/containers/use-heart-toggle";
 import { DetailGallery } from "./detail-gallery";
 
 export interface KudosDetailViewProps {
@@ -21,6 +26,11 @@ export interface KudosDetailViewProps {
    * so Phase 07 can reuse this component for a possible truncated variant
    * without a signature change. */
   truncate: boolean;
+  /** Phase 07 (reviewer REWORK): the signed-in Sunner's own id, so the
+   * heart button can disable itself on the viewer's own kudos (BR-005),
+   * same `currentViewerId ? sender.id !== currentViewerId : true` pattern
+   * `kudos-feed.tsx`/`highlight-carousel-track.tsx` already use. */
+  currentViewerId?: string;
 }
 
 /**
@@ -33,8 +43,24 @@ export interface KudosDetailViewProps {
  * thumbnails; this view needs neither. Visual language (colors, radii,
  * spacing) mirrors `KudosCard`'s own `feed` variant 1:1, just laid out
  * without a clamp.
+ *
+ * Phase 07 (reviewer REWORK): heart toggle and copy-link were left
+ * disabled/inert by Phase 06 ("heart/copy-link wiring lands in Phase 07").
+ * Wired here using the same `useHeartToggle` hook (in-flight guard +
+ * optimistic count) and the same verbatim toast copy the board uses.
  */
-export function KudosDetailView({ view, truncate }: KudosDetailViewProps) {
+export function KudosDetailView({ view, truncate, currentViewerId }: KudosDetailViewProps) {
+  const t = useTranslations("kudos");
+  const { handleToggleHeart, heartCountOf, isLiked } = useHeartToggle();
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const canHeart = currentViewerId ? view.sender.id !== currentViewerId : true;
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const id = setTimeout(() => setToastMessage(null), 3000);
+    return () => clearTimeout(id);
+  }, [toastMessage]);
+
   return (
     <article
       data-testid="kudos-detail-view"
@@ -80,12 +106,24 @@ export function KudosDetailView({ view, truncate }: KudosDetailViewProps) {
       <span aria-hidden="true" className="h-px w-full bg-gold" />
 
       <div className="flex w-full items-center justify-between gap-6">
-        {/* Behavior (toggle heart) is out of scope this phase -- BR-001
-            heart/copy-link wiring lands in Phase 07. `canHeart={false}`
-            renders the structural button the RED spec asserts on. */}
-        <HeartButton heartCount={view.heartCount} canHeart={false} />
-        <CopyLinkButton kudosId={view.id} />
+        <HeartButton
+          heartCount={heartCountOf(view.id, view.heartCount)}
+          canHeart={canHeart}
+          liked={isLiked(view.id)}
+          onToggleHeart={() => handleToggleHeart(view.id)}
+        />
+        <CopyLinkButton kudosId={view.id} onCopyLink={() => setToastMessage(t("card.copyLinkToast"))} />
       </div>
+
+      {toastMessage ? (
+        <div
+          data-testid="toast"
+          role="status"
+          className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-chip border border-border-gold bg-panel px-4 py-2 font-body text-sm font-bold text-white"
+        >
+          {toastMessage}
+        </div>
+      ) : null}
     </article>
   );
 }

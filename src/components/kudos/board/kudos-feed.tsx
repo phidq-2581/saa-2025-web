@@ -13,14 +13,18 @@ export interface KudosFeedProps {
   /**
    * Optional signed-in viewer id, used only to disable the heart button on
    * the viewer's own kudos (spec B.3.2/C.4.1 "Người gửi kudos sẽ bị
-   * disable nút tim"). `design-sample-data.ts` documents that only
-   * `page.tsx` may import the sample/session id family, so this stays an
-   * additive optional prop here rather than an internal import -- omit it
-   * and every card's heart stays enabled (design-gap note in the delivery
-   * report: `page.tsx` should pass `CURRENT_VIEWER_ID` to get the full
-   * spec-compliant behavior).
+   * disable nút tim"). Omit it and every card's heart stays enabled.
    */
   currentViewerId?: string;
+  /** Phase 07: real action wiring, threaded straight through to every
+   * `KudosCard` -- omit any of these and that card's affordance is a
+   * visual no-op, same as Track A shipped it. */
+  onToggleHeart?: (id: string) => void;
+  onCopyLink?: (id: string) => void;
+  onHashtagClick?: (hashtagId: string) => void;
+  /** Ids the current viewer has an active (session-local) heart on --
+   * see `heart-button.tsx`'s own doc for why this isn't a persisted read. */
+  likedIds?: ReadonlySet<string>;
 }
 
 /**
@@ -29,7 +33,17 @@ export interface KudosFeedProps {
  * card list). Renders the empty state (spec C.2 "Hiện tại chưa có Kudos
  * nào.") when every page is empty.
  */
-export function KudosFeed({ pages, hasMore, onLoadMore, loading, currentViewerId }: KudosFeedProps) {
+export function KudosFeed({
+  pages,
+  hasMore,
+  onLoadMore,
+  loading,
+  currentViewerId,
+  onToggleHeart,
+  onCopyLink,
+  onHashtagClick,
+  likedIds,
+}: KudosFeedProps) {
   const t = useTranslations("kudos");
   const items = pages.flatMap((page) => page.items) as KudosCardSample[];
 
@@ -59,6 +73,10 @@ export function KudosFeed({ pages, hasMore, onLoadMore, loading, currentViewerId
               view={item}
               variant="feed"
               canHeart={currentViewerId ? item.sender.id !== currentViewerId : true}
+              liked={likedIds?.has(item.id)}
+              onToggleHeart={onToggleHeart}
+              onCopyLink={onCopyLink}
+              onHashtagClick={onHashtagClick}
             />
           ))}
         </div>
