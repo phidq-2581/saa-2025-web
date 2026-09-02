@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T13:18:45Z",
+  "generated_at": "2026-09-02T15:00:15Z",
   "index": {
     "(site)/layout.tsx": [
       "F002",
@@ -8,8 +8,14 @@
     "account-menu.tsx": [
       "F002"
     ],
+    "addlink-box": [
+      "F005"
+    ],
     "admin.createUser": [
       "F001"
+    ],
+    "anonymous-toggle.tsx": [
+      "F005"
     ],
     "auth.users": [
       "F001"
@@ -17,8 +23,18 @@
     "award-system.spec.ts": [
       "F004"
     ],
+    "clarifications.md": [
+      "F005",
+      "F006"
+    ],
     "docs/data-model.md": [
       "F004"
+    ],
+    "docs/test-traceability.md": [
+      "F005"
+    ],
+    "dropdown-list-hashtag": [
+      "F005"
     ],
     "e2e/award-system.spec.ts": [
       "F004"
@@ -38,14 +54,32 @@
     "e2e/support/seed-session.ts": [
       "F001"
     ],
+    "edge-cases.md": [
+      "F006"
+    ],
     "hd: sun-asterisk.com": [
       "F001"
+    ],
+    "kudos-board-container.tsx": [
+      "F006"
+    ],
+    "kudos-compose-dialog.tsx": [
+      "F005"
+    ],
+    "messages/en/compose.json": [
+      "F005"
     ],
     "messages/vi/awards.json": [
       "F004"
     ],
+    "messages/vi/compose.json": [
+      "F005"
+    ],
     "middleware.ts": [
       "F001"
+    ],
+    "plans/clarifications.md": [
+      "F005"
     ],
     "proxy.ts": [
       "F001",
@@ -59,6 +93,9 @@
     ],
     "request.ts": [
       "F002"
+    ],
+    "screens.md": [
+      "F006"
     ],
     "set-locale.ts": [
       "F002"
@@ -142,6 +179,54 @@
     "src/components/homepage/root-further-block.tsx": [
       "F003"
     ],
+    "src/components/kudos/board/leaderboard-list.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/board/sidebar-stats.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/board/spotlight-search.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/card/card-author-block.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/card/kudos-card.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/compose/addlink-dialog.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/compose/anonymous-toggle.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/compose/hashtag-picker.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/compose/image-attachment-grid.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/compose/kudos-compose-dialog.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/compose/kudos-editor.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/containers/compose-dialog-container.tsx": [
+      "F005"
+    ],
+    "src/components/kudos/containers/kudos-board-container.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/containers/kudos-detail-container.tsx": [
+      "F006"
+    ],
+    "src/components/kudos/containers/use-heart-toggle.ts": [
+      "F006"
+    ],
+    "src/components/kudos/detail/kudos-detail-view.tsx": [
+      "F006"
+    ],
     "src/components/layout/account-menu.tsx": [
       "F002"
     ],
@@ -187,6 +272,9 @@
     "src/components/login/login-hero.tsx": [
       "F001"
     ],
+    "src/components/profile/profile-stub.tsx": [
+      "F006"
+    ],
     "src/components/ui/dropdown.tsx": [
       "F002"
     ],
@@ -221,6 +309,69 @@
     "src/lib/i18n/set-locale.ts": [
       "F002"
     ],
+    "src/lib/kudos/content-schema.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/derive/asterisk-tier.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/derive/feed-filter.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/derive/highlight-order.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/derive/rank-promotion.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/derive/spotlight-nodes.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/get-feed-page.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/get-highlight-top5.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/get-leaderboards.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/get-sidebar-stats.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/get-spotlight.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/resolve-department-receivers.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/queries/resolve-image-urls.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/write/create-kudos-action.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/write/heart-rules.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/write/storage-path.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/write/submit-kudos.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/write/toggle-heart-action.ts": [
+      "F006"
+    ],
+    "src/lib/kudos/write/validate-content.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/write/validate-draft.ts": [
+      "F005"
+    ],
+    "src/lib/kudos/write/validate-image.ts": [
+      "F005"
+    ],
     "src/lib/profile/get-current-profile.ts": [
       "F002"
     ],
@@ -230,11 +381,30 @@
     "src/test-utils/render-with-intl.tsx": [
       "F001"
     ],
+    "submit-kudos.ts": [
+      "F005"
+    ],
     "sun-asterisk.com": [
       "F001"
     ],
+    "sun-kudos-live-board": [
+      "F006"
+    ],
     "supabase/migrations/20260828000000_create_profile_table_and_trigger.sql": [
       "F001"
+    ],
+    "supabase/migrations/20260831000000_create_kudos_cluster.sql": [
+      "F005",
+      "F006"
+    ],
+    "supabase/migrations/20260902000000_scope_images_insert_policy.sql": [
+      "F006"
+    ],
+    "toggle-heart-action.ts": [
+      "F006"
+    ],
+    "viet-kudo": [
+      "F005"
     ]
   }
 }

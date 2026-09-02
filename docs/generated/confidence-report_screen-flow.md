@@ -1,14 +1,16 @@
 ---
-source_artifact: docs/generated/screen-flow.md
+source_artifact: screen-flow.md
 claims_total: 0
 claims_with_evidence: 0
 confidence_derived: null
 generated_by: derive_confidence_report.py
 ---
 
-# Confidence Report -- docs/generated/screen-flow.md
+# Confidence Report -- screen-flow.md
 
 > **Self-reported citation-coverage stat -- NOT a correctness verification.** This report is derived deterministically by parsing the artifact's own inline `**Source:** file:line` citations and `[UNVERIFIED]`/`[INFERRED]`/`[NEEDS_DOMAIN_CONFIRMATION]` marker tags. It does NOT verify that citations are accurate or that claims are true. For blind truth verification, see `claude/skills/audit-doc-parity/`.
+
+> **Synthesis artifact -- coverage stat reflects citation density, which is structurally lower here; do not compare against per-feature scores.**
 
 ## Claims ↔ Evidence
 
