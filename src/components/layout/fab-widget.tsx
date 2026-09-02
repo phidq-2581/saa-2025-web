@@ -2,11 +2,20 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { KudosComposeDialog } from "@/components/kudos/compose/kudos-compose-dialog";
+import { MOCK_HASHTAGS, MOCK_RECIPIENTS } from "@/components/kudos/compose/compose-mock-data";
 
 export type FabWidgetProps = {
   /** Session gating is Phase 07's job; default true keeps the shell visible now. */
   visible?: boolean;
 };
+
+/** Track A no-op: Phase 05 wires the real insert; resolving immediately
+ * keeps the dialog's own submitting/loading state well-defined. Fewer
+ * params than `KudosDraft => Promise<void>` is a structurally valid match. */
+async function noopSubmit(): Promise<void> {
+  return Promise.resolve();
+}
 
 /**
  * Floating action widget (Homepage mms_6_Widget Button, collapsed
@@ -30,6 +39,7 @@ export type FabWidgetProps = {
  */
 export function FabWidget({ visible = true }: FabWidgetProps) {
   const [expanded, setExpanded] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
   const t = useTranslations("common");
 
   if (!visible) return null;
@@ -51,7 +61,10 @@ export function FabWidget({ visible = true }: FabWidgetProps) {
         </button>
         <button
           type="button"
-          onClick={() => setExpanded(false)}
+          onClick={() => {
+            setExpanded(false);
+            setComposeOpen(true);
+          }}
           className="flex h-16 w-[214px] items-center gap-2 rounded-chip bg-gold p-4 font-body text-2xl font-bold text-canvas"
         >
           <img src="/nav/fab-icon-pencil.svg" alt="" width={24} height={24} aria-hidden="true" />
@@ -82,6 +95,14 @@ export function FabWidget({ visible = true }: FabWidgetProps) {
         <span className="font-body text-2xl font-bold text-canvas">/</span>
         <img src="/nav/fab-icon-saa.svg" alt="" width={24} height={24} aria-hidden="true" />
       </button>
+
+      <KudosComposeDialog
+        open={composeOpen}
+        onClose={() => setComposeOpen(false)}
+        recipients={MOCK_RECIPIENTS}
+        hashtags={MOCK_HASHTAGS}
+        onSubmit={noopSubmit}
+      />
     </div>
   );
 }

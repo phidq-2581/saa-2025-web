@@ -10,6 +10,8 @@ import homeVi from "../../messages/vi/home.json";
 import homeEn from "../../messages/en/home.json";
 import awardsVi from "../../messages/vi/awards.json";
 import awardsEn from "../../messages/en/awards.json";
+import kudosVi from "../../messages/vi/kudos.json";
+import kudosEn from "../../messages/en/kudos.json";
 
 export type SupportedLocale = "vi" | "en";
 
@@ -21,8 +23,8 @@ export type SupportedLocale = "vi" | "en";
  * character, which only the real JSON can guarantee.
  */
 const CATALOGS: Record<SupportedLocale, Record<string, unknown>> = {
-  vi: { common: commonVi, login: loginVi, home: homeVi, awards: awardsVi },
-  en: { common: commonEn, login: loginEn, home: homeEn, awards: awardsEn },
+  vi: { common: commonVi, login: loginVi, home: homeVi, awards: awardsVi, kudos: kudosVi },
+  en: { common: commonEn, login: loginEn, home: homeEn, awards: awardsEn, kudos: kudosEn },
 };
 
 export type RenderWithIntlOptions = Omit<RenderOptions, "wrapper"> & {
