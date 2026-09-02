@@ -171,3 +171,22 @@ test.describe('Navigation Shell', () => {
     await expect(drawer).not.toBeVisible();
   });
 });
+
+// Round-2 addendum: /kudos exists now, so the "Sun* Kudos" nav item must be a
+// real link (the round-1 "no confirmed destination" decision is superseded).
+authenticatedTest.describe("Navigation Shell — Sun* Kudos destination", () => {
+  authenticatedTest(
+    "06: Header 'Sun* Kudos' navigates to /kudos (round-2 wiring)",
+    async ({ authenticatedPage: page }) => {
+      await page.goto("/");
+      await page
+        .locator('[data-testid="site-header"]')
+        .getByRole("link", { name: "Sun* Kudos" })
+        .click();
+      await page.waitForURL(/\/kudos$/, { timeout: 10_000 });
+      await expectAuth(
+        page.locator('[data-testid="kudos-board-banner-title"]'),
+      ).toBeVisible();
+    },
+  );
+});
