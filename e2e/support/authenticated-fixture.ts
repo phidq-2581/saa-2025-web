@@ -4,6 +4,10 @@ import { deleteSeededUser, seedSession, type SeededCookie } from "./seed-session
 type Fixtures = {
   authenticatedPage: Page;
   adminPage: Page;
+  /** Same seeded member session as `authenticatedPage`, but also exposes
+   *  the seeded user's id — for tests that must seed rows AS the viewer
+   *  (e.g. "heart disabled on the viewer's own kudos"). */
+  memberSession: { page: Page; userId: string };
 };
 
 function uniqueEmail(prefix: string): string {
@@ -66,6 +70,13 @@ export const test = base.extend<Fixtures>({
     const { context, userId } = await seededContext(browser, "e2e-admin", "admin");
     const page = await context.newPage();
     await provideFixture(page);
+    await context.close();
+    await deleteSeededUser(userId);
+  },
+  memberSession: async ({ browser }, provideFixture) => {
+    const { context, userId } = await seededContext(browser, "e2e-member", "member");
+    const page = await context.newPage();
+    await provideFixture({ page, userId });
     await context.close();
     await deleteSeededUser(userId);
   },

@@ -8,6 +8,7 @@
  */
 
 import { test, expect } from "./support/authenticated-fixture";
+import { createKudosSeeder } from "./support/seed-kudos";
 import {
   SELECTORS,
   VERBOSE_STRINGS,
@@ -17,6 +18,58 @@ import {
 } from "./support/board-helpers";
 
 test.describe("Phase 04: Kudos Live Board UI", () => {
+  const seeder = createKudosSeeder();
+
+  test.beforeAll(async () => {
+    // Seed data for this test: ≥5 kudos, ≥2 authors
+    // - One author receiving ≥10 kudos (for asterisk badge, leaderboard entry)
+    // - One kudos with hearts (for highlight ordering)
+    // - One kudos sent BY the authenticated viewer (for disabled heart)
+    // Note: authenticated viewer is the "app" user from authenticated-fixture.ts
+
+    const author1 = await seeder.createUser("board-author-1");
+    const author2 = await seeder.createUser("board-author-2");
+    const receiver = await seeder.createUser("board-receiver-tiered"); // Will receive 10+ kudos
+    const hashtags = await seeder.fetchHashtagIds(5);
+
+    // Seed 5 kudos from author1 to receiver
+    const kudosIds: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const id = await seeder.seedKudos({
+        senderId: author1,
+        receiverId: receiver,
+        hashtagIds: [hashtags[i % hashtags.length]],
+      });
+      kudosIds.push(id);
+    }
+
+    // Seed 6 more kudos from author2 to receiver (total 11, triggers asterisk badge)
+    for (let i = 0; i < 6; i++) {
+      const id = await seeder.seedKudos({
+        senderId: author2,
+        receiverId: receiver,
+        hashtagIds: [hashtags[(i + 1) % hashtags.length]],
+      });
+      kudosIds.push(id);
+    }
+
+    // Add hearts to the first kudos (for deterministic highlight ordering)
+    const likerIds: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const liker = await seeder.createUser(`board-liker-${i}`);
+      likerIds.push(liker);
+      await seeder.seedHeart({
+        kudosId: kudosIds[0],
+        userId: liker,
+        grantedAmount: 1,
+      });
+    }
+  });
+
+  test.afterAll(async () => {
+    await seeder.cleanup();
+  });
+
   test.beforeEach(async ({ authenticatedPage: page }) => {
     // Dev server auto-starts via npm run test:e2e
     await page.goto("/kudos");
@@ -131,16 +184,16 @@ test.describe("Phase 04: Kudos Live Board UI", () => {
     const hashtags = card.locator(SELECTORS["kudos-card-hashtags"]);
     await expect(hashtags).toBeVisible();
 
-    // Asterisk badge: sample data must include at least one tiered user (spec B.3.2)
-    await expect(page.locator(SELECTORS["kudos-card-asterisk-badge"]).first()).toBeVisible();
+    // Asterisk badge: seeded receiver has 11 kudos → a NON-EMPTY (starred)
+    // badge must be visible somewhere on the board (tier-0 authors render an
+    // empty hidden span, so `.first()` alone is not the tiered one)
+    await expect(
+      page.locator(`${SELECTORS["kudos-card-asterisk-badge"]}:not(:empty)`).first(),
+    ).toBeVisible();
 
-    // Heart button visible on every card; disabled on the viewer's OWN kudos —
-    // sample data must mark one card as the viewer's (TC 63645b03)
+    // Heart button visible on every card
     const heartBtn = card.locator(SELECTORS["kudos-card-heart-btn"]);
     await expect(heartBtn).toBeVisible();
-    await expect(
-      page.locator(`${SELECTORS["kudos-card-heart-btn"]}:disabled`).first(),
-    ).toBeVisible();
 
     // Copy Link button on feed cards
     const copyLinkBtn = card.locator(SELECTORS["kudos-card-copy-link-btn"]);
@@ -155,6 +208,31 @@ test.describe("Phase 04: Kudos Live Board UI", () => {
         .locator(SELECTORS["kudos-card-view-detail-btn"]),
     ).toBeVisible();
     await expect(card.locator(SELECTORS["kudos-card-view-detail-btn"])).toHaveCount(0);
+  });
+
+  // TC 63645b03: the heart is DISABLED on the viewer's own kudos. Uses the
+  // memberSession fixture (exposes the seeded viewer's userId) so this test
+  // can seed a kudos SENT BY the viewer and find it by its unique content.
+  test("heart is disabled on the viewer's own kudos (TC 63645b03)", async ({ memberSession }) => {
+    const { page, userId } = memberSession;
+    const ownContent = `own-kudos-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const receiver = await seeder.createUser("board-own-receiver");
+    const hashtags = await seeder.fetchHashtagIds(1);
+    await seeder.seedKudos({
+      senderId: userId,
+      receiverId: receiver,
+      hashtagIds: hashtags,
+      contentText: ownContent,
+    });
+
+    await page.goto("/kudos");
+    const ownCard = page
+      .locator(SELECTORS["kudos-feed"])
+      .locator(SELECTORS["kudos-card"])
+      .filter({ hasText: ownContent })
+      .first();
+    await expect(ownCard).toBeVisible();
+    await expect(ownCard.locator(SELECTORS["kudos-card-heart-btn"])).toBeDisabled();
   });
 
   // ASSERTION 4 (spec B.6, B.7, D, D.1)

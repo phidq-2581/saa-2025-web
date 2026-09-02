@@ -67,8 +67,12 @@ export async function pickFirstHashtags(
   dialog: ReturnType<Page["locator"]>,
   n: number,
 ) {
+  // NOTE: the picker stays OPEN after this returns (Track A contract —
+  // kudos-compose.spec.ts G3-01 asserts option state post-pick). Callers
+  // that need it closed press Escape themselves.
   await dialog.locator('[data-testid="kudos-compose-hashtag-add"]').click();
   const options = page.locator('[data-testid="kudos-compose-hashtag-option"]');
+  await options.first().waitFor();
   for (let i = 0; i < n; i++) {
     await options.nth(i).click();
   }

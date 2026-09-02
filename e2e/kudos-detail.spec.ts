@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { test, expect } from "./support/authenticated-fixture";
+import { createKudosSeeder } from "./support/seed-kudos";
 import {
   DETAIL_SELECTORS,
   DETAIL_VERBOSE_STRINGS,
@@ -13,11 +15,47 @@ import {
  * profile stub with id, profile stub without id).
  */
 
-const SAMPLE_KUDOS_ID = "sample-kudos-1";
-const SAMPLE_PROFILE_ID = "u-hiep"; // sender id from first sample card
-const UNKNOWN_KUDOS_ID = "unknown-kudos-9999";
-
 test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
+  const seeder = createKudosSeeder();
+  let sampleKudosId: string;
+  let sampleKudosWithImagesId: string;
+  let sampleProfileId: string;
+
+  test.beforeAll(async () => {
+    // Seed test data
+    const sender = await seeder.createActor("detail-sender");
+    const receiver = await seeder.createActor("detail-receiver");
+    const hashtags = await seeder.fetchHashtagIds(2);
+
+    sampleKudosId = await seeder.seedKudos({
+      senderId: sender.userId,
+      receiverId: receiver.userId,
+      hashtagIds: hashtags,
+    });
+
+    // Kudos WITH a real 5-image gallery: upload 5 tiny PNGs to the private
+    // bucket (service role), then link them as kudos_image rows so the page's
+    // signed-URL resolution finds real objects.
+    const imagePaths = [0, 1, 2, 3, 4].map(
+      (i) => `kudos/${sender.userId}/detail-spec/${Date.now()}-${i}.png`,
+    );
+    for (const p of imagePaths) {
+      await seeder.uploadTestImage(p);
+    }
+    sampleKudosWithImagesId = await seeder.seedKudos({
+      senderId: sender.userId,
+      receiverId: receiver.userId,
+      hashtagIds: hashtags,
+      imagePaths,
+    });
+
+    sampleProfileId = sender.userId;
+  });
+
+  test.afterAll(async () => {
+    await seeder.cleanup();
+  });
+
   test.beforeEach(async ({ page }) => {
     page.setViewportSize({ width: 1280, height: 800 });
   });
@@ -25,7 +63,8 @@ test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
   test("Item 1: /kudos/{id} renders full untruncated content + full-size gallery (TC 8c0d1781, 31693bb7)", async ({
     authenticatedPage: page,
   }) => {
-    await page.goto(`/kudos/${SAMPLE_KUDOS_ID}`);
+    // Test content on the seeded kudos
+    await page.goto(`/kudos/${sampleKudosId}`);
     const detailView = page.locator(DETAIL_SELECTORS["kudos-detail-view"]);
     await expect(detailView).toBeVisible();
 
@@ -33,9 +72,12 @@ test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
     await expect(contentElement).toBeVisible();
     await assertContentNotTruncated(contentElement);
 
-    // Gallery must render FULL-SIZE images — asserted on sample-kudos-6,
-    // which carries 5 images in the sample data (sample-kudos-1 has none)
-    await page.goto("/kudos/sample-kudos-6");
+    // Gallery must render FULL-SIZE images — the seeded kudos carries 5 real
+    // uploaded objects, so these assertions are unconditional.
+    await page.goto(`/kudos/${sampleKudosWithImagesId}`);
+    const detailView2 = page.locator(DETAIL_SELECTORS["kudos-detail-view"]);
+    await expect(detailView2).toBeVisible();
+
     const gallery = page.locator(DETAIL_SELECTORS["kudos-detail-gallery"]);
     await expect(gallery).toBeVisible();
     const galleryImages = page.locator(DETAIL_SELECTORS["kudos-detail-gallery-image"]);
@@ -46,7 +88,7 @@ test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
   test("Item 2: Detail shows sender+receiver names, time format HH:mm - MM/DD/YYYY, hashtags, heart + Copy Link", async ({
     authenticatedPage: page,
   }) => {
-    await page.goto(`/kudos/${SAMPLE_KUDOS_ID}`);
+    await page.goto(`/kudos/${sampleKudosId}`);
     const detailView = page.locator(DETAIL_SELECTORS["kudos-detail-view"]);
     await expect(detailView).toBeVisible();
 
@@ -71,19 +113,30 @@ test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
     const hashtagsElement = page.locator(DETAIL_SELECTORS["kudos-card-hashtags"]);
     await expect(hashtagsElement).toBeVisible();
 
-    // Heart button must be present
+    // Heart is WIRED on the detail page: viewer (not the sender) toggles
+    // 0 → 1 → 0 with a reconciled count (behavior owned by Phase 07)
     const heartBtn = page.locator(DETAIL_SELECTORS["kudos-card-heart-btn"]);
     await expect(heartBtn).toBeVisible();
+    await expect(heartBtn).toBeEnabled();
+    await expect(heartBtn).toContainText("0");
+    await heartBtn.click();
+    await expect(heartBtn).toContainText("1", { timeout: 10_000 });
+    await heartBtn.click();
+    await expect(heartBtn).toContainText("0", { timeout: 10_000 });
 
-    // Copy Link button must be present
+    // Copy Link is wired: click copies the kudos URL and shows the verbatim toast
     const copyLinkBtn = page.locator(DETAIL_SELECTORS["kudos-card-copy-link-btn"]);
     await expect(copyLinkBtn).toBeVisible();
+    await copyLinkBtn.click();
+    await expect(page.getByText("Link copied — ready to share!")).toBeVisible({ timeout: 5_000 });
   });
 
   test("Item 3: /kudos/{unknownId} renders not-found state (not crash)", async ({
     authenticatedPage: page,
   }) => {
-    await page.goto(`/kudos/${UNKNOWN_KUDOS_ID}`);
+    // Use a real UUID that doesn't exist
+    const unknownId = randomUUID();
+    await page.goto(`/kudos/${unknownId}`);
     const notFoundElement = page.locator(DETAIL_SELECTORS["kudos-detail-notfound"]);
     await expect(notFoundElement).toBeVisible();
   });
@@ -91,7 +144,7 @@ test.describe("Kudos Detail and Profile Stub (Phase 06, RED test)", () => {
   test("Item 4: /profile?id={uuid} renders avatar + name + 'Đang phát triển' and nothing more", async ({
     authenticatedPage: page,
   }) => {
-    await page.goto(`/profile?id=${SAMPLE_PROFILE_ID}`);
+    await page.goto(`/profile?id=${sampleProfileId}`);
     const profileStub = page.locator(DETAIL_SELECTORS["profile-stub"]);
     await expect(profileStub).toBeVisible();
 

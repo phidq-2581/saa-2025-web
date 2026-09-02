@@ -137,6 +137,23 @@ test.describe("Kudos compose modal (Phase 03, RED test)", () => {
     await expect(addlink.dialog).not.toBeVisible();
   });
 
+  test("G4-05: Addlink SAVE succeeds — link mark lands in the editor (TC 13c491cb, ef4d0413)", async ({
+    authenticatedPage: page,
+  }) => {
+    const dialog = await openComposeDialog(page);
+    const { editor, toolbarLink } = getDialogFields(dialog);
+    await editor.click();
+    await page.keyboard.type("doc chuan");
+    await page.keyboard.press("ControlOrMeta+a");
+    await toolbarLink.click();
+    const addlink = getAddlinkDialog(page);
+    await addlink.textInput.fill("Tai lieu");
+    await addlink.linkInput.fill("https://example.com/tai-lieu");
+    await addlink.save.click();
+    await expect(addlink.dialog).not.toBeVisible();
+    await expect(editor.locator('a[href^="https://example.com/tai-lieu"]')).toBeVisible();
+  });
+
   test("G5-01: Anon checkbox shows name field (TC ID-41/43)", async ({ authenticatedPage: page }) => {
     const dialog = await openComposeDialog(page);
     const { anonCheckbox, anonName } = getDialogFields(dialog);

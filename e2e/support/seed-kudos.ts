@@ -25,6 +25,10 @@ export interface KudosSeed {
   isAnonymous?: boolean;
   anonymousDisplayName?: string | null;
   createdAt?: string;
+  /** Overrides the default "Great work!" paragraph — lets a test locate its own card. */
+  contentText?: string;
+  /** storage paths inserted as kudos_image rows (position = array index). */
+  imagePaths?: string[];
 }
 
 export interface HeartSeed {
@@ -109,12 +113,18 @@ export function createKudosSeeder() {
   }
 
   async function seedKudos(seed: KudosSeed): Promise<string> {
+    const content = seed.contentText
+      ? {
+          type: "doc",
+          content: [{ type: "paragraph", content: [{ type: "text", text: seed.contentText }] }],
+        }
+      : DEFAULT_CONTENT;
     const { data, error } = await admin
       .from("kudos")
       .insert({
         sender_id: seed.senderId,
         receiver_id: seed.receiverId,
-        content: DEFAULT_CONTENT,
+        content,
         is_anonymous: seed.isAnonymous ?? false,
         anonymous_display_name: seed.anonymousDisplayName ?? null,
         ...(seed.createdAt ? { created_at: seed.createdAt } : {}),
@@ -134,7 +144,37 @@ export function createKudosSeeder() {
         throw new Error(`seed-kudos: failed to insert kudos_hashtag: ${tagErr.message}`);
       }
     }
+    if (seed.imagePaths && seed.imagePaths.length > 0) {
+      const { error: imgErr } = await admin.from("kudos_image").insert(
+        seed.imagePaths.map((storagePath, position) => ({
+          kudos_id: data.id,
+          storage_path: storagePath,
+          position,
+        })),
+      );
+      if (imgErr) {
+        throw new Error(`seed-kudos: failed to insert kudos_image: ${imgErr.message}`);
+      }
+    }
     return data.id as string;
+  }
+
+  /** 1x1 transparent PNG uploaded to the private `images` bucket (service
+   *  role bypasses storage RLS) so signed-URL resolution finds a real object. */
+  const PNG_1PX = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+    "base64",
+  );
+  const uploadedPaths: string[] = [];
+
+  async function uploadTestImage(storagePath: string): Promise<void> {
+    const { error } = await admin.storage
+      .from("images")
+      .upload(storagePath, PNG_1PX, { contentType: "image/png", upsert: true });
+    if (error) {
+      throw new Error(`seed-kudos: failed to upload test image ${storagePath}: ${error.message}`);
+    }
+    uploadedPaths.push(storagePath);
   }
 
   async function seedHeart(heart: HeartSeed): Promise<void> {
@@ -178,6 +218,12 @@ export function createKudosSeeder() {
         console.warn(`seed-kudos: cleanup failed for special_days ${createdSpecialDays.join(",")}: ${error.message}`);
       }
     }
+    if (uploadedPaths.length > 0) {
+      const { error } = await admin.storage.from("images").remove(uploadedPaths);
+      if (error) {
+        console.warn(`seed-kudos: cleanup failed for uploaded images: ${error.message}`);
+      }
+    }
     for (const userId of createdUserIds) {
       const { error } = await admin.auth.admin.deleteUser(userId);
       if (error) {
@@ -186,7 +232,16 @@ export function createKudosSeeder() {
     }
   }
 
-  return { createUser, createActor, seedKudos, seedHeart, seedSpecialDay, fetchHashtagIds, cleanup };
+  return {
+    createUser,
+    createActor,
+    seedKudos,
+    seedHeart,
+    seedSpecialDay,
+    fetchHashtagIds,
+    uploadTestImage,
+    cleanup,
+  };
 }
 
 export function createAnonClient(): SupabaseClient {
