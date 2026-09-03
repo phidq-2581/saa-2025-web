@@ -45,7 +45,7 @@ test.describe('Phase 07b — Body-copy i18n', () => {
 
       // VN fallback: home.eventInfo.place (no EN source)
       await expect(
-        page.getByText(/Nhà hát nghệ thuật quân đội/)
+        page.getByText(/Âu Cơ Art Center/)
       ).toBeVisible();
     } finally {
       await context.close();

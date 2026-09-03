@@ -24,11 +24,9 @@ test.describe("Homepage SAA", () => {
     // Event info block
     const eventInfo = page.locator('[data-testid="event-info"]');
     await expect(eventInfo).toBeVisible();
-    await expect(eventInfo).toContainText("18h30");
-    await expect(eventInfo).toContainText("Nhà hát nghệ thuật quân đội");
-    await expect(eventInfo).toContainText(
-      "Tường thuật trực tiếp tại Group Facebook Sun* Family"
-    );
+    await expect(eventInfo).toContainText("26/12/2025");
+    await expect(eventInfo).toContainText("Âu Cơ Art Center");
+    await expect(eventInfo).toContainText("Tường thuật trực tiếp qua sóng Livestream");
 
     // ABOUT AWARDS CTA with href
     const ctaAboutAwards = page.locator('[data-testid="cta-about-awards"]');

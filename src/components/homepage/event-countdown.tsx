@@ -14,12 +14,16 @@ type TileProps = {
 };
 
 /**
- * mms_B1.3.1-3_Days/Hours/Minutes (2167:9038/9043/9048) -- each unit is 2
- * digit boxes (Group 5/Group 4, componentId 186:2619: 51.2x81.92px,
- * border 0.5px var(--Details-Text-Primary-1, #FFEA9E), gradient white ->
- * transparent white at 50% opacity, radius 8px, "Digital Numbers" font).
- * "Digital Numbers" is not a loaded project font (next/font/local source
- * unavailable) -- rendered with `font-body` bold instead; reported as a gap.
+ * mms_B1.3.1-3_Days/Hours/Minutes (2167:9038/9043/9048) -- each unit is a
+ * column (gap 14) of two digit tiles (gap 14) over a 24px/700/32px label.
+ * Tile = Rectangle 1 (186:2616): 51.2x81.92px, radius 8, 0.5px
+ * var(--Details-Text-Primary-1, #FFEA9E) border, gradient #FFF -> 10% white,
+ * the whole rectangle at 50% opacity, backdrop blur 16.64px. The digit
+ * (186:2617) is a sibling of that rectangle, not a child, so it stays fully
+ * opaque -- reproduced by pre-multiplying the 50% into the border/gradient
+ * colours instead of putting `opacity` on the tile that holds the digit.
+ * Digit face: design "Digital Numbers" 49.152px/400 -> "DSEG7 Classic" per
+ * clarifications.md 2026-09-03 (`font-digital`, fonts.ts).
  */
 function CountdownTile({ testId, value, label }: TileProps) {
   const digits = value.padStart(2, "0").slice(-2).split("");
@@ -30,7 +34,7 @@ function CountdownTile({ testId, value, label }: TileProps) {
         {digits.map((digit, index) => (
           <span
             key={index}
-            className="flex h-[82px] w-[51px] items-center justify-center rounded-panel border font-body text-[32px] font-bold text-white"
+            className="flex h-[81.92px] w-[51.2px] items-center justify-center rounded-panel border font-digital text-[49.152px] font-normal leading-none text-white"
             style={{
               borderColor: "rgba(255, 234, 158, 0.5)",
               background:
@@ -43,16 +47,17 @@ function CountdownTile({ testId, value, label }: TileProps) {
         ))}
       </div>
       {/* mm:2167:9042 */}
-      <span className="font-body text-2xl font-bold text-white">{label}</span>
+      <span className="font-body text-2xl font-bold leading-8 text-white">{label}</span>
     </div>
   );
 }
 
 /**
- * mms_B1_Countdown time (2167:9035). Server placeholder is `00/00/00`
- * with `reached: false` (BR-005); Phase 07 wires the live tick from
- * `useCountdown` and passes the computed `remaining` in, so this
- * component itself never touches the clock.
+ * mms_B1_Countdown time (2167:9035): "Coming soon" label (24px/700/32px)
+ * then, 16px below, the three units 40px apart (2167:9037). Server
+ * placeholder is `00/00/00` with `reached: false` (BR-005); Phase 07 wires
+ * the live tick from `useCountdown` and passes the computed `remaining` in,
+ * so this component itself never touches the clock.
  */
 export function EventCountdown({ remaining }: { remaining: CountdownRemaining }) {
   const t = useTranslations("home");
@@ -61,7 +66,7 @@ export function EventCountdown({ remaining }: { remaining: CountdownRemaining })
     <div className="flex flex-col gap-4">
       {!reached ? (
         // mm:2167:9036
-        <p data-testid="coming-soon-label" className="font-body text-2xl font-bold text-white">
+        <p data-testid="coming-soon-label" className="font-body text-2xl font-bold leading-8 text-white">
           {t("hero.comingSoon")}
         </p>
       ) : null}

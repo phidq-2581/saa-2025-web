@@ -27,7 +27,12 @@ const NAV_LINKS: { label: string; href?: string }[] = [
  * Persistent header (Homepage A1: A1.1 logo, A1.2/A1.3/A1.5 nav links,
  * A1.6 bell, A1.7 language, A1.8 account). Sizes/colors from MCP
  * `list_frame_styles("i87tDx10uM")` node 2167:9091 -- bg rgba(16,20,23,.8),
- * h-80px, padding 12px 144px at desktop.
+ * h-80px, padding 12px 144px at desktop; logo->nav gap 64 (Frame 488),
+ * nav gap 24 (Frame 476). Each nav item is a 52px-tall button with 16px
+ * horizontal padding (186:1579/1587/1593) around a 14px/700/20px label with
+ * 0.1px letter-spacing; the selected state swaps the 4px radius for a 1px
+ * gold bottom rule plus gold text with the shared glow. The rule is an
+ * inset box-shadow, not a border, so the label stays at y30 like the others.
  * Nav links render regardless of `variant` (public content, per Homepage
  * TC ID-0). The bell and account trigger are the authenticated delta (TC
  * ID-1/ID-11 both assume a signed-in session; Login's guest header shows
@@ -57,8 +62,10 @@ export function SiteHeader({
         <nav className="hidden items-center gap-6 md:flex">
           {NAV_LINKS.map((link) => {
             const active = link.href !== undefined && pathname === link.href;
-            const linkClassName = `font-body text-sm font-bold ${
-              active ? "border-b border-gold text-gold" : "text-white"
+            const linkClassName = `flex h-[52px] items-center px-4 font-body text-sm font-bold leading-5 tracking-[0.1px] ${
+              active
+                ? "text-gold shadow-[inset_0_-1px_0_#FFEA9E] [text-shadow:var(--shadow-glow-gold)]"
+                : "rounded-chip text-white"
             }`;
             return link.href ? (
               <Link key={link.label} href={link.href} className={linkClassName}>

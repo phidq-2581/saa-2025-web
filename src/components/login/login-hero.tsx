@@ -6,25 +6,19 @@ type LoginHeroProps = {
 };
 
 /**
- * mms_B_Bìa (662:14393) -- hero region: full-bleed keyvisual background,
- * ROOT FURTHER wordmark, intro copy. `children` renders the login action
- * (button + error notice) inside the same content column as the tagline,
- * mirroring Frame 550's node order (662:14755: text, then mms_B.3_Login).
+ * mms_B_Bìa (662:14393) -- the content region between header and footer:
+ * y88-933 on the 1024 canvas (an 8px gap under the 80px fixed header),
+ * padding 96px 144px. Its only child, Frame 487 (662:14394), fills that
+ * box and vertically CENTERS its two children 80px apart: the 451x200
+ * ROOT FURTHER wordmark (662:14395) and Frame 550 (662:14755) -- a
+ * 496px-wide column with 16px left padding holding the 480x80 intro copy
+ * (20px/700/40px, 0.5px letter-spacing) and, 24px below, the login action.
+ * `children` renders that action (button + error notice) so the node order
+ * of Frame 550 is preserved.
  *
- * `pt-20` clears the fixed LoginHeader (h-20 = 80px, same token).
- *
- * The abstract wave background (662:14388 "image 1") carries no
- * MM_MEDIA_* tag and has no URL in get_media_files; get_design_item_image
- * and list_media_nodes don't surface it either, and get_media_file 401s
- * for this fileKey (get_figma_image is the documented 500 case). Per the
- * task's fallback instruction, rendered as a flat --color-canvas fill
- * (the root frame's own 662:14387 backgroundColor) instead of inventing
- * artwork -- reported as a gap.
- *
- * The two gradient overlays (662:14392, 662:14390) are decorative
- * canvas-to-transparent fades painted on top of that same background;
- * copied verbatim from MCP `background` CSS via inline style rather than
- * guessed at Tailwind gradient utility names.
+ * The keyvisual and gradient covers are NOT here: they span the whole
+ * canvas including the footer strip, so `(auth)/layout.tsx` paints them
+ * once behind everything (see login-keyvisual.tsx).
  *
  * No existing synchronous `@testing-library/react` render covers this
  * component, so `async` + `getTranslations` is safe here -- see
@@ -35,29 +29,9 @@ export async function LoginHero({ children }: LoginHeroProps) {
 
   return (
     // mm:662:14393
-    <section className="relative flex-1 overflow-hidden pt-20">
-      {/* mm:662:14388 -- see gap note above */}
-      <div data-testid="login-keyvisual" className="absolute inset-0 bg-canvas" />
-      {/* mm:662:14392 */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(90deg, #00101A 0%, #00101A 25.41%, rgba(0, 16, 26, 0.00) 100%)",
-        }}
-      />
-      {/* mm:662:14390 */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(0deg, #00101A 22.48%, rgba(0, 19, 32, 0.00) 51.74%)",
-        }}
-      />
-
+    <section className="mt-[88px] flex flex-1 flex-col items-start px-4 py-24 md:px-36">
       {/* mm:662:14394 */}
-      <div className="relative z-10 flex flex-col items-start gap-20 px-4 py-24 md:px-36">
+      <div className="flex w-full flex-1 flex-col items-start justify-center gap-20">
         {/* mm:662:14395 */}
         <h1>
           {/* mm:2939:9548 */}
@@ -71,14 +45,15 @@ export async function LoginHero({ children }: LoginHeroProps) {
         </h1>
 
         {/* mm:662:14755 */}
-        <div className="flex max-w-[496px] flex-col items-start gap-6 pl-4">
+        <div className="flex w-full max-w-[496px] flex-col items-start gap-6 pl-4">
           {/* mm:662:14753 */}
-          <p className="font-body text-[20px] font-bold leading-[40px] tracking-[0.5px] text-white">
+          <p className="w-full font-body text-[20px] font-bold leading-10 tracking-[0.5px] text-white">
             {t("heroSubtitle")}
             <br />
             {t("heroTagline")}
           </p>
 
+          {/* mm:662:14425 */}
           <div className="flex flex-col items-start gap-4">{children}</div>
         </div>
       </div>

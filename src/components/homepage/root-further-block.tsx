@@ -8,17 +8,24 @@ import { useTranslations } from "next-intl";
  * `padding: 120px 104px` style does NOT hold horizontally: the paragraph
  * TEXT nodes (3204:10156/10162) report their own width as the full
  * 1152px, same as the parent frame, not 1152-2*104 -- so the 104px is not
- * an additional inset on top of the 1152 column (that combination
- * previously shrank rendered width to ~944px, the bug this fix corrects).
- * The vertical 120px component is trusted (matches the measured y-gap:
- * hero content ends at y779, this block starts at y899 = 120px).
+ * an additional inset on top of the 1152 column.
+ *
+ * Vertical rhythm: Bìa's auto-layout puts Frame 486 120px below the hero
+ * (779 -> 899) and 120px above the awards block (2118 -> 2238), but the
+ * frame's own children sit outside that box -- the ROOT/FURTHER wordmark
+ * group (3204:10153) at y881-1015 and the text group (5001:14827) at
+ * y1047-2137. Reproduced in-flow as 102px top (881-779), 32px gaps (the
+ * frame's `gap`), and 101px bottom (2238-2137) -- identical pixels at the
+ * 1512 canvas width without absolute positioning. The quote TEXT node
+ * (3204:10161) is 66px tall in Figma (20px/700 on a 32px line, two lines),
+ * so it carries that explicit height to keep paragraph 2 at y1689.
  */
 export function RootFurtherBlock() {
   const t = useTranslations("home");
   return (
     // mm:3204:10152
     <section data-testid="root-further-block" className="w-full">
-      <div className="mx-auto flex w-full max-w-[1152px] flex-col items-center gap-8 px-4 pt-[120px] pb-[120px] md:px-0">
+      <div className="mx-auto flex w-full max-w-[1152px] flex-col items-center gap-8 px-4 pt-[102px] pb-[101px] md:px-0">
         {/* mm:3204:10153 */}
         <div aria-hidden="true" className="relative hidden h-[134px] w-[290px] sm:block">
           {/* mm:3204:10155 */}
@@ -42,7 +49,7 @@ export function RootFurtherBlock() {
             {t("rootFurther.paragraph1")}
           </p>
           {/* mm:3204:10161 */}
-          <p className="whitespace-pre-line text-center font-body text-xl font-bold leading-8 text-white">
+          <p className="h-[66px] whitespace-pre-line text-center font-body text-xl font-bold leading-8 text-white">
             {t("rootFurther.quote")}
             <br />
             {t("rootFurther.quoteTranslation")}
