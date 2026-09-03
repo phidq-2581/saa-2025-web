@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import type { SidebarStatsView } from "./kudos-board-types";
+import type { CampaignWindow } from "@/lib/kudos/derive/campaign-window";
+import { CampaignTooltip } from "./campaign-tooltip";
 
 /**
  * D.1_Thống kê tổng quat (2940:13489, MaZUn5xHXZ). 5 concrete D.1.x stat
@@ -31,7 +33,7 @@ export function SidebarStats({ stats }: SidebarStatsProps) {
       key: "hearts",
       label: t("sidebar.heartsReceived"),
       value: stats.heartsReceivedCount,
-      showX2: stats.heartsDoubled,
+      campaign: stats.heartsDoubled ? stats.campaign : null,
     },
   ];
   const bottomRows = [
@@ -41,11 +43,11 @@ export function SidebarStats({ stats }: SidebarStatsProps) {
 
   return (
     // mm:2940:13489
-    <div className="flex w-full flex-col items-start gap-2.5 rounded-[17px] border border-border-gold bg-panel p-6">
+    <div className="flex w-full flex-col items-start gap-2.5 rounded-[17px] bg-panel p-6 shadow-[inset_0_0_0_1px_#998C5F]">
       {/* mm:2940:13490 */}
       <div className="flex w-full flex-col items-center justify-center gap-4">
         {topRows.map((row) => (
-          <StatLine key={row.key} label={row.label} value={row.value} showX2={row.showX2} />
+          <StatLine key={row.key} label={row.label} value={row.value} campaign={row.campaign} />
         ))}
         {/* mm:2940:13494 */}
         <div className="h-px w-full bg-divider" />
@@ -58,20 +60,25 @@ export function SidebarStats({ stats }: SidebarStatsProps) {
   );
 }
 
-function StatLine({ label, value, showX2 }: { label: string; value: number; showX2?: boolean }) {
+function StatLine({ label, value, campaign }: { label: string; value: number; campaign?: CampaignWindow | null }) {
   return (
     // mm:2940:13491
     <div data-testid="sidebar-stat-line" className="flex w-full items-center justify-between gap-2">
       <span className="font-body text-[22px] font-bold leading-7 text-white">{label}</span>
       <span className="flex items-center gap-1">
-        {showX2 && (
-          // mm:3241:14931
-          <span
-            aria-hidden="true"
-            style={{ WebkitTextStroke: "1.04px #000" }}
-            className="flex h-10 w-[34px] items-center justify-center font-body text-[17.5px] font-bold text-white"
-          >
-            x2
+        {campaign && (
+          // mm:3241:14931 -- the 34x40 x2 marker (same hand-exported fire art as the card, label included, scaled),
+          // focusable so the campaign card is reachable without a mouse
+          <span data-testid="sidebar-campaign-marker" tabIndex={0} className="group relative inline-flex">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/kudos-board/campaign-x2.png"
+              alt=""
+              width={34}
+              height={40}
+              className="h-10 w-[34px] object-contain"
+            />
+            <CampaignTooltip campaign={campaign} />
           </span>
         )}
         <span className="font-body text-[32px] font-bold leading-10 text-gold">{value}</span>

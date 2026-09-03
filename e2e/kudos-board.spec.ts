@@ -272,7 +272,7 @@ test.describe("Phase 04: Kudos Live Board UI", () => {
     const statLines = page.locator(SELECTORS["sidebar-stat-line"]);
     await expect(statLines).toHaveCount(5);
 
-    // "Mở quà" button disabled with tooltip
+    // "Mở Secret Box" button disabled with tooltip
     const openGiftBtn = page.locator(SELECTORS["sidebar-open-gift-btn"]);
     await expect(openGiftBtn).toBeDisabled();
 

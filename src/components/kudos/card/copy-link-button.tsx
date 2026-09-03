@@ -35,7 +35,7 @@ export function CopyLinkButton({ kudosId, onCopyLink }: CopyLinkButtonProps) {
       type="button"
       data-testid="kudos-card-copy-link-btn"
       onClick={handleClick}
-      className="flex items-center gap-1 rounded-chip p-4 font-body text-base font-bold text-canvas hover:bg-gold-10"
+      className="flex items-center gap-1 rounded-chip p-4 font-body text-base leading-6 font-bold tracking-[0.15px] text-canvas hover:bg-gold-10"
     >
       {t("card.copyLink")}
       <IconLink className="h-6 w-6" />

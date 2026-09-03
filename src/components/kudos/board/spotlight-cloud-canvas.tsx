@@ -126,9 +126,10 @@ export function SpotlightCloudCanvas({ nodes, onNodeClick }: SpotlightCloudCanva
   }, [mode]);
 
   return (
-    <div className="relative mt-6">
+    // Fills the 548px spotlight box between the header row and the ticker
+    <div className="absolute inset-x-10 top-[72px] bottom-14">
       {/* mm:2940:14174 */}
-      <div ref={containerRef} data-testid="spotlight-cloud" className="h-95 w-full">
+      <div ref={containerRef} data-testid="spotlight-cloud" className="h-full w-full">
         <svg ref={svgRef} className="h-full w-full">
           <g ref={groupRef} transform={`translate(${dimensions.width / 2}, ${dimensions.height / 2})`}>
             {words.map((word) => (

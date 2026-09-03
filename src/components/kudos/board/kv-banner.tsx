@@ -1,32 +1,25 @@
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 /**
- * A_KV Kudos (2940:13437, "Bìa" > Frame 487 > A_KV Kudos): the /kudos hero
- * banner -- title text + "KUDOS" wordmark stacked over a full-bleed
- * keyvisual image. The background asset itself lives on a DIFFERENT node
- * (`Keyvisual` 2940:13432, a root-level sibling of `Bìa` positioned
- * absolute 0,0 1440x512 -- MM_MEDIA_KV Background is
- * `I2940:13432;2167:5140` > `I2940:13432;2167:5141`) rather than nested
- * under this frame, but per the phase-04 section assignment this component
- * owns rendering it since visually it is this banner's backdrop (the KV
- * title sits at y184 inside the keyvisual's 0-512 span). Downloaded to
- * `/public/kudos-board/kv-background.png` (not `/public/kudos/` -- that
- * path is reserved for the future `/kudos/[id]` dynamic route, per phase
- * brief).
+ * Keyvisual (2940:13432, 1440x512) plus the top of Bìa (2940:13434) that
+ * the design lays over it: A_KV Kudos (2940:13437) at y184 -- 36px/700/44px
+ * gold title over the 593x104 KUDOS lockup, 10px apart -- then 64px below,
+ * the 72px "Button chuc nang" row (2940:13448). The compose pill that fills
+ * that row is slotted in as `children` because its open/close state lives
+ * in the client feed container; the row's second pill, "Tìm kiếm profile
+ * Sunner" (2940:13450), is a deferred feature per clarifications.md
+ * 2026-09-03 and is not rendered.
  *
- * DESIGN GAP: node 2940:13439's live `character` field reads "Hệ thống ghi
- * nhận VÀ cảm ơn", not "...LỜI cảm ơn" as the phase brief/RED
- * contract/messages/vi/kudos.json all specify. The translation key
- * (`banner.title`) is the approved, RED-test-verified source of truth
- * (clarifications.md), so it's used verbatim here rather than the node's
- * current `character` text -- flagging the Figma/spec drift for the
- * record, not silently picking one.
+ * Cover (I2940:13432;1210:12612) is a 1440x957 gradient from y445; only
+ * its top 67px fall inside the 512px KV box and the rest fades into the
+ * identical canvas colour below, so it is clipped here without visual loss.
  */
-export function KvBanner() {
+export function KvBanner({ children }: { children?: ReactNode }) {
   const t = useTranslations("kudos");
   return (
-    // mm:2940:13437
-    <section className="relative w-full min-h-[512px] overflow-hidden">
+    // mm:2940:13432
+    <section className="relative h-[512px] w-full overflow-hidden">
       {/* mm:I2940:13432;2167:5141 */}
       <img
         src="/kudos-board/kv-background.png"
@@ -34,25 +27,33 @@ export function KvBanner() {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="relative z-[1] mx-auto flex w-full max-w-[1152px] flex-col gap-[10px] px-4 pt-[184px]">
-        {/* mm:2940:13439 */}
-        <p
-          data-testid="kudos-board-banner-title"
-          className="font-body text-[36px] font-bold leading-[44px] text-gold"
-        >
-          {t("banner.title")}
-        </p>
-        {/* mm:2940:13440 */}
-        <KudosLogo aria-hidden="true" className="h-[104px] w-[593px] max-w-full" />
+      {/* mm:I2940:13432;1210:12612 */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-[445px] h-[957px]"
+        style={{ background: "linear-gradient(25deg, #00101A 14.74%, rgba(0, 19, 32, 0.00) 47.8%)" }}
+      />
+      <div className="relative z-[1] mx-auto flex w-full max-w-[1152px] flex-col gap-16 px-4 pt-[184px] md:px-0">
+        {/* mm:2940:13437 -- 160px tall in the canvas (44 title + 10 + 104 logo, plus
+            the lockup group's sub-pixel height), pinned so the button row lands at y408 */}
+        <div className="flex h-[160px] flex-col gap-[10px]">
+          {/* mm:2940:13439 */}
+          <p
+            data-testid="kudos-board-banner-title"
+            className="font-body text-[36px] font-bold leading-[44px] text-gold"
+          >
+            {t("banner.title")}
+          </p>
+          {/* mm:2940:13440 */}
+          <KudosLogo aria-hidden="true" className="h-[104px] w-[593px] max-w-full" />
+        </div>
+        {/* mm:2940:13448 */}
+        <div className="flex h-[72px] items-center">{children}</div>
       </div>
     </section>
   );
 }
 
-/** MM_MEDIA_Kudos logo (2940:13440) -- multi-color wordmark + asterisk
- * mark, kept as its original palette per code-rules 2a (not a mono icon,
- * no `currentColor` swap). Inlined rather than `<img>` so gradient
- * defs render crisply and CSS can still size it responsively. */
 function KudosLogo(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg width="593" height="106" viewBox="0 0 593 106" fill="none" {...props}>
@@ -64,30 +65,10 @@ function KudosLogo(props: React.SVGProps<SVGSVGElement>) {
       <path d="M17.7434 66.7438L0 94.1617L34.8402 87.0904C50.2558 84.3108 51.6783 82.0872 57.8859 73.4371L59.5413 71.1689C59.5413 71.1689 61.5329 68.545 70.0942 55.6699C67.6629 59.4946 58.1187 59.4279 47.8244 61.3403C44.5137 61.9629 17.7693 66.7438 17.7693 66.7438H17.7434Z" fill="#E73928"/>
       <defs>
         <linearGradient id="kudos-logo-a" x1="48.6258" y1="74.327" x2="35.9834" y2="38.8586" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white"/>
-          <stop offset="0.32" stopColor="#FDFCFD"/>
-          <stop offset="0.47" stopColor="#F9F5F6"/>
-          <stop offset="0.57" stopColor="#F2E9EA"/>
-          <stop offset="0.66" stopColor="#E8D7DA"/>
-          <stop offset="0.74" stopColor="#DABFC4"/>
-          <stop offset="0.81" stopColor="#CAA3AA"/>
-          <stop offset="0.87" stopColor="#B6818B"/>
-          <stop offset="0.93" stopColor="#A05966"/>
-          <stop offset="0.98" stopColor="#872D3E"/>
-          <stop offset="1" stopColor="#7E1E30"/>
+          <stop stopColor="white"/><stop offset="0.32" stopColor="#FDFCFD"/><stop offset="0.47" stopColor="#F9F5F6"/><stop offset="0.57" stopColor="#F2E9EA"/><stop offset="0.66" stopColor="#E8D7DA"/><stop offset="0.74" stopColor="#DABFC4"/><stop offset="0.81" stopColor="#CAA3AA"/><stop offset="0.87" stopColor="#B6818B"/><stop offset="0.93" stopColor="#A05966"/><stop offset="0.98" stopColor="#872D3E"/><stop offset="1" stopColor="#7E1E30"/>
         </linearGradient>
         <linearGradient id="kudos-logo-b" x1="40.3734" y1="56.0484" x2="50.1984" y2="76.9172" gradientUnits="userSpaceOnUse">
-          <stop stopColor="white"/>
-          <stop offset="0.22" stopColor="#FCFCFC"/>
-          <stop offset="0.35" stopColor="#F3F3F3"/>
-          <stop offset="0.47" stopColor="#E5E5E5"/>
-          <stop offset="0.57" stopColor="#D0D0D0"/>
-          <stop offset="0.66" stopColor="#B5B5B5"/>
-          <stop offset="0.75" stopColor="#959595"/>
-          <stop offset="0.83" stopColor="#6D6D6D"/>
-          <stop offset="0.91" stopColor="#404040"/>
-          <stop offset="0.98" stopColor="#0E0E0E"/>
-          <stop offset="1"/>
+          <stop stopColor="white"/><stop offset="0.22" stopColor="#FCFCFC"/><stop offset="0.35" stopColor="#F3F3F3"/><stop offset="0.47" stopColor="#E5E5E5"/><stop offset="0.57" stopColor="#D0D0D0"/><stop offset="0.66" stopColor="#B5B5B5"/><stop offset="0.75" stopColor="#959595"/><stop offset="0.83" stopColor="#6D6D6D"/><stop offset="0.91" stopColor="#404040"/><stop offset="0.98" stopColor="#0E0E0E"/><stop offset="1"/>
         </linearGradient>
       </defs>
     </svg>

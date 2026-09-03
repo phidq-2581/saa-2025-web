@@ -31,7 +31,7 @@ export function LeaderboardList({ testId, title, entries, emptyLabel }: Leaderbo
     // mm:2940:13510
     <div
       data-testid={testId}
-      className="flex w-full flex-col items-start gap-2.5 rounded-[17px] border border-border-gold bg-panel py-6 pl-6 pr-4"
+      className="flex w-full flex-col items-start gap-2.5 rounded-[17px] bg-panel py-6 pl-6 pr-4 shadow-[inset_0_0_0_1px_#998C5F]"
     >
       {/* mm:2940:13513 */}
       <h3 className="w-full text-center font-body text-[22px] font-bold leading-7 text-gold">
@@ -56,7 +56,7 @@ export function LeaderboardList({ testId, title, entries, emptyLabel }: Leaderbo
                   alt=""
                   width={64}
                   height={64}
-                  className="h-16 w-16 shrink-0 rounded-full border-[1.87px] border-white object-cover"
+                  className="h-16 w-16 shrink-0 rounded-full border-[1.87px] border-white object-cover transition-colors hover:border-gold"
                 />
                 {/* mm:I2940:13516;256:7461 */}
                 <div className="flex flex-col gap-0.5">

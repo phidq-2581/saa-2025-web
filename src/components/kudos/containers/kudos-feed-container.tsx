@@ -11,6 +11,7 @@ import { ComposePill } from "@/components/kudos/board/compose-pill";
 import { HighlightCarousel } from "@/components/kudos/board/highlight-carousel";
 import { SpotlightBoard } from "@/components/kudos/board/spotlight-board";
 import { KudosFeed } from "@/components/kudos/board/kudos-feed";
+import { KvBanner } from "@/components/kudos/board/kv-banner";
 import { BoardSidebar } from "@/components/kudos/board/board-sidebar";
 import { ComposeDialogContainer } from "./compose-dialog-container";
 import { useInfiniteFeed } from "./use-infinite-feed";
@@ -109,50 +110,73 @@ export function KudosFeedContainer({
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1152px] justify-center px-4">
+      {/* mm:2940:13432 + 2940:13448 -- keyvisual with the compose pill slotted
+          into its 72px button row (the pill's open state lives here) */}
+      <KvBanner>
         <ComposePill onClick={() => setComposeOpen(true)} />
-      </div>
+      </KvBanner>
 
-      <div className="mx-auto flex w-full max-w-[1152px] flex-col gap-6 px-4">
-        <FilterBar
-          hashtags={filterOptions.hashtags}
-          departments={filterOptions.departments}
-          value={filterValue}
-          onChange={(next) => router.push(buildKudosUrl(next))}
+      {/* Bìa (2940:13434) below the KV: Highlight starts 32px under the 512px
+          keyvisual (y544), then Spotlight and All kudos each 120px apart. */}
+      <div className="flex w-full flex-col gap-[120px] pt-8">
+        <HighlightCarousel
+          items={highlightSlides.map(withHeartOverride)}
+          currentViewerId={currentViewerId}
+          onToggleHeart={handleToggleHeart}
+          onCopyLink={handleCopyLink}
+          onHashtagClick={handleHashtagClick}
+          likedIds={likedIds}
+          filters={
+            <FilterBar
+              hashtags={filterOptions.hashtags}
+              departments={filterOptions.departments}
+              value={filterValue}
+              onChange={(next) => router.push(buildKudosUrl(next))}
+            />
+          }
         />
-      </div>
 
-      <HighlightCarousel
-        items={highlightSlides.map(withHeartOverride)}
-        currentViewerId={currentViewerId}
-        onToggleHeart={handleToggleHeart}
-        onCopyLink={handleCopyLink}
-        onHashtagClick={handleHashtagClick}
-        likedIds={likedIds}
-      />
+        <SpotlightBoard
+          nodes={spotlightNodes}
+          totalKudos={spotlightTotal}
+          onNodeClick={(kudosId) => router.push(`/kudos/${kudosId}`)}
+          ticker={spotlightTicker}
+        />
 
-      <SpotlightBoard
-        nodes={spotlightNodes}
-        totalKudos={spotlightTotal}
-        onNodeClick={(kudosId) => router.push(`/kudos/${kudosId}`)}
-        ticker={spotlightTicker}
-      />
-
-      <div className="mx-auto flex w-full max-w-[1152px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
-        <div className="flex-1">
-          <KudosFeed
-            pages={[{ items: feedItems.map(withHeartOverride), nextOffset }]}
-            hasMore={nextOffset !== null}
-            onLoadMore={handleLoadMore}
-            loading={loadingMore}
-            currentViewerId={currentViewerId}
-            onToggleHeart={handleToggleHeart}
-            onCopyLink={handleCopyLink}
-            onHashtagClick={handleHashtagClick}
-            likedIds={likedIds}
-          />
-        </div>
-        <BoardSidebar stats={sidebarStats} rankPromotions={rankPromotions} giftRecipients={giftRecipients} />
+        {/* mm:2940:13475 -- C_All kudos: full-width header, 40px, then Frame 502 */}
+        <section className="mx-auto flex w-full max-w-[1152px] flex-col gap-10 px-4 md:px-0">
+          {/* mm:2940:14221 */}
+          <div className="flex flex-col gap-4">
+            {/* mm:2940:14222 */}
+            <span className="font-body text-2xl font-bold leading-8 text-white">{t("allKudos.caption")}</span>
+            {/* mm:2940:14223 */}
+            <span aria-hidden="true" className="h-px w-full bg-divider" />
+            {/* mm:2940:14225 */}
+            <h2
+              data-testid="kudos-board-all-header"
+              className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold"
+            >
+              {t("allKudos.heading")}
+            </h2>
+          </div>
+          {/* mm:2940:13481 -- 680px list + 422px sidebar, space-between (50px apart) */}
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-0">
+            <div className="w-full lg:w-[680px]">
+              <KudosFeed
+                pages={[{ items: feedItems.map(withHeartOverride), nextOffset }]}
+                hasMore={nextOffset !== null}
+                onLoadMore={handleLoadMore}
+                loading={loadingMore}
+                currentViewerId={currentViewerId}
+                onToggleHeart={handleToggleHeart}
+                onCopyLink={handleCopyLink}
+                onHashtagClick={handleHashtagClick}
+                likedIds={likedIds}
+              />
+            </div>
+            <BoardSidebar stats={sidebarStats} rankPromotions={rankPromotions} giftRecipients={giftRecipients} />
+          </div>
+        </section>
       </div>
 
       {toastMessage ? (

@@ -1,6 +1,6 @@
 {
   "banner": {
-    "title": "Hệ thống ghi nhận lời cảm ơn"
+    "title": "Hệ thống ghi nhận và cảm ơn"
   },
   "composePill": {
     "placeholder": "Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?"
@@ -41,11 +41,13 @@
     "heartsReceived": "Số tim bạn nhận được:",
     "secretBoxOpened": "Số Secret Box bạn đã mở:",
     "secretBoxUnopened": "Số Secret Box chưa mở:",
-    "openGift": "Mở quà",
+    "openGift": "Mở Secret Box",
     "openGiftTooltip": "Sắp ra mắt",
     "rankLeaderboardTitle": "10 SUNNER CÓ SỰ THĂNG HẠNG MỚI NHẤT",
     "giftLeaderboardTitle": "10 SUNNER NHẬN QUÀ MỚI NHẤT",
-    "leaderboardEmpty": "Chưa có dữ liệu"
+    "leaderboardEmpty": "Chưa có dữ liệu",
+    "campaignTitle": "Ngày x2 tim – lan tỏa gấp đôi yêu thương!",
+    "campaignBody": "Từ {start} đến {end}, tất cả tim bạn nhận được đều được nhân đôi."
   },
   "asterisk": {
     "tier1": "Sunner đã nhận được 10 Kudos và bắt đầu lan tỏa năng lượng ấm áp đến mọi người xung quanh.",
@@ -57,5 +59,23 @@
     "rising": "Rising Hero",
     "super": "Super Hero",
     "legend": "Legend Hero"
+  },
+  "heroTooltip": {
+    "new": {
+      "range": "Có 1–4 người gửi Kudos cho bạn",
+      "description": "Hành trình lan tỏa điều tốt đẹp bắt đầu – những lời cảm ơn và ghi nhận đầu tiên đã tìm đến bạn."
+    },
+    "rising": {
+      "range": "Có 5-9 người gửi Kudos cho bạn",
+      "description": "Hình ảnh bạn đang lớn dần trong trái tim đồng đội bằng sự tử tế và cống hiến của mình."
+    },
+    "super": {
+      "range": "Có 10–20 người gửi Kudos cho bạn",
+      "description": "Bạn đã trở thành biểu tượng được tin tưởng và yêu quý, người luôn sẵn sàng hỗ trợ và được nhiều đồng đội nhớ đến."
+    },
+    "legend": {
+      "range": "Có hơn 20 người gửi Kudos cho bạn",
+      "description": "Bạn đã trở thành huyền thoại – người để lại dấu ấn khó quên trong tập thể bằng trái tim và hành động của mình."
+    }
   }
 }

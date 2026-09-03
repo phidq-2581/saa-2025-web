@@ -26,16 +26,19 @@ export function BoardSidebar({ stats, rankPromotions, giftRecipients }: BoardSid
     // mm:2940:13488
     <aside data-testid="kudos-board-sidebar" className="flex w-[422px] flex-col gap-6">
       <SidebarStats stats={stats} />
-      <LeaderboardList
-        testId="sidebar-rank-leaderboard"
-        title={t("sidebar.rankLeaderboardTitle")}
-        entries={rankPromotions}
-        emptyLabel={t("sidebar.leaderboardEmpty")}
-      />
+      {/* mm:2940:13510 -- the canvas draws only this list under the stats card;
+          the spec (row D) also lists "10 SUNNER CÓ SỰ THĂNG HẠNG MỚI NHẤT", kept
+          below it -- canvas order first, spec content preserved. */}
       <LeaderboardList
         testId="sidebar-gift-leaderboard"
         title={t("sidebar.giftLeaderboardTitle")}
         entries={giftRecipients}
+        emptyLabel={t("sidebar.leaderboardEmpty")}
+      />
+      <LeaderboardList
+        testId="sidebar-rank-leaderboard"
+        title={t("sidebar.rankLeaderboardTitle")}
+        entries={rankPromotions}
         emptyLabel={t("sidebar.leaderboardEmpty")}
       />
     </aside>

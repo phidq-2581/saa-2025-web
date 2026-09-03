@@ -48,16 +48,10 @@ export function KudosFeed({
   const items = pages.flatMap((page) => page.items) as KudosCardSample[];
 
   return (
-    <section className="flex w-full flex-col items-start gap-4">
-      {/* mm:2940:14221 */}
-      {/* mm:2940:14222 */}
-      <span className="font-body text-2xl font-bold leading-8 text-white">{t("allKudos.caption")}</span>
-      {/* mm:2940:14223 */}
-      <span aria-hidden="true" className="h-px w-full bg-divider" />
-      {/* mm:2940:14225 */}
-      <h2 data-testid="kudos-board-all-header" className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold">
-        {t("allKudos.heading")}
-      </h2>
+    // mm:2940:13482 -- C.2 list column only; the C.1 header (caption / rule /
+    // "ALL KUDOS") spans the full 1152 column above both this list and the
+    // sidebar, so the feed container renders it (kudos-feed-container.tsx).
+    <section className="flex w-full flex-col items-start gap-6">
 
       {items.length === 0 ? (
         // mm:2940:13482 (C.2 empty state)

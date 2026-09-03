@@ -105,3 +105,44 @@ Source: Phase 04 GREEN command `npm run test:e2e -- e2e/kudos-board.spec.ts` at 
 - Feed cards: Infinite scroll (page size 10) loads on mount and on scroll-to-bottom; card layout matches reference design (sender, receiver, time, content, hashtags, heart, copy-link).
 - Sidebar: Stats counters query DB real-time; secret box button disabled with tooltip until modal is wired (future round).
 - All Kudos section: Full feed accessible via scroll; leaderboard updates based on kudos count milestones (10/20/50).
+
+## Pixel-parity pass (2026-09-03)
+
+Method as in `homepage.md`, 246 Figma `TEXT` nodes of `list_frame_styles("MaZUn5xHXZ")` vs a 1440px
+DOM dump of `/kudos` with the viewer's real session. The board is data-driven, so only the static
+chrome joins (headers, filters, sidebar labels, footer); the mock cards' text has no DOM counterpart.
+Before: the content column was 1120px at x160 (a `px-4` gutter left on at desktop), the compose pill
+sat under the keyvisual instead of inside its 72px button row, the filters were on their own row
+under the pill instead of on the HIGHLIGHT KUDOS heading row, and the ALL KUDOS header spanned only
+the 680px feed column. After (all at the canvas x/y): banner title 144,184; compose pill 144,408
+(738×72, radius 68, left-aligned text); highlight header 144,544 with Hashtag/Phòng ban buttons at
+x994/1138 (56px, inset stroke); carousel as a centred 1440px stage — at 1440 the previous card is at x0 and the active one at x552 (528 wide), as in the frame's "2/5" state; spotlight box 142,·
+1157×548 radius 47.14 with the centred "n KUDOS" label and the search pill at (25,26); feed column
+680 at x144, sidebar 422 at x874, stat labels at x898. Remaining y deltas below the carousel are a
+constant −19px because the single real highlight card is 39px shorter than the mock card. Capture:
+[img/kudos-board-desktop-1440-parity-260903.jpg](img/kudos-board-desktop-1440-parity-260903.jpg).
+
+Copy per `plans/clarifications.md` § 2026-09-03 (later): banner "Hệ thống ghi nhận và cảm ơn",
+sidebar button "Mở Secret Box"; gift-recipients list above rank promotions (canvas order, spec
+content kept). Not rendered: the "Tìm kiếm profile Sunner" pill (deferred feature with the Profile
+page) and the spotlight card's untagged background textures (70% black overlay kept).
+
+## Hero pills and hover states (2026-09-03, evening)
+
+- Hero-tier pills are the MoMorph exports `MM_MEDIA_Rising/Super/Legend Hero` (master 109×19,
+  `public/kudos-board/hero-*.png`); New Hero was exported by hand (220×40, drawn at 109×19 / 126×22 / 218×38)
+  since MoMorph has no file for it (`plans/clarifications.md`). Verified with the viewer's session: exported tiers render as `<img>` with
+  the tier name as `alt`, the Thể lệ panel scales them to the instance's 126×22 at x947.
+- Avatar hover: the 1.869px ring goes white → `rgb(255,234,158)` (frame "Hover Avatar info user"
+  721:5827, node 490:5469), measured on `kudos-card-avatar` and the leaderboard avatars.
+- Hero pill hover: the "Hover danh hiệu {tier}" card (frames 3241:14991…15003) — measured 304×192, bg rgb(0,7,12), radius 16, padding 16, pill 218×38, range rgb(255,255,255) over description rgb(153,153,153); opacity 0 → 1 on hover.
+- Not delivered: the "preview profile" popover the spec attaches to avatar/name hover — it exists in
+  the current Figma revision of "Hover Avatar info user" (721:5827) but MoMorph still serves the
+  January revision (two avatars only) and neither "Infor - HoverAvatar" frame is processed; awaiting a
+  MoMorph re-sync. "Hover campain" (3241:15021) is readable but needs real campaign dates (Track B).
+- Campaign hover: the x2 marker (3241:14931, 34×40) opens the "Hover campain" card (3241:15021: 368×130,
+  #00070C, radius 16, padding 16; 56×66 art slot + 276px text, white title / grey body) with the real
+  special-day window formatted as "00:00 ngày DD/MM … 23:59 ngày DD/MM". Only visible inside a
+  special-day run (none on the remote DB today), so verified by unit tests, not on the live board.
+  Fire art: user export of Group 435 ("image 35" + "x2" label, 114×133) at `public/kudos-board/campaign-x2.png`,
+  drawn with `object-contain` in the 34×40 marker and the 56×66 card slot (no CSS label on top).

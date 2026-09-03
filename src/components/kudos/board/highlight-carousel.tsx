@@ -1,36 +1,31 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { HighlightCarouselNav } from "./highlight-carousel-nav";
 import { HighlightCarouselTrack, SLIDE_STEP } from "./highlight-carousel-track";
 import type { KudosCardSample } from "./kudos-board-types";
 
-/**
- * B_Highlight (2940:13451) -- section header + 5-card carousel + nav.
- * `items` is a prop per the phase's integration contract (page.tsx passes
- * `HIGHLIGHT_SLIDES`; this component never imports the sample-data module
- * directly). `activeSlide`/`onSlideChange` are optional controlled props
- * with an internal-state fallback so this component also works
- * self-contained if the page doesn't manage carousel state itself.
- */
 export type HighlightCarouselProps = {
   items: KudosCardSample[];
   activeSlide?: number;
   onSlideChange?: (index: number) => void;
-  /** Optional signed-in viewer id, threaded straight through to
-   * `HighlightCarouselTrack` (mirrors `kudos-feed.tsx`'s `currentViewerId`
-   * -- disables the heart button on the viewer's own kudos, spec
-   * B.3.2/C.4.1). Omit and every heart stays enabled. */
   currentViewerId?: string;
-  /** Phase 07: real action wiring, threaded straight through to
-   * `HighlightCarouselTrack` -- mirrors `kudos-feed.tsx`'s own props. */
   onToggleHeart?: (id: string) => void;
   onCopyLink?: (id: string) => void;
   onHashtagClick?: (hashtagId: string) => void;
   likedIds?: ReadonlySet<string>;
+  /** Buttons frame (2940:13458) -- the hashtag/department filters the design
+   *  places on the heading row, right-aligned. Owned by the feed container. */
+  filters?: ReactNode;
 };
 
+/**
+ * B_Highlight (2940:13451): a column with `gap: 40px` -- B.1 header
+ * (2940:13453: 24px caption, 1px rule, then Frame 488 `justify-content:
+ * space-between` with the 57px/700/64px heading on the left and the filter
+ * buttons on the right), the card track, then the "n/total" nav.
+ */
 export function HighlightCarousel({
   items,
   activeSlide,
@@ -40,6 +35,7 @@ export function HighlightCarousel({
   onCopyLink,
   onHashtagClick,
   likedIds,
+  filters,
 }: HighlightCarouselProps) {
   const t = useTranslations("kudos");
   const [internalIndex, setInternalIndex] = useState(0);
@@ -55,18 +51,25 @@ export function HighlightCarousel({
 
   return (
     // mm:2940:13451
-    <section className="flex w-full flex-col gap-16">
-      {/* mm:2940:13453 -- caption + heading only; the sibling FilterBar
-          (Buttons frame 2940:13458) is composed by page.tsx, not here */}
-      <div data-testid="kudos-board-highlight-header" className="mx-auto flex w-full max-w-[1152px] flex-col gap-4 px-4">
+    <section className="flex w-full flex-col gap-10">
+      {/* mm:2940:13453 */}
+      <div
+        data-testid="kudos-board-highlight-header"
+        className="mx-auto flex w-full max-w-[1152px] flex-col gap-4 px-4 md:px-0"
+      >
         {/* mm:2940:13454 */}
         <p className="font-body text-2xl font-bold leading-[32px] text-white">{t("highlight.caption")}</p>
         {/* mm:2940:13455 */}
         <div className="h-px w-full bg-divider" />
-        {/* mm:2940:13457 */}
-        <h2 className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold">
-          {t("highlight.heading")}
-        </h2>
+        {/* mm:2940:13456 */}
+        <div className="flex flex-wrap items-center justify-between gap-8">
+          {/* mm:2940:13457 */}
+          <h2 className="font-body text-[57px] font-bold leading-[64px] tracking-[-0.25px] text-gold">
+            {t("highlight.heading")}
+          </h2>
+          {/* mm:2940:13458 */}
+          {filters}
+        </div>
       </div>
 
       <HighlightCarouselTrack

@@ -57,7 +57,7 @@ export function HashtagFilterDropdown({
         aria-expanded={isOpen}
         data-testid="hashtag-filter-trigger"
         onClick={() => onOpenChange(!isOpen)}
-        className="flex items-center gap-2 rounded-chip border border-border-gold bg-gold-10 p-4 font-body text-base font-bold tracking-[0.15px] text-white"
+        className="flex h-14 items-center gap-2 rounded-chip bg-gold-10 p-4 font-body text-base font-bold leading-6 tracking-[0.15px] text-white shadow-[inset_0_0_0_1px_#998C5F]"
       >
         {/* mm:I2940:13459;186:2760 */}
         <span>{selected ? `#${selected.name}` : t("filters.hashtagLabel")}</span>

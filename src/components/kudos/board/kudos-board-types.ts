@@ -1,4 +1,5 @@
 import type { KudosCardView, SidebarStats, SpotlightNode } from "@/lib/kudos/types";
+import type { CampaignWindow } from "@/lib/kudos/derive/campaign-window";
 
 /**
  * Phase 04 (F006): local, presentation-only view-model types layered on top
@@ -42,6 +43,9 @@ export interface KudosCardSample extends KudosCardView {
  * `D.1.x` label+value rows (D.1.5 is a divider, not a stat). */
 export interface SidebarStatsView extends SidebarStats {
   heartsDoubled: boolean;
+  /** The special-day run that makes `heartsDoubled` true -- feeds the "Hover
+   *  campain" card (campaign-window.ts); null whenever hearts are not doubled. */
+  campaign: CampaignWindow | null;
 }
 
 /** One Spotlight ticker line ("08:30PM {name} đã nhận được một Kudos mới",

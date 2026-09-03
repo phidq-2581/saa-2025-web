@@ -29,7 +29,7 @@ export function ComposePill({ onClick }: ComposePillProps) {
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className="flex w-[738px] max-w-full cursor-text items-center gap-2 rounded-pill border border-border-gold bg-gold-10 px-4 py-6 text-left disabled:cursor-default"
+      className="flex h-[72px] w-[738px] max-w-full cursor-text items-center gap-2 rounded-[68px] bg-gold-10 px-4 py-6 text-left shadow-[inset_0_0_0_1px_#998C5F] disabled:cursor-default"
     >
       {/* mm:I2940:13449;186:2758 */}
       <div className="flex flex-1 items-center gap-4">
@@ -42,7 +42,7 @@ export function ComposePill({ onClick }: ComposePillProps) {
           tabIndex={-1}
           data-testid="kudos-board-compose-pill"
           placeholder={t("composePill.placeholder")}
-          className="pointer-events-none w-full flex-1 bg-transparent text-center font-body text-base font-bold tracking-[0.15px] text-white placeholder-white outline-none"
+          className="pointer-events-none h-6 w-full flex-1 bg-transparent p-0 text-left font-body text-base font-bold leading-6 tracking-[0.15px] text-white placeholder-white outline-none"
         />
       </div>
     </button>

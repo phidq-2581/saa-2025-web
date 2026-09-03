@@ -38,8 +38,12 @@ export function CardAuthorBlock({ author, meta, nameTestId }: CardAuthorBlockPro
       href={`/profile?id=${author.id}`}
       className="flex w-[235px] flex-col items-center justify-center gap-[13px]"
     >
-      {/* mm:I2940:13465;335:9443;256:4734 */}
-      <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-[1.869px] border-white bg-[#EEE]">
+      {/* mm:I2940:13465;335:9443;256:4734 -- hover state per "Hover Avatar info user" (721:5827,
+          B_Avatar khi hover 490:5469): the 1.869px ring turns var(--Details-Text-Primary-1, #FFEA9E) */}
+      <span
+        data-testid="kudos-card-avatar"
+        className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-[1.869px] border-white bg-[#EEE] transition-colors hover:border-gold"
+      >
         {author.avatarUrl ? (
           <img src={author.avatarUrl} alt="" className="h-full w-full object-cover" />
         ) : (

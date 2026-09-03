@@ -63,6 +63,7 @@ const BASE_PROPS = {
     secretBoxUnopenedCount: 0,
     asteriskTier: 0 as const,
     heartsDoubled: false,
+    campaign: null,
   },
   rankPromotions: [],
   giftRecipients: [],

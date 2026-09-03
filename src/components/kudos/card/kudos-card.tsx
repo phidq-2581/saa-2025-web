@@ -38,7 +38,7 @@ export interface KudosCardProps {
  * content line-clamp (3 lines vs 5, spec B.3/C.3). */
 const VARIANT_STYLES = {
   highlight: {
-    root: "w-full max-w-[528px] gap-4 rounded-[16px] border-4 border-gold bg-[#FFF8E1] px-6 pt-6 pb-4",
+    root: "w-full max-w-[600px] gap-4 rounded-[16px] border-4 border-gold bg-[#FFF8E1] px-6 pt-6 pb-4",
     content: "line-clamp-3",
   },
   feed: {
@@ -92,15 +92,26 @@ export function KudosCard({
 
   return (
     // mm:2940:13465 (highlight) / mm:3127:21871 (feed)
-    <article data-testid="kudos-card" className={`flex flex-col items-start ${styles.root}`}>
+    <article
+      data-testid="kudos-card"
+      className={`flex flex-col items-start ${styles.root}`}
+    >
       {/* mm:I2940:13465;335:9442 */}
       <div className="flex w-full items-start justify-between gap-6">
-        <CardAuthorBlock author={view.sender} meta={view.senderMeta} nameTestId="kudos-card-sender-name" />
+        <CardAuthorBlock
+          author={view.sender}
+          meta={view.senderMeta}
+          nameTestId="kudos-card-sender-name"
+        />
         {/* mm:I2940:13465;335:9444 -- static, non-interactive "sent" direction icon */}
         <span className="flex h-8 w-8 shrink-0 self-center text-[#999999]">
           <IconSend className="h-8 w-8" />
         </span>
-        <CardAuthorBlock author={view.receiver} meta={view.receiverMeta} nameTestId="kudos-card-receiver-name" />
+        <CardAuthorBlock
+          author={view.receiver}
+          meta={view.receiverMeta}
+          nameTestId="kudos-card-receiver-name"
+        />
       </div>
 
       {/* mm:I2940:13465;335:9447 */}
@@ -109,7 +120,10 @@ export function KudosCard({
       {/* mm:I2940:13465;335:9448 */}
       <div className="flex w-full flex-col gap-4">
         {/* mm:I2940:13465;335:9449 */}
-        <span data-testid="kudos-card-time" className="w-full font-body text-base font-bold leading-6 tracking-[0.5px] text-[#999999]">
+        <span
+          data-testid="kudos-card-time"
+          className="w-full font-body text-base font-bold leading-6 tracking-[0.5px] text-[#999999]"
+        >
           {formatKudosTime(view.createdAt)}
         </span>
 
@@ -145,10 +159,15 @@ export function KudosCard({
           <KudosContentRenderer content={view.content} />
         </div>
 
-        {variant === "feed" ? <CardAttachedImages imagePaths={view.imagePaths} /> : null}
+        {variant === "feed" ? (
+          <CardAttachedImages imagePaths={view.imagePaths} />
+        ) : null}
 
         {/* mm:I2940:13465;335:9458 */}
-        <div data-testid="kudos-card-hashtags" className="line-clamp-1 w-full font-body text-base font-bold leading-6 tracking-[0.5px] text-badge">
+        <div
+          data-testid="kudos-card-hashtags"
+          className="line-clamp-1 w-full font-body text-base font-bold leading-6 tracking-[0.5px] text-badge"
+        >
           {view.hashtags.map((hashtag, index) => (
             <span key={hashtag.id}>
               {index > 0 ? " " : ""}
@@ -181,7 +200,7 @@ export function KudosCard({
             <Link
               href={`/kudos/${view.id}`}
               data-testid="kudos-card-view-detail-btn"
-              className="flex items-center gap-1 rounded-chip p-4 font-body text-base font-bold text-canvas hover:bg-gold-10"
+              className="flex items-center gap-1 rounded-chip p-4 font-body text-base leading-6 font-bold tracking-[0.15px] text-canvas hover:bg-gold-10"
             >
               {t("card.viewDetail")}
               <IconLinkArrow className="h-6 w-6" />

@@ -10,9 +10,8 @@ import { getLeaderboards } from "@/lib/kudos/queries/get-leaderboards";
 import { getRecipients } from "@/lib/kudos/queries/get-recipients";
 import { getReceivedKudosCounts } from "@/lib/kudos/queries/get-received-kudos-counts";
 import { resolveImageUrls } from "@/lib/kudos/queries/resolve-image-urls";
-import { computeHoChiMinhDateString } from "@/lib/kudos/write/heart-rules";
+import { resolveCampaignWindow, type CampaignWindow } from "@/lib/kudos/derive/campaign-window";
 import { deriveAsteriskTier, type AsteriskTier } from "@/lib/kudos/derive/asterisk-tier";
-import { KvBanner } from "@/components/kudos/board/kv-banner";
 import { KudosFeedContainer, type SampleFeedPage } from "./kudos-feed-container";
 
 export interface KudosBoardContainerProps {
@@ -50,6 +49,7 @@ const DEFAULT_SIDEBAR_STATS: SidebarStatsView = {
   secretBoxUnopenedCount: 0,
   asteriskTier: 0,
   heartsDoubled: false,
+  campaign: null,
 };
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -81,14 +81,15 @@ function formatTickerTime(isoDate: string): string {
   return `${String(hours12).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}${period}`;
 }
 
-async function isSpecialDayToday(supabase: SupabaseServerClient): Promise<boolean> {
+// The current special-day run (null outside one) -- drives both the x2 marker
+// and the "Hover campain" card's real start/end (campaign-window.ts).
+async function currentCampaign(supabase: SupabaseServerClient): Promise<CampaignWindow | null> {
   const { data, error } = await supabase.from("special_days").select("day");
   if (error || !data) {
     console.error("KudosBoardContainer: failed to read special_days", error);
-    return false;
+    return null;
   }
-  const today = computeHoChiMinhDateString(new Date());
-  return data.some((row) => (row.day as string) === today);
+  return resolveCampaignWindow(new Date(), data.map((row) => row.day as string));
 }
 
 /**
@@ -142,7 +143,7 @@ export async function KudosBoardContainer({ hashtagId, department }: KudosBoardC
     sidebarStats,
     leaderboards,
     recipients,
-    heartsDoubled,
+    campaign,
     receivedCounts,
   ] = await Promise.all([
     supabase.auth.getClaims(),
@@ -153,7 +154,7 @@ export async function KudosBoardContainer({ hashtagId, department }: KudosBoardC
     getSidebarStats(),
     getLeaderboards(),
     getRecipients(),
-    isSpecialDayToday(supabase),
+    currentCampaign(supabase),
     getReceivedKudosCounts(supabase),
   ]);
 
@@ -166,17 +167,16 @@ export async function KudosBoardContainer({ hashtagId, department }: KudosBoardC
 
   const initialFeedPage: SampleFeedPage = { items: feedItems, nextOffset: feedPage.nextOffset };
   const sidebarStatsView: SidebarStatsView = sidebarStats
-    ? { ...sidebarStats, heartsDoubled }
+    ? { ...sidebarStats, heartsDoubled: campaign !== null, campaign }
     : DEFAULT_SIDEBAR_STATS;
   const spotlightTicker: SpotlightTickerItem[] | undefined = spotlight.nodes[0]
     ? [{ recipientName: spotlight.nodes[0].recipientName ?? "", time: formatTickerTime(spotlight.nodes[0].receivedAt) }]
     : undefined;
 
   return (
-    <main className="flex w-full flex-col gap-16 pb-24">
-      {/* mm:2940:13437 */}
-      <KvBanner />
-
+    // mm:2940:13434 -- Bìa: 120px bottom padding before the footer; the KV
+    // banner (with the compose pill) is rendered by the client feed container.
+    <main className="flex w-full flex-col pb-[120px]">
       <KudosFeedContainer
         key={`${hashtagId ?? ""}::${department ?? ""}`}
         currentViewerId={currentViewerId}

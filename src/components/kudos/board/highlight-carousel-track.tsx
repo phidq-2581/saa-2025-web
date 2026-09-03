@@ -3,41 +3,37 @@
 import { KudosCard } from "@/components/kudos/card/kudos-card";
 import type { KudosCardSample } from "./kudos-board-types";
 
-/**
- * B.2.3_content Highlight KUDO (2940:13463) -- the 5-card slide track.
- * Cards are a fixed 528px (spec `KUDO - Highlight` instance width,
- * 2940:13464/65/66, re-verified against 2940:13462's 3-instance layout:
- * card1 0-528, gap 24, active card2 552-1080, gap 24, card3 1104-1440
- * clipped by the frame). Dimming comes ENTIRELY from the two 400px edge
- * fade overlays below (2940:13469/13467, `linear-gradient(canvas ->
- * transparent)`, verified 400px wide) -- neighbor cards keep their full
- * 528px size and are NOT scaled or separately opacity-reduced (an earlier
- * revision stacked `scale-[0.92] opacity-40` on top of the gradient,
- * compounding into near-invisible neighbors; removed). `px-[calc(50%-504px)]`
- * reveals ~240px of each neighbor at rest -- centered active card, readable
- * peeking neighbors, matching spec "Inactive: Mờ/che về 2 bên" (dimmed via
- * the covering gradient, not hidden). `scrollRef` is exposed so the parent
- * can drive prev/next via `scrollTo`.
- */
-const CARD_WIDTH = 528;
+const CARD_WIDTH = 600;
 const CARD_GAP = 24;
 export const SLIDE_STEP = CARD_WIDTH + CARD_GAP;
+// B.2.3 (2940:13463) is a 1440-wide strip; the active card sits at x552 with
+// the previous one fully visible at x0 and the next cut at the strip's edge.
+const STAGE_WIDTH = 1440;
+const ACTIVE_SLOT_LEFT = 410;
+const ACTIVE_SLOT_RIGHT = STAGE_WIDTH - ACTIVE_SLOT_LEFT - CARD_WIDTH;
 
 export type HighlightCarouselTrackProps = {
   items: KudosCardSample[];
   activeIndex: number;
   scrollRef: React.RefObject<HTMLDivElement | null>;
-  /** Optional signed-in viewer id (mirrors `kudos-feed.tsx`'s
-   * `currentViewerId`) -- disables the heart button on the viewer's own
-   * kudos (spec B.3.2/C.4.1). Omit and every heart stays enabled. */
   currentViewerId?: string;
-  /** Phase 07: real action wiring, mirrors `kudos-feed.tsx`'s own props. */
   onToggleHeart?: (id: string) => void;
   onCopyLink?: (id: string) => void;
   onHashtagClick?: (hashtagId: string) => void;
   likedIds?: ReadonlySet<string>;
 };
 
+/**
+ * The canvas row is exactly 1440 wide -- the frame width -- with cards at
+ * x0 / 552 / 1104 (528 + 24 gap) and 400px edge fades (B.2.1/B.2.2). That
+ * composition is kept as a 1440px stage centred on the page: identical to
+ * the canvas at 1440, and on wider viewports the stage (fades included)
+ * stays aligned with the centred content column instead of hugging the
+ * viewport's left edge. Inside the stage the scroller pads the active slot
+ * (552 left, 360 right) so `scrollTo(index * SLIDE_STEP)` lands card
+ * `index` at x552 with its predecessor at x0 -- the "2/5" state the frame
+ * captures.
+ */
 export function HighlightCarouselTrack({
   items,
   activeIndex,
@@ -50,35 +46,43 @@ export function HighlightCarouselTrack({
 }: HighlightCarouselTrackProps) {
   return (
     // mm:2940:13461
-    <div className="relative w-full">
+    <div className="relative mx-auto w-full max-w-[1440px] overflow-hidden">
       {/* mm:2940:13469 -- left edge fade (decorative, matches the B.2.1/B.2.2
           overlay gradients; see highlight-carousel-nav.tsx for why the
-          duplicate nav icons inside those gradients aren't re-rendered) */}
+          duplicate nav icons inside those gradients aren't re-rendered).
+          `z-[1]` only: the slides are static so any positive z paints over
+          them, while the header filter menus (z-10, earlier in the DOM) must
+          stay above these fades instead of being dimmed by them. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-100 bg-linear-to-r from-canvas to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-100 bg-linear-to-r from-canvas to-transparent"
       />
       {/* mm:2940:13467 -- right edge fade */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-100 bg-linear-to-l from-canvas to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-100 bg-linear-to-l from-canvas to-transparent"
       />
       {/* mm:2940:13463 */}
       <div
         ref={scrollRef}
         data-testid="kudos-board-highlight-carousel"
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-[calc(50%-504px)] scrollbar-none"
+        className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth scrollbar-none"
+        style={{
+          paddingLeft: ACTIVE_SLOT_LEFT,
+          paddingRight: ACTIVE_SLOT_RIGHT,
+          scrollPaddingLeft: ACTIVE_SLOT_LEFT,
+        }}
       >
         {items.map((slide, index) => {
           const isActive = index === activeIndex;
           return (
-            // mm:2940:13464 -- dimming is the edge-fade gradients below
+            // mm:2940:13464 -- dimming is the edge-fade gradients above
             // (verified 400px, matches 2940:13469/13467); no scale/opacity
             // on the card itself, matching the real design.
             <div
               key={slide.id}
               data-testid="kudos-board-carousel-slide"
-              className={`shrink-0 snap-center transition-opacity duration-300 ${
+              className={`shrink-0 snap-start transition-opacity duration-300 ${
                 isActive ? "opacity-100" : "opacity-90"
               }`}
               style={{ width: CARD_WIDTH }}
@@ -86,7 +90,9 @@ export function HighlightCarouselTrack({
               <KudosCard
                 view={slide}
                 variant="highlight"
-                canHeart={currentViewerId ? slide.sender.id !== currentViewerId : true}
+                canHeart={
+                  currentViewerId ? slide.sender.id !== currentViewerId : true
+                }
                 liked={likedIds?.has(slide.id)}
                 onToggleHeart={onToggleHeart}
                 onCopyLink={onCopyLink}
