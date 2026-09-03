@@ -100,9 +100,9 @@ then GREEN after implementation); `auth-guard.spec.ts` 5/5.
 
 | Deviation | Authorised by |
 |---|---|
-| Keyvisual photo (node `2167:5138`) not exportable → rendered as CSS gradient from node `313:8439` | `plans/clarifications.md` § 2026-08-28 Group 3 checkpoint |
+| Keyvisual photo (node `2167:5138`) not exportable via MoMorph → since 2026-09-03 two background layers: the Figma export at `/awards/keyvisual-bg.png` (pending) over a reconstruction from the Homepage keyvisual export (same 1458×2012 master, registration verified against the Kudos board export at 8.0/255 mean error); the 313:8439 cover gradient is drawn over both | `plans/clarifications.md` § 2026-09-03 (later) |
 | Badges reuse Homepage's `public/home/award-badge-*.png` exports | same session |
-| Section title casing: canvas `character` "Sun* Annual Awards 2025" vs spec CSV/implementation "Sun* annual awards 2025" — spec CSV wins | same session (canvas-vs-CSV precedence rule) |
+| Section title casing: canvas `character` "Sun* Annual Awards 2025" vs spec CSV "Sun* annual awards 2025" — **canvas wins since 2026-09-03** (eyebrow now "Sun* Annual Awards 2025" in both locales) | `plans/clarifications.md` § 2026-09-03 |
 | No award-nav item active on load without a hash (reference frame shows "Top Talent" active by default) | same session — "No default active; active only on click or valid hash; unknown hash → none." |
 
 ## Body-copy i18n (Phase 07b)
@@ -111,3 +111,27 @@ then GREEN after implementation); `auth-guard.spec.ts` 5/5.
 Signature-2025-Creator cards after two selector fixes (a generic label match hit all 6 cards; scoped
 to `[data-testid="award-info-card"][data-slug="..."]`). Visual verdict: PASS — layout unchanged
 between VN and EN (0px delta).
+
+## Pixel-parity pass (2026-09-03)
+
+Method as in `homepage.md`: the 72 Figma `TEXT` nodes of `list_frame_styles("zFYDgyj_pD")` joined
+to a 1440px Playwright DOM dump. Before: 1/72 matched, 66 mismatched — the section title sat 236px
+too low (rendered under a 547px hero band instead of over the artwork), the content column started
+81px too far left, the heading used the wrong family and the cards were 64px apart instead of 80.
+After: page height 6410px = canvas; title, caption, all six nav item boxes (139/146/178/165/95 ×
+56/72 at y703/775/847/935/1007/1095), card titles, labels, numbers and the Kudos banner match; the
+remaining rows are text-box width/"justified" naming, a 1-line wrap difference on "Tập thể", the
+spec-spelled nav labels, and the no-default-active rule. Capture:
+[img/award-system-desktop-1440-parity-260903.jpg](img/award-system-desktop-1440-parity-260903.jpg).
+
+| Fix | Figma node | Detail |
+|---|---|---|
+| Keyvisual + cover as absolute layers; Bìa column starts at y184 with 120px gaps | `313:8437`, `313:8439`, `313:8449` | new `award-keyvisual.tsx`; hero band removed |
+| Title block: centred eyebrow, rule, centred Montserrat 57/64 heading | `313:8453–8457` | was `font-heading`, left-aligned, `pt-20` |
+| mms_B: 178px nav + 853px column, space-between (121px) | `313:8458/8459/8466` | was `gap-10` (40) |
+| Nav items 16px apart, 0.25px tracking, selected rule as inset shadow | `313:8460–8465` | was `gap-1`, border |
+| Card: content column `gap: 32` with two 1px rules, 60px unit box, "Hoặc" + rule row, 80px + 853×1 rule after each card but the last | `I313:8467;214:2526…2771` | was `gap-16`, no rules, `divide-y py-8` |
+| Even cards flip with `order` so the 856px row overhangs right like the canvas | `313:8468` | was `flex-row-reverse` (3px left shift) |
+| Canvas-sized description boxes for Signature (360) / MVP (408) | `313:8479`, `I313:8510;214:2623` | `min-h` |
+| Sun* Kudos banner 1152×500, content 65px in, Montserrat title, 16px/700 button, lockup at right 78 / top 215 | `335:12023` | was `px-12`, `font-heading`, `text-sm` |
+| Site footer no longer wraps at 1440 (space-between, no horizontal gap) | `354:4323` | copyright had dropped to a second line |

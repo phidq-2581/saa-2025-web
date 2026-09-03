@@ -1,16 +1,22 @@
+import { Fragment } from "react";
 import { useTranslations } from "next-intl";
 
 type AwardInfoCardProps = {
   slug: string;
   index: number;
+  /** The D column's last card (D.6) ends on its content -- no trailing rule. */
+  isLast?: boolean;
 };
 
-/**
- * Shape of one `cardContent.<slug>` entry in `messages/<locale>/awards.json`.
- * `t.raw()` returns the raw catalog value untyped (next-intl does not
- * narrow nested message shapes), so this asserts the known JSON structure
- * rather than leaving it as an unchecked `any` at the call site below.
- */
+// Canvas description boxes taller than their text: the Figma TEXT nodes for
+// Signature (313:8479, 480x360) and MVP (I313:8510;214:2623, 480x408) are fixed
+// boxes with slack under the copy (the other four are auto-height), so the
+// rows below them start where the canvas puts them, not where the text ends.
+const DESCRIPTION_MIN_HEIGHT: Record<string, string> = {
+  "signature-2025-creator": "md:min-h-[360px]",
+  mvp: "md:min-h-[408px]",
+};
+
 type CardPrize = { amount: string; qualifier: string | null };
 type CardContent = {
   title: string;
@@ -21,56 +27,26 @@ type CardContent = {
 };
 
 /**
- * Award card (MoMorph D.1-D.6, `mms_D.1_...` info_block instances,
- * `313:8467`/`313:8468`/`313:8469`/`313:8470`/`313:8471`/`313:8510`).
+ * mms_D.1–D.6 award detail (313:8467…8510, 856 wide in the 853px D column):
+ * Frame 506 (row, gap 40) = 336x336 Picture-Award + 480px Content, then
+ * 80px below it the 853x1 var(--Details-Divider, #2E3940) rule (Rectangle
+ * 14) that closes every card but the last. Even cards flip picture and content
+ * with `order`, not `flex-row-reverse`: the 856px row overhangs the 853px
+ * column by 3px and the canvas keeps that overhang on the right either way -- the D column itself adds
+ * another 80 before the next card, and the Sun* Kudos banner follows D.6's
+ * content directly (120px, from Bìa's gap). Odd cards put the picture first, even cards the content.
  *
- * All title/description/quantity/prize text below is each card's own
- * `character` field read via `get_node`/`query_section` -- NOT the
- * `itemName` layer label, which for a component instance stays whatever
- * the master component was last named (e.g. every D.2/D.3/D.4/D.6 layer
- * still reads "Top Talent") and does not reflect a per-instance text
- * override. `awards.cardContent[slug]` in `messages/vi/awards.json`
- * holds the verified `character` values; `AWARD_CATEGORIES` (Phase 02)
- * is used only for the slug/order this component is mapped over, never
- * for card copy.
- *
- * Image box 336x336 with 24px radius (`mm_media_Award-Thumb-Background`,
- * one shared texture across all six). Layered on top is a per-card name
- * badge -- confirmed via `get_node` on each instance's own image child
- * (`mm_media_Award-Name-Top-Project` / `-Top-Project-Leader` /
- * `-Best-Manager` / `-Signature-2025-Creator` / `-MVP`, each a distinct
- * componentId/child fill, so these are genuinely different per-card
- * assets, not a duplicate). `get_media_files` returns `null` for five of
- * the six on this screen (export settings missing on the instance
- * override), so this reuses the Homepage screen's badge exports
- * (`public/home/award-badge-{slug}.png`, same design system, already
- * pulled from MoMorph this session) rather than leaving five cards
- * badgeless.
- *
- * Zigzag: card index 0/2/4 (Top Talent, Top Project Leader, Signature)
- * use component `214:2554` / the plain D.5 frame with the image child
- * first (image left, content right); index 1/3/5 (Top Project, Best
- * Manager, MVP) use component `214:2646` with content first (content
- * left, image right) -- confirmed per-card by each instance's own child
- * order and x-position, alternates cleanly by index parity. Mobile
- * always stacks image above content.
- *
- * Typography/sizing pass (Phase 06 correction, values from `get_node` on
- * the Top Talent card): title 24/700/lh32 gold (`I313:8468;214:2622`);
- * description 16/700/lh24/ls0.5px/justify, width 480px, white
- * (`I313:8468;214:2623`); quantity label 24/700/lh32 gold + number
- * 36/700/lh44 white + unit 14/700/lh20/ls0.1px white on ONE row, icon to
- * label gap 16px, label to number-group gap 16px, number to unit gap 8px
- * (`I313:8467;214:2536/2538/3532`); prize label 24/700/lh32 gold on its
- * OWN row, amount 36/700/lh44 white on the next row (content-edge
- * aligned, no icon indent), qualifier 14/700/lh20/ls0.1px white on the
- * row below that, each row 16px apart (`I313:8467;214:2544/2546/2547`);
- * "Hoặc" connector between two prize blocks 14/700/lh20/ls0.1px,
- * `--color-divider` (`313:8499`), 32px above and below. Vertical rhythm
- * (description end -> quantity row -> prize label row, each 64px apart)
- * drives the card from ~400px tall to the ~700px the reference shows.
+ * Content (214:2526, radius 16, backdrop blur 32) is a column with `gap:
+ * 32px` whose items are: [title row (24px icon, 16px gap, 24px/700/32px
+ * gold title) + 24px + justified 16px/700/24px 0.5px description] · 1px
+ * rule · [quantity row: diamond, 16px, gold label, 16px, 36px/700/44px
+ * number, 8px, 14px/700/20px unit in a 60px box -- the canvas wraps "Cá
+ * nhân" onto two lines and "Cá nhân hoặc tập thể" onto four] · 1px rule ·
+ * one prize block per prize (label row, 16px, amount, 16px, qualifier),
+ * with the Signature card's two prizes separated by Frame 524: "Hoặc" in
+ * the divider colour + a 1px rule filling the rest of the row (313:8499/8500).
  */
-export function AwardInfoCard({ slug, index }: AwardInfoCardProps) {
+export function AwardInfoCard({ slug, index, isLast = false }: AwardInfoCardProps) {
   const t = useTranslations("awards");
   const contentKey = `cardContent.${slug}`;
   if (!t.has(contentKey)) return null;
@@ -87,84 +63,84 @@ export function AwardInfoCard({ slug, index }: AwardInfoCardProps) {
   };
 
   const imageOnRight = index % 2 === 1;
+  const labelClassName = "font-body text-2xl leading-8 font-bold text-gold";
+  const smallClassName = "font-body text-sm leading-5 font-bold tracking-[0.1px] text-white";
+  const bigClassName = "font-body text-4xl leading-11 font-bold text-white";
 
   return (
+    // mm:313:8467
     <section
       id={slug}
       data-testid="award-info-card"
       data-slug={slug}
-      className={`scroll-mt-24 flex flex-col gap-8 py-8 md:flex-row md:gap-10 ${
-        imageOnRight ? "md:flex-row-reverse" : ""
-      }`}
+      className="scroll-mt-24 flex w-full flex-col gap-20"
     >
-      <div className="relative flex h-55 w-55 shrink-0 items-center justify-center self-center overflow-hidden rounded-3xl border border-gold shadow-(--shadow-glow-gold) md:h-84 md:w-84">
-        <img
-          src="/awards/award-thumb-bg.png"
-          alt=""
-          width={336}
-          height={336}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <img
-          src={`/home/award-badge-${slug}.png`}
-          alt=""
-          className="relative z-1 max-w-[70%]"
-        />
-      </div>
-      <div className="flex flex-1 flex-col gap-16 rounded-2xl backdrop-blur-xl">
-        <div className="flex flex-col gap-8">
-          <div className="flex items-center gap-2">
-            <img src="/awards/target-icon.svg" alt="" width={24} height={24} />
-            <h3 className="text-2xl leading-8 font-bold text-gold">{content.title}</h3>
-          </div>
-          <p className="w-full text-justify text-base leading-6 font-bold tracking-[0.5px] text-white md:w-120">
-            {content.description}
-          </p>
+      {/* mm:I313:8467;214:2803 */}
+      <div className="flex flex-col gap-8 md:flex-row md:gap-10">
+        {/* mm:I313:8467;214:2525 */}
+        <div
+          className={`relative flex h-55 w-55 shrink-0 items-center justify-center self-center overflow-hidden rounded-3xl border border-gold shadow-(--shadow-glow-gold) md:h-84 md:w-84 md:self-start ${imageOnRight ? "md:order-2" : ""}`}
+        >
+          <img src="/awards/award-thumb-bg.png" alt="" width={336} height={336} className="absolute inset-0 h-full w-full object-cover" />
+          <img src={`/home/award-badge-${slug}.png`} alt="" className="relative z-1 max-w-[70%]" />
         </div>
-        <div className="flex flex-col gap-16">
+
+        {/* mm:I313:8467;214:2526 */}
+        <div className="flex w-full shrink-0 flex-col gap-8 rounded-2xl backdrop-blur-[32px] md:w-120">
+          {/* mm:I313:8467;214:2527 */}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <img src="/awards/target-icon.svg" alt="" width={24} height={24} />
+              <h3 className={labelClassName}>{content.title}</h3>
+            </div>
+            <p
+              className={`w-full text-justify font-body text-base leading-6 font-bold tracking-[0.5px] text-white ${DESCRIPTION_MIN_HEIGHT[slug] ?? ""}`}
+            >
+              {content.description}
+            </p>
+          </div>
+          {/* mm:I313:8467;214:2532 */}
+          <hr className="w-full border-t border-divider" />
+          {/* mm:I313:8467;214:2534 */}
           <div className="flex items-center gap-4">
             <img src="/awards/diamond-icon.svg" alt="" width={24} height={24} />
-            <span className="text-2xl leading-8 font-bold text-gold">
-              {t("card.quantityLabel")}
-            </span>
+            <span className={labelClassName}>{t("card.quantityLabel")}</span>
             <div className="flex items-center gap-2">
-              <span className="text-4xl leading-11 font-bold text-white">
-                {content.quantityValue}
-              </span>
-              <span className="text-sm leading-5 font-bold tracking-[0.1px] text-white">
-                {content.quantityUnit}
-              </span>
+              <span className={bigClassName}>{content.quantityValue}</span>
+              <span className={`w-[60px] ${smallClassName}`}>{content.quantityUnit}</span>
             </div>
           </div>
+          {/* mm:I313:8467;214:2539 */}
+          <hr className="w-full border-t border-divider" />
+          {/* mm:I313:8467;214:2540 */}
           <div className="flex flex-col gap-8">
             {content.prizes.map((prize, prizeIndex) => (
-              <div key={prize.amount} className="flex flex-col gap-8">
+              <Fragment key={prize.amount}>
                 {prizeIndex > 0 && (
-                  <p className="pl-8 text-sm leading-5 font-bold tracking-[0.1px] text-divider">
-                    {t("card.orConnector")}
-                  </p>
+                  // mm:313:8498
+                  <div className="flex items-center gap-2">
+                    <span className="font-body text-sm leading-5 font-bold tracking-[0.1px] text-divider">
+                      {t("card.orConnector")}
+                    </span>
+                    <hr className="flex-1 border-t border-divider" />
+                  </div>
                 )}
+                {/* mm:I313:8467;214:2541 */}
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4">
                     <img src="/awards/license-icon.svg" alt="" width={24} height={24} />
-                    <span className="text-2xl leading-8 font-bold text-gold">
-                      {t("card.prizeLabel")}
-                    </span>
+                    <span className={labelClassName}>{t("card.prizeLabel")}</span>
                   </div>
-                  <span className="text-4xl leading-11 font-bold text-white">
-                    {prize.amount}
-                  </span>
-                  {prize.qualifier && (
-                    <span className="text-sm leading-5 font-bold tracking-[0.1px] text-white">
-                      {prize.qualifier}
-                    </span>
-                  )}
+                  <span className={bigClassName}>{prize.amount}</span>
+                  {prize.qualifier && <span className={smallClassName}>{prize.qualifier}</span>}
                 </div>
-              </div>
+              </Fragment>
             ))}
           </div>
         </div>
       </div>
+      {/* mm:I313:8467;214:2771 -- absent on D.6 (313:8510), which ends on its content */}
+      {isLast ? null : <hr className="w-full border-t border-divider" />}
     </section>
   );
 }

@@ -33,8 +33,11 @@ function getServerHashSnapshot() {
   return "";
 }
 
-// Row height per `get_node` on each C.1-C.6 child of `mms_C_Menu list`
-// (313:8459): every item is 56px tall (single-line label) except the two
+// mms_C_Menu list (313:8459): items 16px apart, each `padding: 16px`, `gap: 4px`
+// (24px icon + 14px/700/20px label with 0.25px tracking, radius 4); the
+// selected item swaps the radius for a 1px gold bottom rule (an inset
+// shadow here so the 56px box does not grow) and gold glowing text.
+// Row height per `get_node` on each C.1-C.6 child: every item is 56px tall (single-line label) except the two
 // whose label wraps to 2 lines in the design -- C.3 "Top Project\nLeader"
 // (313:8462, endY919-startY847=72) and C.5 "Signature 2025 \nCreator"
 // (313:8464, endY1079-startY1007=72). `h-14`(56)/`h-18`(72) + `p-4`(16px,
@@ -106,7 +109,7 @@ export function AwardCategoryNav({ categories }: AwardCategoryNavProps) {
 
   return (
     <nav data-testid="award-category-nav" aria-label={t("nav.ariaLabel")} className="md:w-44.5">
-      <ul className="flex flex-col items-start gap-1">
+      <ul className="flex flex-col items-start gap-4">
         {categories.map((category) => {
           const isActive = category.slug === activeSlug;
           const rowHeight = TWO_LINE_ROW_SLUGS.has(category.slug) ? "h-18" : "h-14";
@@ -122,10 +125,10 @@ export function AwardCategoryNav({ categories }: AwardCategoryNavProps) {
                 data-slug={category.slug}
                 aria-current={isActive ? "true" : undefined}
                 onClick={() => handleSelect(category.slug)}
-                className={`flex items-center gap-1 rounded-chip p-4 text-left font-body text-sm leading-5 font-bold whitespace-normal ${rowHeight} ${
+                className={`flex items-center gap-1 p-4 text-left font-body text-sm leading-5 font-bold tracking-[0.25px] whitespace-normal ${rowHeight} ${
                   isActive
-                    ? "border-b border-gold text-gold text-shadow-(--shadow-glow-gold)"
-                    : "text-white"
+                    ? "text-gold shadow-[inset_0_-1px_0_#FFEA9E] text-shadow-(--shadow-glow-gold)"
+                    : "rounded-chip text-white"
                 }`}
               >
                 <img src="/awards/target-icon.svg" alt="" width={24} height={24} />

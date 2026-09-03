@@ -1,40 +1,30 @@
 import { useTranslations } from "next-intl";
 
 /**
- * Keyvisual hero (MoMorph item 3, `mms_3_Keyvisual`). specs.csv row 3
- * describes a single flattened background photo (1200x871 per the
- * description; the actual node `2167:5138` renders at 1440x547) with the
- * title "ROOT FURTHER" and subtitle "Sun* Annual Award 2025" baked into the
- * artwork -- neither string is a separate Figma TEXT node (query_by_type
- * confirms no text node exists in this item's subtree). The background
- * photo itself has no `mm_media_*` export (list_media_nodes: 35 assets, none
- * covering `2167:5138`), so this renders the "Cover" node's own linear
- * gradient (`313:8439`, canvas navy fading to transparent) as the documented
- * fallback fill and exposes the baked-in copy as real text so it stays
- * screen-reader visible -- see report Concerns for this asset gap.
+ * KV (313:8450) -- the first Bìa child of the Hệ thống giải frame: a 1152px
+ * row holding only the 338x150 ROOT FURTHER wordmark (2789:12915) at
+ * y184, i.e. 96px under the 88px header offset. The keyvisual artwork it
+ * sits on is not this component's concern -- `award-keyvisual.tsx` paints
+ * it behind the whole column -- so this is an in-flow block, not a hero
+ * band with its own height. The visible wordmark is decorative; the
+ * heading and eyebrow stay as visually-hidden text for the accessibility
+ * tree and the E2E text contract.
  */
 export function AwardHero() {
   const t = useTranslations("awards");
   return (
-    <section
-      data-testid="award-hero"
-      className="relative flex h-[420px] w-full items-end overflow-hidden bg-canvas md:h-[547px]"
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/40 to-transparent"
+    // mm:313:8450
+    <section data-testid="award-hero" className="flex w-full flex-col gap-10">
+      {/* mm:2789:12915 */}
+      <img
+        src="/awards/root-further-logo.png"
+        alt={t("hero.logoAlt")}
+        width={338}
+        height={150}
+        className="h-[150px] w-[338px] max-w-full"
       />
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-36">
-        <img
-          src="/awards/root-further-logo.png"
-          alt={t("hero.logoAlt")}
-          width={338}
-          height={150}
-          className="h-auto w-[220px] md:w-[338px]"
-        />
-        <h1 className="sr-only">{t("hero.title")}</h1>
-        <p className="sr-only">{t("hero.subtitle")}</p>
-      </div>
+      <h1 className="sr-only">{t("hero.title")}</h1>
+      <p className="sr-only">{t("hero.subtitle")}</p>
     </section>
   );
 }
