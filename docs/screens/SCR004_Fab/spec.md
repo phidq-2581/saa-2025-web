@@ -49,7 +49,7 @@ A pill-shaped button floats fixed at the bottom-right of the viewport. Collapsed
 
 1. Authenticated user sees the collapsed widget (R1) floating at the bottom-right.
 2. User clicks R1; it expands to show R2 (Thể lệ, Viết KUDOS) and R3 (Hủy).
-3. User clicks Viết KUDOS; F005's Viết Kudo compose modal opens (`docs/screens/SCR007_KudosCompose/spec.md`, wired since Phase 03/round 2). User clicks Thể lệ; still nothing opens — that destination remains deferred.
+3. User clicks Viết KUDOS; F005's Viết Kudo compose modal opens (`docs/screens/SCR007_KudosCompose/spec.md`, wired since Phase 03/round 2). User clicks Thể lệ; the Thể lệ panel (MoMorph `b1Filzi9i6`, `src/components/rules/rules-panel.tsx`) slides in from the right — since 2026-09-03.
 4. User clicks Hủy, clicks outside the widget, or clicks R1 again; the widget collapses back to R1.
 
 ### Branches
@@ -64,7 +64,7 @@ A pill-shaped button floats fixed at the bottom-right of the viewport. Collapsed
 |-------|---------|-------------------|--------------------------|--------|
 | hidden | no session | widget not rendered | none | TBD (draft) |
 | collapsed | default, authenticated | pill widget only (R1) | click to expand | TBD (draft) |
-| expanded | R1 clicked | R2 + R3 visible | click Viết KUDOS to open F005's compose modal (collapses the widget first), click Thể lệ (no-op, still deferred), click Hủy to collapse | SCR007_KudosCompose/spec.md |
+| expanded | R1 clicked | R2 + R3 visible | click Viết KUDOS to open F005's compose modal (collapses the widget first), click Thể lệ to open the Thể lệ panel (its own "Viết KUDOS" hands off to the compose modal), click Hủy to collapse | SCR007_KudosCompose/spec.md |
 
 ## Validation & Error Feedback
 

@@ -3,6 +3,7 @@ import { getCurrentProfile } from "@/lib/profile/get-current-profile";
 import { getRecipients } from "@/lib/kudos/queries/get-recipients";
 import { getFilterOptions } from "@/lib/kudos/queries/get-filter-options";
 import { FabWidget } from "./fab-widget";
+import { RulesPanel } from "@/components/rules/rules-panel";
 
 /**
  * Server container for `FabWidget` -- renders only for an authenticated
@@ -19,7 +20,14 @@ import { FabWidget } from "./fab-widget";
 export async function FabWidgetContainer() {
   const profile = await getCurrentProfile();
   if (!profile) {
-    return <FabWidget visible={false} />;
+    // No FAB for a guest, but the footer's "Tiêu chuẩn chung" still opens the
+    // Thể lệ panel -- with "Viết KUDOS" in its disabled state (no session).
+    return (
+      <>
+        <FabWidget visible={false} />
+        <RulesPanel writeDisabled />
+      </>
+    );
   }
 
   const supabase = await createClient();

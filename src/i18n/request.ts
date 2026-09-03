@@ -20,7 +20,7 @@ export function isLocale(value: string | undefined): value is Locale {
  * Phase 01 (round 2) registers empty `compose`/`kudos`/`profile` catalogues
  * ahead of the screens that fill them (03/04/06), so two concurrent phases
  * never edit the same shared file. */
-const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile"] as const;
+const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile", "rules"] as const;
 
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();

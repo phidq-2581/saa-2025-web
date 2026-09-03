@@ -13,6 +13,8 @@ import kudosVi from "../../../messages/vi/kudos.json";
 import kudosEn from "../../../messages/en/kudos.json";
 import profileVi from "../../../messages/vi/profile.json";
 import profileEn from "../../../messages/en/profile.json";
+import rulesVi from "../../../messages/vi/rules.json";
+import rulesEn from "../../../messages/en/rules.json";
 
 // Phase 03 owned exactly one namespace file ("common"); Phase 07 extends
 // this list to the full seven-screen set (adds the Kudos cluster: compose,
@@ -24,7 +26,7 @@ import profileEn from "../../../messages/en/profile.json";
 // machine translation -- so vi===en for a given key is an EXPECTED,
 // intentional value here, not a bug this test should flag; the actual gap
 // list lives in docs (traceability), not in the runtime catalogs.
-const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile"] as const;
+const NAMESPACES = ["common", "login", "home", "awards", "compose", "kudos", "profile", "rules"] as const;
 const CATALOGS: Record<
   (typeof NAMESPACES)[number],
   { vi: Record<string, unknown>; en: Record<string, unknown> }
@@ -36,6 +38,7 @@ const CATALOGS: Record<
   compose: { vi: composeVi, en: composeEn },
   kudos: { vi: kudosVi, en: kudosEn },
   profile: { vi: profileVi, en: profileEn },
+  rules: { vi: rulesVi, en: rulesEn },
 };
 
 // `awards.json` carries a genuine array field (`cardContent.*.prizes`), so

@@ -3,6 +3,7 @@
 import type { ComponentType } from "react";
 import type { Editor } from "@tiptap/react";
 import { useTranslations } from "next-intl";
+import { useRulesPanel } from "@/components/rules/rules-panel-context";
 import {
   IconBold,
   IconItalic,
@@ -73,6 +74,7 @@ const BUTTONS: ToolbarButton[] = [
  */
 export function EditorToolbar({ editor, onOpenAddLink }: EditorToolbarProps) {
   const t = useTranslations("compose.toolbar");
+  const { open: openRules } = useRulesPanel();
   if (!editor) return null;
 
   return (
@@ -114,13 +116,14 @@ export function EditorToolbar({ editor, onOpenAddLink }: EditorToolbarProps) {
       >
         <IconQuote className="h-5 w-5 text-canvas" />
       </button>
-      {/* mm:I520:11647;3053:11619 -- decorative, no destination this round */}
-      <span
-        aria-disabled="true"
+      {/* mm:I520:11647;3053:11619 -- opens the Thể lệ panel (clarifications 2026-09-03) */}
+      <button
+        type="button"
+        onClick={openRules}
         className="ml-2 flex h-10 items-center px-4 font-body text-base font-bold text-[#E46060]"
       >
         {t("communityStandards")}
-      </span>
+      </button>
     </div>
   );
 }

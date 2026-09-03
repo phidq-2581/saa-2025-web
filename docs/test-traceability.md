@@ -565,3 +565,19 @@ Translated (13): `addlink.cancel`, `addlink.save`, `addlink.textLabel`, `addlink
 `recipient.label`, `recipient.placeholder`, `title`, `toolbar.communityStandards`.
 
 **`profile.json`** — 1 of 1 key mirrored: `developing`.
+
+## Thể lệ panel (`docs/momorph/the-le-update/test-cases.csv`, 9 cases) — added 2026-09-03
+
+Screen `b1Filzi9i6`, delivered e2e-red-first (see `docs/visual-qa/rules-panel.md`).
+
+| TC ID | Category / objective | Expected result | Test file : test title | Status |
+|---|---|---|---|---|
+| TC_THELE_GUI_001 | Layout / every declared element | Title, description, reward list, 6 badges, footer "Đóng" + "Viết KUDOS" | e2e/rules-panel.spec.ts: "footer 'Tiêu chuẩn chung' opens the panel with every declared element" | covered |
+| TC_THELE_GUI_002 | Layout / footer button styling | "Đóng" secondary + X icon, "Viết KUDOS" primary gold + pen | same test (labels asserted; colours verified by the visual-qa measurement, not by e2e) | covered |
+| TC_THELE_GUI_003 | Init / disabled footer button dimmed | Disabled button dimmed | e2e/rules-panel.spec.ts: "guest sees 'Viết KUDOS' disabled and dimmed…" (opacity < 1) | covered |
+| TC_THELE_GUI_004 | Init / hover restyles buttons | Hover changes colour/elevation | none | not-covered (reason: no hover styles specified by MoMorph beyond "thay đổi màu/độ nổi"; none implemented — visual-contract item, see clarifications) |
+| TC_THELE_FUN_001 | Interaction / scroll when overflowing | Content scrolls to its end | e2e/rules-panel.spec.ts: "panel content scrolls to its end when it overflows" | covered |
+| TC_THELE_FUN_002 | Interaction / no scroll when content fits | Content fixed | none | not-covered (reason: the canvas copy is always taller than a 1024-high viewport; a fits-case would need a viewport ≥ 1410px — trivially true of `overflow-y: auto`) |
+| TC_THELE_FUN_003 | Interaction / "Đóng" closes | Panel closes, page shown | e2e/rules-panel.spec.ts: "'Đóng' closes the panel and the page is shown again" | covered |
+| TC_THELE_FUN_004 | Navigation / "Viết KUDOS" opens the form | Compose modal opens | none automated; verified 2026-09-03 with the viewer's real session (Playwright probe: FAB → Thể lệ → "Viết KUDOS" closes the panel and opens `kudos-compose-dialog`; toolbar "Tiêu chuẩn cộng đồng" reopens the panel above it, z 30/20) | not-covered (reason: needs a seeded session for an automated run — add to the authenticated fixture once a local Supabase is available) |
+| TC_THELE_FUN_005 | State / disabled button rejects clicks | Nothing happens | e2e/rules-panel.spec.ts: "guest sees 'Viết KUDOS' disabled and dimmed; clicking it does nothing" | covered |

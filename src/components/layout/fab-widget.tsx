@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { HashtagRef, KudosAuthor } from "@/lib/kudos/types";
 import { ComposeDialogContainer } from "@/components/kudos/containers/compose-dialog-container";
+import { RulesPanel } from "@/components/rules/rules-panel";
+import { useRulesPanel } from "@/components/rules/rules-panel-context";
 
 export type FabWidgetProps = {
   /** Session gating is Phase 07's job; default true keeps the shell visible now. */
@@ -35,8 +37,9 @@ export type FabWidgetProps = {
  * redundant control is ever reachable. The toggle's own accessible name
  * (`fab.toggle`) never changes with expanded state -- only `aria-expanded`
  * communicates that; the cancel button inside the menu carries its own
- * localized name (`fab.cancel`). Both Thể lệ/Viết KUDOS destinations render
- * only, no navigation (BR-004, SM-002_FabWidgetState).
+ * localized name (`fab.cancel`). "Viết KUDOS" opens the compose dialog and,
+ * since 2026-09-03, "Thể lệ" opens the shared Thể lệ panel (b1Filzi9i6) whose
+ * own "Viết KUDOS" hands off to the same dialog.
  */
 export function FabWidget({
   visible = true,
@@ -46,6 +49,7 @@ export function FabWidget({
 }: FabWidgetProps) {
   const [expanded, setExpanded] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
+  const { open: openRules } = useRulesPanel();
   const t = useTranslations("common");
 
   if (!visible) return null;
@@ -59,7 +63,10 @@ export function FabWidget({
       >
         <button
           type="button"
-          onClick={() => setExpanded(false)}
+          onClick={() => {
+            setExpanded(false);
+            openRules();
+          }}
           className="flex h-16 w-[149px] items-center gap-2 rounded-chip bg-gold p-4 font-body text-2xl font-bold text-canvas"
         >
           <img src="/nav/fab-icon-rules.svg" alt="" width={24} height={24} aria-hidden="true" />
@@ -109,6 +116,8 @@ export function FabWidget({
         hashtags={hashtags}
         currentViewerId={currentViewerId}
       />
+      {/* Thể lệ panel (b1Filzi9i6); its "Viết KUDOS" hands off to the compose dialog above */}
+      <RulesPanel onWriteKudos={() => setComposeOpen(true)} />
     </div>
   );
 }

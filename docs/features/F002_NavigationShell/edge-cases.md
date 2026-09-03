@@ -7,7 +7,7 @@ lang: en
 
 | Scenario | What Happens | User-Facing Message |
 |----------|--------------|----------------------|
-| User clicks the footer's "Tiêu chuẩn chung" button | Button renders but its destination is unresolved; no navigation occurs | "None — silent handling" |
+| User clicks the footer's "Tiêu chuẩn chung" button | Opens the Thể lệ panel (`b1Filzi9i6`) as a right-hand drawer over the page; since 2026-09-03 | "None — silent handling" |
 | Admin's account menu shows "Dashboard" and the user clicks it | Row renders as a normal menu item, but the destination route does not exist yet, so nothing happens | "None — silent handling" |
 | A member somehow reaches an admin-only affordance (e.g. stale cached HTML) | The menu re-derives from the current role on every render; a member never sees the Dashboard row regardless of cached markup | "None — menu re-renders from the live role" |
 | User clicks the notification bell | No panel opens this round (the panel is a deferred, unfinished screen); only the badge is functional | "None — panel not available yet" |

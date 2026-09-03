@@ -1,6 +1,7 @@
 import { SiteHeaderContainer } from "@/components/layout/site-header-container";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { FabWidgetContainer } from "@/components/layout/fab-widget-container";
+import { RulesPanelProvider } from "@/components/rules/rules-panel-context";
 
 /**
  * Shell for every site page (header/footer/FAB). Split out of the root
@@ -15,11 +16,13 @@ import { FabWidgetContainer } from "@/components/layout/fab-widget-container";
  */
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
-    <>
+    // The Thể lệ panel's open state is shared by the footer trigger, the FAB
+    // and the compose toolbar, so the provider wraps the whole shell.
+    <RulesPanelProvider>
       <SiteHeaderContainer />
       {children}
       <SiteFooter />
       <FabWidgetContainer />
-    </>
+    </RulesPanelProvider>
   );
 }
