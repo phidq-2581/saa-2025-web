@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
-import { montserrat, montserratAlternates } from "@/lib/fonts";
+import { dseg7Classic, montserrat, montserratAlternates } from "@/lib/fonts";
 import { AppProviders } from "./providers";
 import "./globals.css";
 
@@ -26,7 +26,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
-      className={`${montserrat.variable} ${montserratAlternates.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${montserratAlternates.variable} ${dseg7Classic.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-canvas text-white">
         <AppProviders>{children}</AppProviders>

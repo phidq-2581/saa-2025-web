@@ -57,6 +57,8 @@
   --font-body: var(--font-montserrat);
   /* Footer copyright line -> fontFamily "Montserrat Alternates" */
   --font-heading: var(--font-montserrat-alternates);
+  /* Countdown digits (186:2617 fontFamily "Digital Numbers") -> DSEG7 Classic substitute, see clarifications.md */
+  --font-digital: var(--font-dseg7);
 }
 
 body {
