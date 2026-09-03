@@ -12,5 +12,6 @@
 - [kudos-detail.md](kudos-detail.md) — kudos detail
 - [login.md](login.md) — login
 - [navigation-shell.md](navigation-shell.md) — navigation shell
+- [rules-panel.md](rules-panel.md) — Thể lệ panel
 
 <!-- end-generated -->

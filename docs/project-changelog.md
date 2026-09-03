@@ -5,6 +5,34 @@ Reverse-chronological record of delivered work. Round 1 entries are per delivery
 from `plans/260831-2303-saa-2025-web-kudos-round-2/`. See `docs/development-roadmap.md` for
 phase status and `docs/test-traceability.md` / `docs/visual-qa/` for verification evidence.
 
+## 2026-09-03 — Pixel-parity pass: Homepage + Login vs Figma canvas
+
+- **Method**: MoMorph `list_frame_styles` node positions (Homepage `i87tDx10uM` at 1512, Login
+  `GzbNeVGJHz` at 1440) joined by text to Playwright DOM measurements; 55 + 4 text nodes compared on
+  geometry/typography. Homepage went from 0/55 matched to canvas-exact except state (hidden
+  "Coming soon", guest header) and Figma's `81.92px` tile rounding; Login 3/4 exact, the 4th a
+  Figma text-box quirk. Evidence and per-node fix table in `docs/visual-qa/{homepage,login}.md`.
+- **Product fixes** (`src/components/layout/*`, `homepage/*`, `login/*`): header/footer nav items
+  are real 52/56px buttons with 16px padding and letter-spacing; language trigger uses the 24×24
+  icon box; CTA pair 60px with 8px icon gap and inset stroke; Root Further rhythm 102/32/101;
+  awards header→grid 80, rows 80, cards 336 with 108 gutters, no clamp; Kudos promo 500 tall,
+  64px inset, 364px lockup at its node offset; footer 144 incl. top rule; Login content block
+  vertically centred in Bìa (was 112px high), footer 91, keyvisual layers moved to the route-group
+  layout (`login-keyvisual.tsx`).
+- **Decisions** (`plans/clarifications.md` § 2026-09-03): canvas beats spec CSV for content —
+  event info now `26/12/2025` / `Âu Cơ Art Center` / `… qua sóng Livestream` (both locales, e2e
+  updated), awards sub-description removed, card descriptions unclamped; countdown digits switch
+  to DSEG7 Classic (`dseg` dependency, `--font-digital`); Login keyvisual awaits a manual Figma
+  export to `public/login/keyvisual-bg.png` (drawn `cover`, CSS background).
+- **Hệ thống giải + Kudos board (same day, with the viewer's real session)**: `/he-thong-giai` rebuilt to the frame's Bìa column — keyvisual + cover as absolute layers (`award-keyvisual.tsx`, art export pending), title over the art, 178/853 space-between columns, card content `gap: 32` with rules, canvas-sized description boxes, trailing rule on all cards but the last; page height now 6410 = canvas. `/kudos`: 1152 column at x144, compose pill inside the 72px KV button row, filters on the HIGHLIGHT heading row, full-width ALL KUDOS header, 680/422 columns, Frame 552 insets, carousel kept as a centred 1440px stage, spotlight box 1157×548; inset strokes replace CSS borders where the canvas measures inner offsets; copy "Hệ thống ghi nhận và cảm ơn" / "Mở Secret Box"; gift list above rank list. Site footer no longer wraps at 1440. Details: `docs/visual-qa/{award-system,kudos-board}.md` § Pixel-parity pass.
+- **Thể lệ panel (evening, MoMorph `b1Filzi9i6`)**: new `src/components/rules/*` — right-hand drawer (553px, #00070C, scrollable content, "Đóng" + "Viết KUDOS" footer) with the four Hero tiers, the six badges and the KUDOS QUỐC DÂN rule, copy from the canvas `character` fields (`messages/*/rules.json`, new `rules` namespace). Opened by the footer's "Tiêu chuẩn chung" (now a real trigger), the FAB's "Thể lệ" and the compose toolbar's "Tiêu chuẩn cộng đồng"; a guest's "Viết KUDOS" is disabled, a member's hands off to the compose dialog. TDD: `e2e/rules-panel.spec.ts` RED (exit 1, 5 failing) → GREEN (5/5, same command). `HeroTierBadge` gained a `size="md"` variant. REVIVAL badge asset pending Figma export.
+- **Hero tooltip clipped in the carousel (evening)**: the "Hover danh hiệu" card opened upward from the pill row and the HIGHLIGHT KUDOS track (`overflow-x-auto` inside an `overflow-hidden` stage) cut off its top. It now opens below the pill (`top-full mt-1`); placement was never on the canvas.
+- **Filter menus vs carousel fades (evening)**: the HIGHLIGHT KUDOS edge fades (`mm:2940:13467/13469`) sat at `z-10`, the same layer as the Hashtag / Phòng ban dropdown menus but later in the DOM, so an open menu was dimmed by the right-hand gradient. Fades lowered to `z-[1]` (only need to beat the static slides); menus stay `z-10` and hero tooltips (`z-10`) still paint above the fades.
+- **Hero pills + hover (evening)**: `HeroTierBadge` now renders the MoMorph pill exports (all four tiers; New Hero hand-exported at 2× since MoMorph has no file for it) at 109×19 on cards and 126×22 in the Thể lệ panel, and carries the designed hover card from the "Hover danh hiệu *" frames (304×192, 2× pill, white range / grey description; RED→GREEN unit tests). Card and leaderboard avatars turn their ring gold on hover per "Hover Avatar info user" (721:5827). The spec's "preview profile" popover is blocked: its frame ("Infor - HoverAvatar", 405:5274) is not synced in MoMorph.
+- **Campaign hover (evening)**: the sidebar x2 marker now opens the "Hover campain" card (frame 3241:15021) with the real special-day window (`campaign-window.ts`, RED→GREEN unit tests); `KudosBoardContainer` derives `campaign` from `special_days` instead of a boolean. Fire art delivered as a hand export of Group 435 (label baked in, 114×133) at `public/kudos-board/campaign-x2.png`, rendered as a plain image in both the 34×40 marker and the 56×66 card slot.
+- **Not done**: Profile page is still the stub (full feature, separate phase); "Tìm kiếm profile Sunner" pill deferred with it.
+- **Gate**: typecheck clean, lint 0 errors, vitest 292/292, `next build` OK; e2e — see roadmap row 9.
+
 ## 2026-09-02 — Post-Group-4 docs verification: nav-link fix, validateImages wiring, gen-gate re-baseline
 
 - **Gen-gate re-baseline**: `docs/generated/*` (11 artifacts + permissions-matrix) and
